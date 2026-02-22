@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+google-cloud-aiplatform
+xarray
+dask
+netCDF4
+numpy
+pandas

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>aimeteo.it | AI Weather Engine</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <!-- Background Elements for Rich Aesthetics -->
+    <div class="bg-gradient"></div>
+    <div class="bg-mesh"></div>
+
+    <div class="app-container">
+        <header>
+            <div class="logo">
+                <i data-lucide="cloud-lightning" class="brand-icon"></i>
+                <h1>aimeteo.it</h1>
+                <span class="badge">GenCast Model Beta</span>
+            </div>
+            <div class="status-indicator">
+                <div class="status-dot"></div>
+                <span id="backend-status">Connecting...</span>
+            </div>
+        </header>
+
+        <main>
+            <section class="controls">
+                <div class="input-group">
+                    <i data-lucide="map-pin" class="input-icon"></i>
+                    <select id="location-select">
+                        <!-- 45.4642, 9.1900 -->
+                        <option value="45.4642,9.1900">Milan, Italy</option>
+                        <!-- 41.8902, 12.4922 -->
+                        <option value="41.8902,12.4922">Rome, Italy</option>
+                        <!-- 40.7128, -74.0060 -->
+                        <option value="40.7128,-74.0060">New York, NY (Upper West Side)</option>
+                    </select>
+                </div>
+                <button id="fetch-btn" class="primary-btn">
+                    <i data-lucide="refresh-cw" id="refresh-icon"></i>
+                    Run AI Inference
+                </button>
+            </section>
+
+            <section class="dashboard">
+                <div class="target-summary" id="target-summary" style="display: none;">
+                    <!-- Filled via JS -->
+                </div>
+
+                <div class="grid-container">
+                    <div class="grid-header">
+                        <h2>Hyper-local Grid (1km x 1km)</h2>
+                        <span class="subtitle">Simulated Google WeatherNext 2 Output</span>
+                    </div>
+                    <div class="weather-grid" id="weather-grid">
+                        <!-- Grid cells filled via JS -->
+                        <div class="empty-state">
+                            <i data-lucide="cpu" class="empty-icon"></i>
+                            <p>Select a location and run inference to view the high-resolution grid.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+      lucide.createIcons();
+    </script>
+</body>
+</html>
