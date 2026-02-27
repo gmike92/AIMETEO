@@ -33,12 +33,10 @@
                 <div class="input-group">
                     <i data-lucide="map-pin" class="input-icon"></i>
                     <select id="location-select">
-                        <!-- 45.4642, 9.1900 -->
+                        <option value="current">📍 Posizione Attuale (GPS)</option>
                         <option value="45.4642,9.1900">Milan, Italy</option>
-                        <!-- 41.8902, 12.4922 -->
                         <option value="41.8902,12.4922">Rome, Italy</option>
-                        <!-- 40.7128, -74.0060 -->
-                        <option value="40.7128,-74.0060">New York, NY (Upper West Side)</option>
+                        <option value="40.7128,-74.0060">New York, NY</option>
                     </select>
                 </div>
                 <button id="fetch-btn" class="primary-btn">
@@ -54,14 +52,33 @@
 
                 <div class="grid-container">
                     <div class="grid-header">
-                        <h2>Hyper-local Grid (1km x 1km)</h2>
-                        <span class="subtitle">Simulated Google WeatherNext 2 Output</span>
+                        <div class="header-titles">
+                            <h2>Hyper-local Grid (1km x 1km)</h2>
+                            <span class="subtitle">Simulated Google GenCast Output</span>
+                        </div>
+                        
+                        <div class="layer-tabs">
+                            <button class="layer-btn" data-layer="all"><i data-lucide="layers"></i> Riepilogo</button>
+                            <button class="layer-btn active" data-layer="temp"><i data-lucide="thermometer"></i> Temperatura</button>
+                            <button class="layer-btn" data-layer="precip"><i data-lucide="droplets"></i> Pioggia</button>
+                            <button class="layer-btn" data-layer="wind"><i data-lucide="wind"></i> Vento</button>
+                        </div>
                     </div>
+                    
                     <div class="weather-grid" id="weather-grid">
-                        <!-- Grid cells filled via JS -->
                         <div class="empty-state">
                             <i data-lucide="cpu" class="empty-icon"></i>
                             <p>Select a location and run inference to view the high-resolution grid.</p>
+                        </div>
+                    </div>
+
+                    <div class="time-control" style="display: none;" id="time-control-container">
+                        <div class="time-header">
+                            <span>Previsione: <strong id="time-label" class="accent-text">Adesso</strong></span>
+                        </div>
+                        <input type="range" id="time-slider" min="0" max="24" step="3" value="0">
+                        <div class="time-ticks">
+                            <span>0h</span><span>+12h</span><span>+24h</span>
                         </div>
                     </div>
                 </div>
