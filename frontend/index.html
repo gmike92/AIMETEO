@@ -7,6 +7,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <link rel="stylesheet" href="styles.css">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
@@ -49,6 +51,19 @@
                 <div class="target-summary" id="target-summary" style="display: none;">
                     <!-- Filled via JS -->
                 </div>
+                
+            <div class="target-summary" id="target-summary" style="display: none;">
+            </div>
+
+            <div class="radar-section" id="radar-section" style="display: none;">
+                <div class="radar-header">
+                    <h2>Radar Geografico Live</h2>
+                    <span class="subtitle" id="radar-subtitle">Vista Base</span>
+                </div>
+                <div id="radar-map" class="radar-map-container"></div>
+            </div>
+
+            <div class="grid-container">
 
                 <div class="grid-container">
                     <div class="grid-header">

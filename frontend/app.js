@@ -13,6 +13,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const API_BASE = 'http://127.0.0.1:8000/api';
 
+    let radarMap = null;
+    let rainLayer = null;
+    let latestRainTime = null; 
+
+    let homeLat = null;
+    let homeLon = null;
+
     // Stato Globale dell'App
     let baseData = null; 
     let currentLayer = 'temp'; // 'temp', 'precip', o 'wind'
@@ -30,7 +37,10 @@ document.addEventListener('DOMContentLoaded', () => {
             layerBtns.forEach(b => b.classList.remove('active'));
             e.currentTarget.classList.add('active');
             currentLayer = e.currentTarget.dataset.layer;
-            if (baseData) updateGridDisplay();
+            if (baseData) {
+                updateGridDisplay();
+                updateRadarLayer();
+            }
         });
     });
 
@@ -92,6 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
             timeControl.style.display = 'block';
             
             // Renderizza la UI
+            initRadarMap(lat, lon);
             renderSummary(data.grid.find(c => c.is_target), locationName, data.timestamp);
             updateGridDisplay();
 
@@ -223,4 +234,107 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         lucide.createIcons();
     }
+
+    
+// --- FUNZIONI RADAR MAP (LEAFLET + RAINVIEWER 0€) ---
+async function initRadarMap(lat, lon) {
+        const currentRadarSection = document.getElementById('radar-section');
+        
+        if (!currentRadarSection) {
+            console.error("ERRORE: Manca il div con id='radar-section' nel tuo index.html!");
+            return;
+        }
+        
+        currentRadarSection.style.display = 'block';
+
+        // Salviamo le coordinate correnti come posizione "Home"
+        homeLat = lat;
+        homeLon = lon;
+
+        if (!radarMap) {
+            radarMap = L.map('radar-map').setView([lat, lon], 6);
+            
+            // MAPPA PIÙ VISIBILE: Usiamo 'light_all' di CartoDB invece di 'dark_all'
+            // In alternativa, per la mappa a colori standard: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '© OpenStreetMap, © CARTO'
+            }).addTo(radarMap);
+
+            // CREAZIONE DEL BOTTONE HOME (Leaflet Custom Control)
+            const HomeControl = L.Control.extend({
+                options: { position: 'topleft' },
+                onAdd: function(map) {
+                    const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
+                    
+                    // Stiliamo il contenitore per farlo intonare al tema dark dell'app
+                    container.style.backgroundColor = 'var(--card-bg)';
+                    container.style.border = '1px solid var(--card-border)';
+                    container.style.backdropFilter = 'blur(8px)';
+                    container.style.width = '34px';
+                    container.style.height = '34px';
+                    container.style.display = 'flex';
+                    container.style.alignItems = 'center';
+                    container.style.justifyContent = 'center';
+                    container.style.cursor = 'pointer';
+                    
+                    // Inseriamo l'icona Lucide "home"
+                    container.innerHTML = `<i data-lucide="home" style="color: var(--text-main); width: 18px; height: 18px;"></i>`;
+                    
+                    // Logica al click: torna alle coordinate home
+                    container.onclick = function(e) {
+                        e.stopPropagation(); // Evita che il click passi alla mappa sottostante
+                        map.flyTo([homeLat, homeLon], 6, { duration: 1.5 }); // Animazione fluida (flyTo)
+                    }
+                    
+                    // Effetti hover base
+                    container.onmouseover = () => container.style.backgroundColor = 'var(--primary)';
+                    container.onmouseout = () => container.style.backgroundColor = 'var(--card-bg)';
+
+                    return container;
+                }
+            });
+
+            // Aggiungiamo il controllo alla mappa
+            radarMap.addControl(new HomeControl());
+            
+            // Diamo a Lucide il tempo di renderizzare l'icona appena inserita nel DOM
+            setTimeout(() => lucide.createIcons(), 50);
+
+        } else {
+            // Se la mappa esiste già, la aggiorniamo in modo fluido
+            radarMap.flyTo([lat, lon], 6, { duration: 1.5 });
+            radarMap.invalidateSize(); 
+        }
+
+        try {
+            const res = await fetch('https://api.rainviewer.com/public/weather-maps.json');
+            const data = await res.json();
+            latestRainTime = data.radar.past[data.radar.past.length - 1].time;
+            updateRadarLayer();
+        } catch (e) {
+            console.error("Errore fetch RainViewer:", e);
+        }
+    }
+
+    function updateRadarLayer() {
+        if (!radarMap) return;
+        
+        if (rainLayer) {
+            radarMap.removeLayer(rainLayer);
+            rainLayer = null;
+        }
+
+        const currentRadarSubtitle = document.getElementById('radar-subtitle');
+
+        if ((currentLayer === 'precip' || currentLayer === 'all') && latestRainTime) {
+            if(currentRadarSubtitle) currentRadarSubtitle.textContent = "Vista: Radar Precipitazioni Live (Dati: RainViewer)";
+            const url = `https://tilecache.rainviewer.com/v2/radar/${latestRainTime}/256/{z}/{x}/{y}/2/1_1.png`;
+            rainLayer = L.tileLayer(url, { opacity: 0.75, zIndex: 10 }).addTo(radarMap);
+        } else {
+            let layerName = currentLayer === 'temp' ? 'Temperatura' : 'Vento';
+            if(currentRadarSubtitle) currentRadarSubtitle.textContent = `Vista: Geografica Base (Guarda la griglia in basso per i dati ${layerName})`;
+        }
+    }
+
 });
+

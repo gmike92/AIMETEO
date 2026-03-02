@@ -45,7 +45,7 @@ body {
     inset: 0;
     background-size: 40px 40px;
     background-image: linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-                      linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
     z-index: -1;
     pointer-events: none;
     mask-image: radial-gradient(circle at center, black 40%, transparent 80%);
@@ -209,7 +209,7 @@ select option {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     padding-bottom: 1rem;
 }
 
@@ -295,7 +295,7 @@ select option {
     background: rgba(10, 15, 30, 0.4);
     padding: 1.5rem;
     border-radius: 20px;
-    border: 1px solid rgba(255,255,255,0.05);
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .cell-card {
@@ -320,7 +320,7 @@ select option {
     transform: translateY(-4px);
     background: rgba(30, 41, 59, 0.8);
     border-color: rgba(255, 255, 255, 0.2);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
     z-index: 10;
 }
 
@@ -332,7 +332,10 @@ select option {
 .cell-card.target::after {
     content: '';
     position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     box-shadow: inset 0 0 15px rgba(56, 189, 248, 0.1);
     pointer-events: none;
     border-radius: 12px;
@@ -396,8 +399,13 @@ select option {
 
 /* Animations */
 @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .spin {
@@ -416,6 +424,7 @@ select option {
     .weather-grid {
         grid-template-columns: repeat(3, 1fr);
     }
+
     .summary-stats {
         flex-direction: column;
         align-items: flex-start;
@@ -435,7 +444,8 @@ select option {
     justify-content: space-between;
     align-items: center;
     gap: 2rem;
-    flex-wrap: wrap; /* Permette di andare a capo su schermi piccoli */
+    flex-wrap: wrap;
+    /* Permette di andare a capo su schermi piccoli */
 }
 
 /* Assicuriamoci che le statistiche prendano lo spazio giusto */
@@ -453,7 +463,8 @@ select option {
     min-width: 280px;
     height: 160px;
     border-radius: 12px;
-    overflow: hidden; /* Taglia gli angoli squadrati dell'iframe */
+    overflow: hidden;
+    /* Taglia gli angoli squadrati dell'iframe */
     border: 1px solid var(--card-border);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     position: relative;
@@ -463,8 +474,12 @@ select option {
 .map-container::after {
     content: '';
     position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    pointer-events: none; /* Permette di cliccare sulla mappa sottostante */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    /* Permette di cliccare sulla mappa sottostante */
     box-shadow: inset 0 0 20px rgba(6, 9, 19, 0.5);
 }
 
@@ -575,4 +590,33 @@ input[type=range]::-webkit-slider-runnable-track {
     font-size: 0.75rem;
     color: var(--text-muted);
     font-family: var(--font-mono);
+}
+
+.radar-section {
+    margin-bottom: 2rem;
+    animation: fadeInSlideUp 0.5s ease forwards;
+}
+
+.radar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 1rem;
+}
+
+.radar-map-container {
+    height: 450px;
+    /* Riquadro bello grande */
+    width: 100%;
+    border-radius: 16px;
+    border: 1px solid var(--card-border);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    z-index: 1;
+    /* Fondamentale per Leaflet */
+}
+
+/* Facciamo intonare la mappa all'app */
+.leaflet-container {
+    background-color: #0f172a;
+    font-family: var(--font-ui);
 }
