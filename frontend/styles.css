@@ -450,38 +450,13 @@ select option {
 
 /* Assicuriamoci che le statistiche prendano lo spazio giusto */
 .summary-stats {
-    flex: 1;
-    min-width: 250px;
     display: flex;
     align-items: center;
-    gap: 2rem;
+    gap: 3rem;
+    width: 100%; /* Prende tutto lo spazio ora */
+    justify-content: center; /* Centriamo le info principali */
 }
 
-/* Stile del contenitore della mappa di Google */
-.map-container {
-    flex: 1;
-    min-width: 280px;
-    height: 160px;
-    border-radius: 12px;
-    overflow: hidden;
-    /* Taglia gli angoli squadrati dell'iframe */
-    border: 1px solid var(--card-border);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    position: relative;
-}
-
-/* Filtro scuro opzionale per far intonare la mappa al tema dark */
-.map-container::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    pointer-events: none;
-    /* Permette di cliccare sulla mappa sottostante */
-    box-shadow: inset 0 0 20px rgba(6, 9, 19, 0.5);
-}
 
 /* --- Modifiche Header della Griglia --- */
 .grid-header {
@@ -605,14 +580,12 @@ input[type=range]::-webkit-slider-runnable-track {
 }
 
 .radar-map-container {
-    height: 450px;
-    /* Riquadro bello grande */
+    height: 600px; /* Molto più alta per dare importanza */
     width: 100%;
     border-radius: 16px;
     border: 1px solid var(--card-border);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     z-index: 1;
-    /* Fondamentale per Leaflet */
 }
 
 /* Facciamo intonare la mappa all'app */

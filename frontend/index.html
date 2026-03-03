@@ -49,11 +49,50 @@
 
             <section class="dashboard">
                 <div class="target-summary" id="target-summary" style="display: none;">
-                    <!-- Filled via JS -->
+                    </div>
+
+                <div class="radar-section" id="radar-section" style="display: none; position: relative;">
+                    <div class="radar-header" style="position: absolute; top: 15px; left: 50px; z-index: 1000; pointer-events: none;">
+                        <h2 style="text-shadow: 0 2px 4px rgba(0,0,0,0.8);">Radar Geografico Live</h2>
+                        <span class="subtitle" id="radar-subtitle" style="text-shadow: 0 1px 2px rgba(0,0,0,0.8);">Vista Base</span>
+                    </div>
+                    
+                    <div class="layer-tabs" style="position: absolute; top: 15px; right: 15px; z-index: 1000; background: var(--card-bg); backdrop-filter: blur(8px);">
+                        <button class="layer-btn" data-layer="all"><i data-lucide="layers"></i> Riepilogo</button>
+                        <button class="layer-btn active" data-layer="temp"><i data-lucide="thermometer"></i> Temperatura</button>
+                        <button class="layer-btn" data-layer="precip"><i data-lucide="droplets"></i> Pioggia</button>
+                        <button class="layer-btn" data-layer="wind"><i data-lucide="wind"></i> Vento</button>
+                    </div>
+
+                    <div id="radar-map" class="radar-map-container"></div>
                 </div>
-                
-            <div class="target-summary" id="target-summary" style="display: none;">
-            </div>
+
+                <div class="time-control" style="display: none; margin-bottom: 2rem;" id="time-control-container">
+                    <div class="time-header">
+                        <span>Previsione: <strong id="time-label" class="accent-text">Adesso</strong></span>
+                    </div>
+                    <input type="range" id="time-slider" min="0" max="24" step="3" value="0">
+                    <div class="time-ticks">
+                        <span>0h</span><span>+12h</span><span>+24h</span>
+                    </div>
+                </div>
+
+                <div class="grid-container">
+                    <div class="grid-header">
+                        <div class="header-titles">
+                            <h2>Hyper-local Grid (1km x 1km)</h2>
+                            <span class="subtitle">Simulated Google GenCast Output</span>
+                        </div>
+                    </div>
+                    
+                    <div class="weather-grid" id="weather-grid">
+                        <div class="empty-state">
+                            <i data-lucide="cpu" class="empty-icon"></i>
+                            <p>Loading hyper-local data...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
             <div class="radar-section" id="radar-section" style="display: none;">
                 <div class="radar-header">

@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let homeLat = null;
     let homeLon = null;
+    let targetMarker = null;
 
     // Stato Globale dell'App
     let baseData = null; 
@@ -63,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(checkStatus, 10000);
 
     // --- Chiamata API ---
-    fetchBtn.addEventListener('click', async () => {
+    async function runInference() {
         const icon = document.getElementById('refresh-icon');
         icon.classList.add('spin');
         fetchBtn.disabled = true;
@@ -112,7 +113,16 @@ document.addEventListener('DOMContentLoaded', () => {
             icon.classList.remove('spin');
             fetchBtn.disabled = false;
         }
-    });
+    }
+
+    // Leghiamo la funzione al bottone
+    fetchBtn.addEventListener('click', runInference);
+
+    // ESECUZIONE AUTOMATICA ALL'AVVIO
+    // Usiamo setTimeout per dare tempo al browser di renderizzare la UI base prima di chiedere il GPS
+    setTimeout(() => {
+        runInference();
+    }, 500);
 
     // --- Funzione per simulare l'evoluzione temporale (Mocking JS) ---
     function updateGridDisplay() {
@@ -151,7 +161,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderSummary(targetCell, locationName, timestamp) {
         if (!targetCell) return;
         const date = new Date(timestamp).toLocaleString();
-        const mapUrl = `https://maps.google.com/maps?q=${targetCell.lat},${targetCell.lon}&z=13&output=embed`;
 
         targetSummary.style.display = 'flex';
         targetSummary.innerHTML = `
@@ -169,9 +178,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="stat"><i data-lucide="droplets"></i> ${targetCell.precip_prob}% Precip</div>
                         <div class="stat"><i data-lucide="wind"></i> ${targetCell.wind_speed} km/h Wind</div>
                     </div>
-                </div>
-                <div class="map-container">
-                    <iframe src="${mapUrl}" width="100%" height="100%" style="border:0;" loading="lazy"></iframe>
                 </div>
             </div>
         `;
@@ -304,6 +310,21 @@ async function initRadarMap(lat, lon) {
             // Se la mappa esiste già, la aggiorniamo in modo fluido
             radarMap.flyTo([lat, lon], 6, { duration: 1.5 });
             radarMap.invalidateSize(); 
+        }
+
+        if (targetMarker) {
+            targetMarker.setLatLng([lat, lon]);
+        } else {
+            // Usiamo un'icona personalizzata per farla sembrare un pin rosso
+            const redIcon = L.icon({
+                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            });
+            targetMarker = L.marker([lat, lon], {icon: redIcon}).addTo(radarMap);
         }
 
         try {
