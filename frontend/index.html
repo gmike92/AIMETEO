@@ -1,141 +1,167 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>aimeteo.it | AI Weather Engine</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <link rel="stylesheet" href="styles.css">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- Background Elements for Rich Aesthetics -->
-    <div class="bg-gradient"></div>
-    <div class="bg-mesh"></div>
 
-    <div class="app-container">
-        <header>
-            <div class="logo">
-                <i data-lucide="cloud-lightning" class="brand-icon"></i>
-                <h1>aimeteo.it</h1>
-                <span class="badge">GenCast Model Beta</span>
+    <!-- FULLSCREEN MAP -->
+    <div id="radar-map"></div>
+
+    <!-- TOP BAR OVERLAY -->
+    <header class="top-bar">
+        <div class="logo">
+            <i data-lucide="cloud-lightning" class="brand-icon"></i>
+            <span class="logo-text">aimeteo<span class="logo-dot">.it</span></span>
+            <span class="badge">GenCast Beta</span>
+        </div>
+
+        <div class="search-bar">
+            <i data-lucide="map-pin" class="search-icon"></i>
+            <select id="location-select">
+                <option value="current">📍 Posizione Attuale (GPS)</option>
+                <option value="45.4642,9.1900">Milan, Italy</option>
+                <option value="41.8902,12.4922">Rome, Italy</option>
+                <option value="40.7128,-74.0060">New York, NY</option>
+            </select>
+        </div>
+
+        <button id="fetch-btn" class="run-btn">
+            <i data-lucide="refresh-cw" id="refresh-icon"></i>
+            <span>Run Inference</span>
+        </button>
+
+        <div class="status-pill">
+            <div class="status-dot" id="status-dot"></div>
+            <span id="backend-status">Connecting...</span>
+        </div>
+    </header>
+
+    <!-- LEFT: LAYER CONTROLS -->
+    <nav class="layer-panel">
+        <div class="layer-group-label">Layers</div>
+        <button class="layer-btn" data-layer="all" title="Riepilogo">
+            <i data-lucide="layers"></i>
+        </button>
+        <button class="layer-btn active" data-layer="temp" title="Temperatura">
+            <i data-lucide="thermometer"></i>
+        </button>
+        <button class="layer-btn" data-layer="precip" title="Precipitazioni">
+            <i data-lucide="droplets"></i>
+        </button>
+        <button class="layer-btn" data-layer="wind" title="Vento">
+            <i data-lucide="wind"></i>
+        </button>
+        <button class="layer-btn" data-layer="daynight" title="Giorno / Notte">
+            <i data-lucide="sun-moon"></i>
+        </button>
+        <div class="layer-divider"></div>
+        <button class="layer-btn" id="home-btn" title="Torna alla posizione">
+            <i data-lucide="home"></i>
+        </button>
+    </nav>
+
+    <!-- BOTTOM: TIME SLIDER -->
+    <div class="time-bar" id="time-bar">
+        <div class="time-bar-inner">
+            <span class="time-now-label">Adesso</span>
+            <div class="slider-track">
+                <input type="range" id="time-slider" min="0" max="24" step="3" value="0">
+                <div class="time-ticks">
+                    <span>0h</span>
+                    <span>+3h</span>
+                    <span>+6h</span>
+                    <span>+9h</span>
+                    <span>+12h</span>
+                    <span>+15h</span>
+                    <span>+18h</span>
+                    <span>+21h</span>
+                    <span>+24h</span>
+                </div>
             </div>
-            <div class="status-indicator">
-                <div class="status-dot"></div>
-                <span id="backend-status">Connecting...</span>
+            <span class="time-future-label" id="time-label">+0h</span>
+        </div>
+    </div>
+
+    <!-- RIGHT: WEATHER SUMMARY CARD (sempre visibile dopo fetch) -->
+    <div class="summary-card" id="summary-card" style="display:none">
+        <div class="summary-location" id="summary-location">—</div>
+        <div class="summary-main">
+            <i data-lucide="sun" class="summary-cond-icon" id="summary-icon"></i>
+            <span class="summary-temp" id="summary-temp">—°</span>
+        </div>
+        <div class="summary-meta">
+            <div class="meta-row">
+                <i data-lucide="droplets"></i>
+                <span id="summary-precip">—%</span>
             </div>
-        </header>
-
-        <main>
-            <section class="controls">
-                <div class="input-group">
-                    <i data-lucide="map-pin" class="input-icon"></i>
-                    <select id="location-select">
-                        <option value="current">📍 Posizione Attuale (GPS)</option>
-                        <option value="45.4642,9.1900">Milan, Italy</option>
-                        <option value="41.8902,12.4922">Rome, Italy</option>
-                        <option value="40.7128,-74.0060">New York, NY</option>
-                    </select>
-                </div>
-                <button id="fetch-btn" class="primary-btn">
-                    <i data-lucide="refresh-cw" id="refresh-icon"></i>
-                    Run AI Inference
-                </button>
-            </section>
-
-            <section class="dashboard">
-                <div class="target-summary" id="target-summary" style="display: none;">
-                    </div>
-
-                <div class="radar-section" id="radar-section" style="display: none; position: relative;">
-                    <div class="radar-header" style="position: absolute; top: 15px; left: 50px; z-index: 1000; pointer-events: none;">
-                        <h2 style="text-shadow: 0 2px 4px rgba(0,0,0,0.8);"></h2>
-                        <span class="subtitle" id="radar-subtitle" style="text-shadow: 0 1px 2px rgba(0,0,0,0.8);">Vista Base</span>
-                    </div>
-                    
-                    <div class="layer-tabs" style="position: absolute; top: 15px; right: 15px; z-index: 1000; background: var(--card-bg); backdrop-filter: blur(8px);">
-                        <button class="layer-btn" data-layer="all"><i data-lucide="layers"></i> Riepilogo</button>
-                        <button class="layer-btn active" data-layer="temp"><i data-lucide="thermometer"></i> Temperatura</button>
-                        <button class="layer-btn" data-layer="precip"><i data-lucide="droplets"></i> Pioggia</button>
-                        <button class="layer-btn" data-layer="wind"><i data-lucide="wind"></i> Vento</button>
-                    </div>
-
-                    <div id="radar-map" class="radar-map-container"></div>
-                </div>
-
-                <div class="time-control" style="display: none; margin-bottom: 2rem;" id="time-control-container">
-                    <div class="time-header">
-                        <span>Previsione: <strong id="time-label" class="accent-text">Adesso</strong></span>
-                    </div>
-                    <input type="range" id="time-slider" min="0" max="24" step="3" value="0">
-                    <div class="time-ticks">
-                        <span>0h</span><span>+12h</span><span>+24h</span>
-                    </div>
-                </div>
-
-                <div class="grid-container">
-                    <div class="grid-header">
-                        <div class="header-titles">
-                            <h2>Hyper-local Grid (1km x 1km)</h2>
-                            <span class="subtitle">Simulated Google GenCast Output</span>
-                        </div>
-                    </div>
-                    
-                    <div class="weather-grid" id="weather-grid">
-                        <div class="empty-state">
-                            <i data-lucide="cpu" class="empty-icon"></i>
-                            <p>Loading hyper-local data...</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <div class="radar-section" id="radar-section" style="display: none;">
-                <div class="radar-header">
-                    <h2></h2>
-                    <span class="subtitle" id="radar-subtitle">Vista Base</span>
-                </div>
-                <div id="radar-map" class="radar-map-container"></div>
+            <div class="meta-row">
+                <i data-lucide="wind"></i>
+                <span id="summary-wind">— km/h</span>
             </div>
+        </div>
+        <div class="summary-hint">
+            <i data-lucide="mouse-pointer-click"></i>
+            Clicca sulla mappa per la griglia iperlocale
+        </div>
+    </div>
 
-            <div class="grid-container">
+    <!-- MAP CLICK: DETAIL PANEL (slides up from bottom) -->
+    <div class="detail-panel" id="detail-panel">
+        <div class="detail-panel-header">
+            <div class="detail-panel-title">
+                <i data-lucide="grid-3x3"></i>
+                <span>Hyper-local Grid · <span id="grid-subtitle">1km × 1km</span></span>
+            </div>
+            <div class="detail-panel-meta" id="grid-timestamp"></div>
+            <button class="panel-close-btn" id="panel-close">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
 
-                <div class="grid-container">
-                    <div class="grid-header">
-                        <div class="header-titles">
-                            <h2>Hyper-local Grid (1km x 1km)</h2>
-                            <span class="subtitle">Simulated Google GenCast Output</span>
-                        </div>
-                        
-                        <div class="layer-tabs">
-                            <button class="layer-btn" data-layer="all"><i data-lucide="layers"></i> Riepilogo</button>
-                            <button class="layer-btn active" data-layer="temp"><i data-lucide="thermometer"></i> Temperatura</button>
-                            <button class="layer-btn" data-layer="precip"><i data-lucide="droplets"></i> Pioggia</button>
-                            <button class="layer-btn" data-layer="wind"><i data-lucide="wind"></i> Vento</button>
-                        </div>
-                    </div>
+        <!-- Layer tabs inside panel -->
+        <div class="panel-layer-tabs">
+            <button class="ptab active" data-player="temp">
+                <i data-lucide="thermometer"></i> Temperatura
+            </button>
+            <button class="ptab" data-player="precip">
+                <i data-lucide="droplets"></i> Pioggia
+            </button>
+            <button class="ptab" data-player="wind">
+                <i data-lucide="wind"></i> Vento
+            </button>
+            <button class="ptab" data-player="daynight">
+                <i data-lucide="sun-moon"></i> Giorno/Notte
+            </button>
+            <button class="ptab" data-player="all">
+                <i data-lucide="layers"></i> Tutto
+            </button>
+        </div>
 
-                    <div class="time-control" style="display: none;" id="time-control-container">
-                        <div class="time-header">
-                            <span>Previsione: <strong id="time-label" class="accent-text">Adesso</strong></span>
-                        </div>
-                        <input type="range" id="time-slider" min="0" max="24" step="3" value="0">
-                        <div class="time-ticks">
-                            <span>0h</span><span>+12h</span><span>+24h</span>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </main>
+        <div class="weather-grid" id="weather-grid">
+            <div class="grid-empty">
+                <i data-lucide="cpu"></i>
+                <p>Clicca un punto sulla mappa per vedere la griglia AI</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- LOADING OVERLAY -->
+    <div class="loading-overlay" id="loading-overlay" style="display:none">
+        <div class="loading-spinner"></div>
+        <span id="loading-msg">Inizializzazione AI...</span>
     </div>
 
     <script src="app.js"></script>
-    <script>
-      lucide.createIcons();
-    </script>
+    <script>lucide.createIcons();</script>
 </body>
 </html>
