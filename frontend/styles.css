@@ -580,10 +580,19 @@ input[type=range]::-webkit-slider-runnable-track {
 }
 
 .radar-map-container {
-    height: 600px; /* Molto più alta per dare importanza */
-    width: 100%;
-    border-radius: 16px;
-    border: 1px solid var(--card-border);
+    height: 800px;
+    width: 100vw; /* 100% della larghezza reale della finestra del browser */
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%); /* Ri-centra la mappa perfettamente nello schermo */
+    
+    /* Quando un elemento va da margine a margine, di solito si tolgono gli angoli arrotondati */
+    border-radius: 0; 
+    border-top: 1px solid var(--card-border);
+    border-bottom: 1px solid var(--card-border);
+    border-left: none;
+    border-right: none;
+    
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     z-index: 1;
 }

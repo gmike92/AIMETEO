@@ -348,12 +348,12 @@ async function initRadarMap(lat, lon) {
         const currentRadarSubtitle = document.getElementById('radar-subtitle');
 
         if ((currentLayer === 'precip' || currentLayer === 'all') && latestRainTime) {
-            if(currentRadarSubtitle) currentRadarSubtitle.textContent = "Vista: Radar Precipitazioni Live (Dati: RainViewer)";
+            if(currentRadarSubtitle) currentRadarSubtitle.textContent = "";
             const url = `https://tilecache.rainviewer.com/v2/radar/${latestRainTime}/256/{z}/{x}/{y}/2/1_1.png`;
             rainLayer = L.tileLayer(url, { opacity: 0.75, zIndex: 10 }).addTo(radarMap);
         } else {
             let layerName = currentLayer === 'temp' ? 'Temperatura' : 'Vento';
-            if(currentRadarSubtitle) currentRadarSubtitle.textContent = `Vista: Geografica Base (Guarda la griglia in basso per i dati ${layerName})`;
+            if(currentRadarSubtitle) currentRadarSubtitle.textContent = ``;
         }
     }
 
