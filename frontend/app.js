@@ -44,6 +44,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let homeLat = null;
     let homeLon = null;
+    let clickLabel    = null;
+    let homeMarker     = null;
 
     let baseData        = null;   // full API response
     let currentLayer    = 'temp'; // temp | precip | wind | all
@@ -139,28 +141,139 @@ document.addEventListener('DOMContentLoaded', () => {
             maxZoom: 19
         }).addTo(radarMap);
 
-        // Map click → fetch grid for clicked coords
+        // Map click → reverse geocoding + marker con popup + fetch grid
         radarMap.on('click', async (e) => {
             const { lat, lng } = e.latlng;
+
+            // Reverse geocoding per il label del fumetto
+            let label = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+            try {
+                const geo = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`);
+                const geoData = await geo.json();
+                const city = geoData.address?.city || geoData.address?.town || geoData.address?.village;
+                const country = geoData.address?.country_code?.toUpperCase();
+                if (city) label = country ? `${city}, ${country}` : city;
+            } catch { /* usa coordinate come fallback */ }
+
+            clickLabel = label;
+            placeClickMarker(lat, lng, label);
             await fetchAndShowGrid(lat, lng);
         });
     }
 
     // ── TARGET MARKER ─────────────────────────────────────────────────────────
     function setTargetMarker(lat, lon) {
-        const pulseIcon = L.divIcon({
+        const gpsIcon = L.divIcon({
             className: '',
-            html: '<div class="click-marker-pulse"></div>',
-            iconSize: [14, 14],
-            iconAnchor: [7, 7]
+            html: '<div class="gps-marker-dot"></div>',
+            iconSize: [16, 16],
+            iconAnchor: [8, 8]
         });
 
         if (targetMarker) {
             targetMarker.setLatLng([lat, lon]);
         } else {
-            targetMarker = L.marker([lat, lon], { icon: pulseIcon }).addTo(radarMap);
+            targetMarker = L.marker([lat, lon], { icon: gpsIcon, zIndexOffset: 100 }).addTo(radarMap);
         }
     }
+
+    function placeClickMarker(lat, lon, label) {
+        const pinIcon = L.divIcon({
+            className: '',
+            html: '<div class="click-marker-pin"></div>',
+            iconSize: [22, 22],
+            iconAnchor: [6, 22]   // punta del pin sul punto cliccato
+        });
+
+        const popupContent = () => {
+            const div = document.createElement('div');
+            div.className = 'custom-popup';
+            div.innerHTML = `
+                <div class="popup-title">
+                    <i data-lucide="map-pin"></i>
+                    <span>${label}</span>
+                </div>
+                <div class="popup-actions">
+                    <button class="popup-btn set-home">
+                        <i data-lucide="home"></i> Imposta Home
+                    </button>
+                    <button class="popup-btn remove">
+                        <i data-lucide="x"></i>
+                    </button>
+                </div>`;
+
+            // Render lucide icons nel popup
+            setTimeout(() => lucide.createIcons({ nodes: [div] }), 0);
+
+            div.querySelector('.set-home').addEventListener('click', () => {
+                homeLat = lat;
+                homeLon = lon;
+
+                // Aggiorna summary card
+                summaryLocation.textContent = label;
+
+                // Aggiorna il selettore di ricerca
+                const customOpt = document.getElementById('custom-home-option') || document.createElement('option');
+                customOpt.id = 'custom-home-option';
+                customOpt.value = `${lat},${lon}`;
+                customOpt.textContent = `⌂ ${label}`;
+                if (!document.getElementById('custom-home-option')) {
+                    locationSelect.insertBefore(customOpt, locationSelect.firstChild);
+                }
+                locationSelect.value = customOpt.value;
+
+                // Piazza il marker Home (icona diversa dal GPS e dal click)
+                placeHomeMarker(lat, lon, label);
+
+                clickMarker.closePopup();
+            });
+
+            div.querySelector('.remove').addEventListener('click', () => {
+                radarMap.removeLayer(clickMarker);
+                clickMarker = null;
+                clickLabel  = null;
+                closePanel();
+            });
+
+            return div;
+        };
+
+        if (clickMarker) {
+            clickMarker.setLatLng([lat, lon]);
+            clickMarker.getPopup().setContent(popupContent());
+        } else {
+            clickMarker = L.marker([lat, lon], { icon: pinIcon })
+                .bindPopup(popupContent(), {
+                    closeButton: false,
+                    className: 'leaflet-custom-popup',
+                    offset: [6, -10]
+                })
+                .addTo(radarMap);
+        }
+    }
+
+    function placeHomeMarker(lat, lon, label) {
+        const homeIcon = L.divIcon({
+            className: '',
+            html: '<div class="home-marker-icon">⌂</div>',
+            iconSize: [28, 28],
+            iconAnchor: [14, 14]
+        });
+
+        if (homeMarker) {
+            homeMarker.setLatLng([lat, lon]);
+            homeMarker.getPopup().setContent(`<div class="custom-popup"><div class="popup-title"><i data-lucide="home"></i><span>${label}</span></div><div style="font-size:0.72rem;color:var(--muted);margin-top:4px">Posizione Home</div></div>`);
+        } else {
+            homeMarker = L.marker([lat, lon], { icon: homeIcon, zIndexOffset: 50 })
+                .bindPopup(`<div class="custom-popup"><div class="popup-title" style="margin:0"><i data-lucide="home"></i><span>${label}</span></div><div style="font-size:0.72rem;color:var(--muted);margin-top:4px">Posizione Home</div></div>`, {
+                    closeButton: false,
+                    className: 'leaflet-custom-popup',
+                    offset: [0, -14]
+                })
+                .addTo(radarMap);
+        }
+    }
+
 
     // ── FETCH GRID FOR COORDS ─────────────────────────────────────────────────
     async function fetchAndShowGrid(lat, lon) {
@@ -174,18 +287,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const locationName = baseData?.locationName || `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
             baseData = { ...data, locationName };
 
-            // Place click marker
-            if (clickMarker) {
-                clickMarker.setLatLng([lat, lon]);
-            } else {
-                const pulseIcon = L.divIcon({
-                    className: '',
-                    html: '<div class="click-marker-pulse"></div>',
-                    iconSize: [14, 14],
-                    iconAnchor: [7, 7]
-                });
-                clickMarker = L.marker([lat, lon], { icon: pulseIcon }).addTo(radarMap);
-            }
+            // Il marker viene ora gestito da placeClickMarker() prima del fetch
 
             // Update grid timestamp
             gridTimestamp.textContent = new Date(data.timestamp).toLocaleString('it-IT', {
@@ -193,7 +295,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             updateGridDisplay();
-            openPanel();
         } catch (err) {
             console.error(err);
         } finally {
