@@ -11,7 +11,7 @@
     --danger: #f43f5e;
     --warn: #f59e0b;
     --text: #f1f5f9;
-    --muted: #64748b;
+    --muted: #f1f5f9;
     --panel-h: 380px;
     --radius: 14px;
     --font: 'Space Grotesk', sans-serif;
@@ -42,6 +42,12 @@ html, body {
 .leaflet-container {
     background: #e8e0d8;
     font-family: var(--font);
+}
+.leaflet-control-zoom {
+    position: fixed !important;
+    left: 14px !important;
+    top: 80px !important;
+    z-index: 1001 !important;
 }
 .leaflet-control-zoom a {
     background: var(--glass) !important;
