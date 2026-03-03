@@ -46,6 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let homeLon = null;
     let clickLabel    = null;
     let homeMarker     = null;
+    let clickHistory  = [];   // storico ultime 5 località cliccate come home
 
     let baseData        = null;   // full API response
     let currentLayer    = 'temp'; // temp | precip | wind | all
@@ -212,7 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Aggiorna summary card
                 summaryLocation.textContent = label;
 
-                // Aggiorna il selettore di ricerca
+                // Aggiorna option home nel select
                 const customOpt = document.getElementById('custom-home-option') || document.createElement('option');
                 customOpt.id = 'custom-home-option';
                 customOpt.value = `${lat},${lon}`;
@@ -222,7 +223,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 locationSelect.value = customOpt.value;
 
-                // Piazza il marker Home (icona diversa dal GPS e dal click)
+                // Aggiungi allo storico (evita duplicati, max 5)
+                clickHistory = clickHistory.filter(h => h.value !== `${lat},${lon}`);
+                clickHistory.unshift({ label, value: `${lat},${lon}` });
+                if (clickHistory.length > 5) clickHistory.pop();
+                rebuildHistoryOptions();
+
+                // Piazza il marker Home
                 placeHomeMarker(lat, lon, label);
 
                 clickMarker.closePopup();
@@ -252,20 +259,92 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function buildHomePopupContent(lat, lon, label) {
+        const div = document.createElement('div');
+        div.className = 'custom-popup';
+        div.innerHTML = `
+            <div class="popup-title">
+                <i data-lucide="home"></i>
+                <span>${label}</span>
+            </div>
+            <div style="font-size:0.72rem;color:var(--muted);font-family:var(--mono);margin-bottom:10px">
+                ${lat.toFixed(5)}, ${lon.toFixed(5)}
+            </div>
+            <div class="popup-actions">
+                <button class="popup-btn remove-home" style="flex:1;background:rgba(244,63,94,0.1);color:#fda4af;border:1px solid rgba(244,63,94,0.25);border-radius:8px;padding:6px 10px;font-family:var(--font);font-size:0.75rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;">
+                    <i data-lucide="home"></i> Rimuovi Home
+                </button>
+            </div>`;
+
+        setTimeout(() => lucide.createIcons({ nodes: [div] }), 0);
+
+        div.querySelector('.remove-home').addEventListener('click', () => {
+            removeCustomHome();
+        });
+
+        return div;
+    }
+
+    function removeCustomHome() {
+        // Rimuovi marker dalla mappa
+        if (homeMarker) {
+            radarMap.removeLayer(homeMarker);
+            homeMarker = null;
+        }
+        // Rimuovi option custom dal select
+        const customOpt = document.getElementById('custom-home-option');
+        if (customOpt) customOpt.remove();
+        // Ripristina la selezione al primo valore del menu
+        locationSelect.selectedIndex = 0;
+        // Aggiorna homeLat/homeLon alla posizione GPS (o null se non disponibile)
+        homeLat = null;
+        homeLon = null;
+    }
+
+    function rebuildHistoryOptions() {
+        // Rimuovi tutte le option di storico esistenti
+        document.querySelectorAll('.history-option').forEach(o => o.remove());
+
+        // Aggiungi le ultime 5 sotto le opzioni fisse
+        // Le opzioni fisse sono le prime 5 (current, Milan, Rome, New York)
+        // Inseriamo lo storico alla fine, separato da un optgroup
+        let group = document.getElementById('history-group');
+        if (!group) {
+            group = document.createElement('optgroup');
+            group.id = 'history-group';
+            group.label = 'Recenti';
+            locationSelect.appendChild(group);
+        }
+        // Svuota il gruppo
+        group.innerHTML = '';
+
+        clickHistory.forEach(item => {
+            const opt = document.createElement('option');
+            opt.className = 'history-option';
+            opt.value = item.value;
+            opt.textContent = `🕑 ${item.label}`;
+            group.appendChild(opt);
+        });
+    }
+
     function placeHomeMarker(lat, lon, label) {
         const homeIcon = L.divIcon({
             className: '',
-            html: '<div class="home-marker-icon">⌂</div>',
+            html: `<div class="home-marker-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+            </div>`,
             iconSize: [28, 28],
-            iconAnchor: [14, 14]
+            iconAnchor: [16, 16]
         });
 
         if (homeMarker) {
             homeMarker.setLatLng([lat, lon]);
-            homeMarker.getPopup().setContent(`<div class="custom-popup"><div class="popup-title"><i data-lucide="home"></i><span>${label}</span></div><div style="font-size:0.72rem;color:var(--muted);margin-top:4px">Posizione Home</div></div>`);
+            homeMarker.getPopup().setContent(buildHomePopupContent(lat, lon, label));
         } else {
             homeMarker = L.marker([lat, lon], { icon: homeIcon, zIndexOffset: 50 })
-                .bindPopup(`<div class="custom-popup"><div class="popup-title" style="margin:0"><i data-lucide="home"></i><span>${label}</span></div><div style="font-size:0.72rem;color:var(--muted);margin-top:4px">Posizione Home</div></div>`, {
+                .bindPopup(buildHomePopupContent(lat, lon, label), {
                     closeButton: false,
                     className: 'leaflet-custom-popup',
                     offset: [0, -14]
@@ -366,6 +445,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     fetchBtn.addEventListener('click', runInference);
+
+    locationSelect.addEventListener('change', () => {
+        // Se l'utente sceglie una voce diversa da quella home custom,
+        // rimuovi il marker home dalla mappa (ma mantieni lo storico)
+        const customOpt = document.getElementById('custom-home-option');
+        if (customOpt && locationSelect.value !== customOpt.value) {
+            if (homeMarker) {
+                radarMap.removeLayer(homeMarker);
+                homeMarker = null;
+            }
+            customOpt.remove();
+            homeLat = null;
+            homeLon = null;
+        }
+    });
 
     // Auto-run on load
     setTimeout(runInference, 400);
