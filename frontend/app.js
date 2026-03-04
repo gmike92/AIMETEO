@@ -51,6 +51,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let baseData        = null;   // full API response
     let currentLayer    = 'temp'; // temp | precip | wind | all
     let dayNightLayer   = null;
+    let cloudsLayer     = null;
+    let eventMarkers    = [];
     let currentHourOffset = 0;
 
     // ── BACKEND STATUS ────────────────────────────────────────────────────────
@@ -111,6 +113,20 @@ document.addEventListener('DOMContentLoaded', () => {
         if (radarMap && homeLat) {
             radarMap.flyTo([homeLat, homeLon], 7, { duration: 1.4 });
         }
+    });
+    
+    // ── FLYOUT "ALTRO" ────────────────────────────────────────────────────────
+    document.querySelectorAll('.flyout-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.flyout-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentLayer = btn.dataset.layer;
+            // Deseleziona sidebar buttons normali
+            sideLayerBtns.forEach(b => b.classList.remove('active'));
+            panelLayerBtns.forEach(b => b.classList.toggle('active', b.dataset.player === currentLayer));
+            updateGridDisplay();
+            updateRadarLayer();
+        });
     });
 
     // ── PANEL OPEN / CLOSE ────────────────────────────────────────────────────
@@ -434,6 +450,13 @@ document.addEventListener('DOMContentLoaded', () => {
             renderSummaryCard(data.grid.find(c => c.is_target), locationName);
             summaryCard.style.display = 'block';
 
+            // Popola hypergrid di default con la posizione corrente
+            baseData = { ...data, locationName };
+            gridTimestamp.textContent = new Date(data.timestamp).toLocaleString('it-IT', {
+                day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
+            });
+            updateGridDisplay();
+
         } catch (err) {
             console.error('Inference error:', err);
             statusText.textContent = 'Errore';
@@ -495,11 +518,210 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (currentLayer === 'daynight') {
-            // Calcola ora UTC corrente + offset temporale slider
             const now = new Date(Date.now() + currentHourOffset * 3600 * 1000);
             drawDayNightLayer(now);
         }
+
+        // Rimuovi clouds se cambi layer
+        if (cloudsLayer) {
+            radarMap.removeLayer(cloudsLayer);
+            cloudsLayer = null;
+        }
+
+        if (currentLayer === 'clouds') {
+            drawCloudsLayer();
+        }
+
+        // Rimuovi marker speciali se cambi layer
+        if (!['aurora','hazards','amazing'].includes(currentLayer)) {
+            clearEventMarkers();
+        }
+        if (currentLayer === 'aurora')   fetchAuroraLayer();
+        if (currentLayer === 'hazards')  fetchHazardsLayer();
+        if (currentLayer === 'amazing')  fetchAmazingLayer();
     }
+
+// ── CLOUDS LAYER (Open-Meteo via canvas tile) ──────────────────────────────
+async function drawCloudsLayer() {
+    // Open-Meteo non ha tile server: usiamo il suo API puntuale per
+    // colorare ogni tile canvas in base alla copertura nuvolosa interpolata.
+    // Per semplicità usiamo un GridLayer che campiona Open-Meteo sulla bbox.
+    cloudsLayer = L.GridLayer.extend({
+        createTile: function(coords) {
+            const tile = document.createElement('canvas');
+            const size = this.getTileSize();
+            tile.width  = size.x;
+            tile.height = size.y;
+            const ctx = tile.getContext('2d');
+            const TILE = 256;
+
+            // Calcola centro geografico del tile
+            const worldX = (coords.x + 0.5) / Math.pow(2, coords.z);
+            const worldY = (coords.y + 0.5) / Math.pow(2, coords.z);
+            const lng = worldX * 360 - 180;
+            const latRad = Math.atan(Math.sinh(Math.PI * (1 - 2 * worldY)));
+            const lat = latRad * 180 / Math.PI;
+
+            // Fetch async: riempiamo il tile quando arriva la risposta
+            fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(2)}&longitude=${lng.toFixed(2)}&hourly=cloudcover&forecast_days=1&timezone=UTC`)
+                .then(r => r.json())
+                .then(data => {
+                    const cc = data?.hourly?.cloudcover?.[currentHourOffset] ?? 0;
+                    const alpha = (cc / 100) * 0.65;
+                    ctx.fillStyle = `rgba(180, 200, 220, ${alpha})`;
+                    ctx.fillRect(0, 0, TILE, TILE);
+                })
+                .catch(() => {});
+
+            return tile;
+        }
+    });
+    cloudsLayer = new cloudsLayer({ zIndex: 6, opacity: 1, tileSize: 256 }).addTo(radarMap);
+}
+
+// ── CLEAR EVENT MARKERS ────────────────────────────────────────────────────
+function clearEventMarkers() {
+    eventMarkers.forEach(m => radarMap.removeLayer(m));
+    eventMarkers = [];
+}
+
+// ── AURORA LAYER (NOAA SWPC) ───────────────────────────────────────────────
+async function fetchAuroraLayer() {
+    clearEventMarkers();
+    try {
+        // NOAA SWPC: previsione aurora 3 giorni
+        const res = await fetch('https://services.swpc.noaa.gov/products/noaa-planetary-k-index-forecast.json');
+        const raw = await res.json();
+        // raw[0] è l'header, poi le righe: [time, kp, observed, noaa_scale]
+        const forecasts = raw.slice(1).filter(r => r[1] !== null);
+
+        // Mappa Kp → latitudine minima visibilità aurora
+        // Kp9=~40°, Kp5=~60°, Kp3=~70°
+        const kpToLat = kp => Math.max(40, 90 - kp * 5.5);
+
+        const now = Date.now();
+        forecasts.forEach(row => {
+            const time  = new Date(row[0]).getTime();
+            const kp    = parseFloat(row[1]);
+            const days  = Math.round((time - now) / 86400000);
+            if (kp < 2 || days > 7 || days < 0) return;
+
+            const minLat = kpToLat(kp);
+            // Piazza marker su auroral oval (nord e sud)
+            [minLat, -minLat].forEach(lat => {
+                [-120, -60, 0, 60, 120].forEach(lon => {
+                    const el = document.createElement('div');
+                    el.className = 'event-marker aurora';
+                    el.textContent = '🌌';
+                    const icon = L.divIcon({ className:'', html: el.outerHTML, iconSize:[32,32], iconAnchor:[16,16] });
+                    const label = days === 0 ? 'Stasera' : `upcoming in ${days} day${days > 1 ? 's' : ''}`;
+                    const marker = L.marker([lat, lon], { icon })
+                        .bindPopup(`<div class="custom-popup event-popup">
+                            <div class="ep-title">🌌 Aurora Boreale</div>
+                            <div class="ep-desc">Kp previsto: <strong>${kp.toFixed(1)}</strong> — visibile da ${minLat.toFixed(0)}° lat</div>
+                            <span class="ep-days">${label}</span>
+                        </div>`, { closeButton: false, className: 'leaflet-custom-popup' })
+                        .addTo(radarMap);
+                    eventMarkers.push(marker);
+                });
+            });
+        });
+    } catch(e) { console.error('Aurora fetch error:', e); }
+}
+
+// ── HAZARDS LAYER (NASA EONET) ─────────────────────────────────────────────
+async function fetchHazardsLayer() {
+    clearEventMarkers();
+    const ICONS = {
+        'Wildfires':          { emoji: '🔥', cls: 'hazard' },
+        'Floods':             { emoji: '🌊', cls: 'hazard' },
+        'Severe Storms':      { emoji: '⛈️',  cls: 'hazard' },
+        'Tropical Cyclones':  { emoji: '🌀', cls: 'hazard' },
+        'Volcanoes':          { emoji: '🌋', cls: 'hazard' },
+    };
+    try {
+        const res  = await fetch('https://eonet.gsfc.nasa.gov/api/v3/events?status=open&limit=100&days=7');
+        const data = await res.json();
+        const now  = Date.now();
+
+        data.events.forEach(evt => {
+            const cat   = evt.categories?.[0]?.title;
+            const meta  = ICONS[cat];
+            if (!meta) return;
+
+            const geo   = evt.geometry?.[0];
+            if (!geo || geo.type !== 'Point') return;
+            const [lon, lat] = geo.coordinates;
+
+            const evtDate = new Date(geo.date).getTime();
+            const days    = Math.max(0, Math.round((evtDate - now) / 86400000));
+            const label   = days === 0 ? 'In corso' : `upcoming in ${days} day${days > 1 ? 's' : ''}`;
+
+            const el = document.createElement('div');
+            el.className = `event-marker ${meta.cls}`;
+            el.textContent = meta.emoji;
+            const icon = L.divIcon({ className:'', html: el.outerHTML, iconSize:[32,32], iconAnchor:[16,16] });
+
+            const marker = L.marker([lat, lon], { icon })
+                .bindPopup(`<div class="custom-popup event-popup">
+                    <div class="ep-title">${meta.emoji} ${evt.title}</div>
+                    <div class="ep-desc">${cat}</div>
+                    <span class="ep-days">${label}</span>
+                </div>`, { closeButton: false, className: 'leaflet-custom-popup' })
+                .addTo(radarMap);
+            eventMarkers.push(marker);
+        });
+    } catch(e) { console.error('EONET fetch error:', e); }
+}
+
+// ── AMAZING LAYER (NASA eclissi + mock festival) ───────────────────────────
+async function fetchAmazingLayer() {
+    clearEventMarkers();
+    const now = Date.now();
+
+    // --- NASA eclissi lunari (MPC / hardcoded prossimi eventi noti) ---
+    // NASA non ha un endpoint diretto per eclissi future: usiamo un set
+    // di dati hardcoded aggiornabili, standard per questo tipo di app.
+    const eclipses = [
+        { date: '2025-03-14', lat: 20,  lon: -100, type: 'Eclissi Lunare Totale',   emoji: '🌕', zones: 'Americhe, Europa occidentale' },
+        { date: '2025-09-07', lat: 15,  lon:   60, type: 'Eclissi Lunare Totale',   emoji: '🌕', zones: 'Europa, Africa, Asia' },
+        { date: '2026-02-17', lat: -30, lon:   30, type: 'Eclissi Lunare Penombrale',emoji: '🌖', zones: 'Africa, Asia, Oceania' },
+    ];
+
+    // --- Mock festival lunari ---
+    const festivals = [
+        { date: '2025-04-12', lat: 27.5,  lon:  85.3, name: 'Pasqua / Vesak',          emoji: '🪔', desc: 'Festival lunare primavera' },
+        { date: '2025-10-06', lat: 22.3,  lon:  87.3, name: 'Durga Puja',              emoji: '🎆', desc: 'Festival ciclo luna piena' },
+        { date: '2025-09-29', lat: 35.6,  lon: 139.7, name: 'Mid-Autumn Festival',     emoji: '🏮', desc: 'Luna piena autunnale' },
+    ];
+
+    [...eclipses, ...festivals].forEach(evt => {
+        const evtDate = new Date(evt.date).getTime();
+        const days    = Math.round((evtDate - now) / 86400000);
+        if (days < -1 || days > 7) return; // solo entro 7 giorni
+
+        const label = days < 0  ? 'Concluso'
+                    : days === 0 ? 'Oggi!'
+                    : `upcoming in ${days} day${days > 1 ? 's' : ''}`;
+
+        const el = document.createElement('div');
+        el.className = 'event-marker amazing';
+        el.textContent = evt.emoji;
+        const icon = L.divIcon({ className:'', html: el.outerHTML, iconSize:[32,32], iconAnchor:[16,16] });
+
+        const title = evt.type || evt.name;
+        const desc  = evt.zones || evt.desc || '';
+
+        const marker = L.marker([evt.lat, evt.lon], { icon })
+            .bindPopup(`<div class="custom-popup event-popup">
+                <div class="ep-title">${evt.emoji} ${title}</div>
+                <div class="ep-desc">${desc}</div>
+                <span class="ep-days">${label}</span>
+            </div>`, { closeButton: false, className: 'leaflet-custom-popup' })
+            .addTo(radarMap);
+        eventMarkers.push(marker);
+    });
+}
 
     // Calcola la posizione del Sole (algoritmo semplificato NOAA)
 function getSunPosition(date) {
@@ -631,6 +853,16 @@ function drawDayNightLayer(date) {
                 inner += `
                     <div class="cell-temp" style="font-size:1rem; color:${color}">${cell.wind_speed}<span style="font-size:.55rem;margin-left:2px">km/h</span></div>
                     <i data-lucide="navigation" class="cell-icon" style="transform:rotate(${cell.wind_dir}deg);transition:transform .3s"></i>`;
+            } else if (currentLayer === 'clouds') {
+                const cc = Math.round(Math.random() * 40 + cell.precip_prob * 0.6); // mock locale
+                const alpha = 0.08 + (cc / 100) * 0.5;
+                card.style.backgroundColor = `rgba(180, 200, 220, ${alpha})`;
+                inner += `
+                    <i data-lucide="cloud" class="cell-icon" style="color:#94a3b8"></i>
+                    <div class="cell-label">${cc}%</div>`;
+            } else if (currentLayer === 'aurora' || currentLayer === 'hazards' || currentLayer === 'amazing') {
+                card.style.backgroundColor = 'rgba(20,25,45,0.5)';
+                inner += `<div style="font-size:0.72rem;color:var(--muted);text-align:center;padding:4px">Vedi mappa</div>`;
             } else if (currentLayer === 'daynight') {
                 // Calcola alba e tramonto per questa cella
                 const { sunrise, sunset } = calcSunTimes(cell.lat, cell.lon, new Date());

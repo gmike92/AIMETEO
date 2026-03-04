@@ -815,3 +815,132 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.3); }
     color: var(--accent);
     stroke: var(--accent);
 }
+
+/* ── LAYER MORE / FLYOUT ── */
+.layer-more-wrapper {
+    position: relative;
+}
+
+.layer-flyout {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    position: absolute;
+    left: calc(100% + 10px);
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    padding: 8px;
+    min-width: 190px;
+    z-index: 1200;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    /* Invisibile di default, scompare dopo 1.5s di inattività */
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition:
+        opacity 0.2s ease,
+        visibility 0s linear 1.5s;  /* delay solo sulla chiusura */
+}
+
+.layer-more-wrapper:hover .layer-flyout,
+.layer-flyout:hover {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+    transition:
+        opacity 0.15s ease,
+        visibility 0s linear 0s;    /* nessun delay sull'apertura */
+}
+
+.flyout-label {
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    padding: 2px 6px 6px;
+    border-bottom: 1px solid var(--glass-border);
+    margin-bottom: 4px;
+}
+
+.flyout-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    color: var(--text);
+    padding: 8px 10px;
+    cursor: pointer;
+    font-family: var(--font);
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    width: 100%;
+    text-align: left;
+}
+.flyout-btn i { width: 16px; height: 16px; color: var(--muted); flex-shrink: 0; }
+.flyout-btn:hover { background: rgba(255,255,255,0.07); border-color: var(--glass-border); }
+.flyout-btn.active {
+    background: var(--primary);
+    border-color: rgba(59,130,246,0.4);
+    color: #fff;
+    box-shadow: 0 0 10px var(--primary-glow);
+}
+.flyout-btn.active i { color: #fff; }
+
+/* ── MARKER EVENTI MAPPA ── */
+.event-marker {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    font-size: 15px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    animation: eventPop 0.3s ease;
+}
+@keyframes eventPop {
+    from { transform: scale(0); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+}
+.event-marker.aurora   { background: #6d28d9; box-shadow: 0 0 14px rgba(109,40,217,0.6); }
+.event-marker.hazard   { background: #dc2626; }
+.event-marker.amazing  { background: #0e7490; }
+
+/* Popup eventi */
+.event-popup {
+    font-family: var(--font);
+    min-width: 160px;
+}
+.event-popup .ep-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+.event-popup .ep-days {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-family: var(--mono);
+    background: rgba(34,211,238,0.15);
+    color: var(--accent);
+    border: 1px solid rgba(34,211,238,0.25);
+    border-radius: 999px;
+    padding: 2px 8px;
+    margin-top: 4px;
+}
+.event-popup .ep-desc {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 6px;
+    line-height: 1.4;
+}
