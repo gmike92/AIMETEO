@@ -404,6 +404,84 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.3); }
 }
 .summary-hint i { width: 12px; height: 12px; flex-shrink: 0; }
 
+/* --- SELECTED LOCATION CARD --- */
+.summary-card--selected {
+    top: auto; /* override del posizionamento della card principale */
+    /* La posizione verrà calcolata dinamicamente via JS */
+    border-color: rgba(99, 179, 237, 0.4); /* bordo azzurro per distinguerla */
+    background: rgba(10, 20, 40, 0.82);
+}
+
+.selected-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    gap: 8px;
+}
+
+.selected-card-label {
+    font-size: 10px;
+    font-family: 'Space Mono', monospace;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    opacity: 0.8;
+}
+
+.set-home-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(99, 179, 237, 0.12);
+    border: 1px solid rgba(99, 179, 237, 0.35);
+    border-radius: 6px;
+    color: var(--accent);
+    font-size: 10px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    padding: 4px 8px;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+    white-space: nowrap;
+}
+
+.set-home-btn:hover {
+    background: rgba(99, 179, 237, 0.25);
+    border-color: rgba(99, 179, 237, 0.6);
+}
+
+.deselect-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: rgba(244, 63, 94, 0.12);
+    border: 1px solid rgba(244, 63, 94, 0.3);
+    border-radius: 6px;
+    color: #fda4af;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+    flex-shrink: 0;
+    padding: 0;
+}
+
+.deselect-btn:hover {
+    background: rgba(244, 63, 94, 0.28);
+    border-color: rgba(244, 63, 94, 0.6);
+}
+
+.deselect-btn svg {
+    width: 12px;
+    height: 12px;
+}
+
+.set-home-btn svg {
+    width: 12px;
+    height: 12px;
+}
+
 /* ── DETAIL PANEL (slides up from bottom) ── */
 .detail-panel {
     position: fixed;
@@ -414,15 +492,14 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.3); }
     border-top: 1px solid var(--glass-border);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    transform: translateY(calc(100% - 36px)); /* lascia visibile solo la tab */
+    transform: translateY(calc(100% - 36px)); /* sempre minimizzato di default */
     transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     flex-direction: column;
 }
 
-.detail-panel:hover,
-.detail-panel.open {
-    transform: translateY(0);
+.detail-panel:hover {
+    transform: translateY(0); /* si espande SOLO all'hover */
 }
 
 /* Tab di anteprima sempre visibile in basso */
@@ -948,9 +1025,9 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.3); }
 /* ── SETTINGS BUTTON ── */
 .settings-btn {
     position: fixed;
-    top: 50%;
+    bottom: 40px;
     right: 14px;
-    transform: translateY(-50%);
+    transform: none;
     z-index: 1000;
     width: 42px;
     height: 42px;

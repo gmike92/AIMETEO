@@ -135,7 +135,37 @@
         </div>
         <div class="summary-hint">
             <i data-lucide="mouse-pointer-click"></i>
-            Clicca sulla mappa per la griglia iperlocale
+            Clicca sulla mappa per cambiare località
+        </div>
+    </div>
+    
+    <!-- RIGHT: SELECTED LOCATION CARD (appare quando si clicca sulla mappa) -->
+    <div class="summary-card summary-card--selected" id="selected-card" style="display:none">
+        <div class="selected-card-header">
+            <span class="selected-card-label">📍 Selezionata</span>
+            <div style="display:flex;gap:5px;align-items:center;">
+                <button class="set-home-btn" id="set-home-btn" title="Imposta come Home">
+                    <i data-lucide="home"></i>
+                </button>
+                <button class="deselect-btn" id="deselect-btn" title="Deseleziona">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+        </div>
+        <div class="summary-location" id="selected-location">—</div>
+        <div class="summary-main">
+            <i data-lucide="sun" class="summary-cond-icon" id="selected-icon"></i>
+            <span class="summary-temp" id="selected-temp">—°</span>
+        </div>
+        <div class="summary-meta">
+            <div class="meta-row">
+                <i data-lucide="droplets"></i>
+                <span id="selected-precip">—%</span>
+            </div>
+            <div class="meta-row">
+                <i data-lucide="wind"></i>
+                <span id="selected-wind">— km/h</span>
+            </div>
         </div>
     </div>
 
@@ -178,7 +208,6 @@
         <div class="weather-grid" id="weather-grid">
             <div class="grid-empty">
                 <i data-lucide="cpu"></i>
-                <p>Clicca un punto sulla mappa per vedere la griglia AI</p>
             </div>
         </div>
     </div>

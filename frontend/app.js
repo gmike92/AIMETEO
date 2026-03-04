@@ -14,6 +14,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const summaryPrecip   = document.getElementById('summary-precip');
     const summaryWind     = document.getElementById('summary-wind');
 
+    const selectedCard     = document.getElementById('selected-card');
+    const selectedLocation = document.getElementById('selected-location');
+    const selectedIcon     = document.getElementById('selected-icon');
+    const selectedTemp     = document.getElementById('selected-temp');
+    const selectedPrecip   = document.getElementById('selected-precip');
+    const selectedWind     = document.getElementById('selected-wind');
+    const setHomeBtn       = document.getElementById('set-home-btn');
+
     const detailPanel     = document.getElementById('detail-panel');
     const panelClose      = document.getElementById('panel-close');
     const gridTimestamp   = document.getElementById('grid-timestamp');
@@ -50,6 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let baseData        = null;   // full API response
     let currentLayer    = 'temp'; // temp | precip | wind | all
+    let selectedLocationData = null; // dati della location cliccata sulla mappa
     let dayNightLayer   = null;
     let cloudsLayer     = null;
     let eventMarkers    = [];
@@ -277,7 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             clickLabel = label;
             placeClickMarker(lat, lng, label);
-            await fetchAndShowGrid(lat, lng);
+            await fetchAndShowGrid(lat, lng, label);
         });
     }
 
@@ -329,8 +338,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 homeLat = lat;
                 homeLon = lon;
 
-                // Aggiorna summary card
-                summaryLocation.textContent = label;
+                // Aggiorna summary card con i dati della selected card se disponibili
+                if (selectedLocationData && selectedLocationData.locationName === label) {
+                    renderSummaryCard(selectedLocationData.cell, label);
+                } else {
+                    summaryLocation.textContent = label;
+                }
 
                 // Aggiorna option home nel select
                 const customOpt = document.getElementById('custom-home-option') || document.createElement('option');
@@ -351,6 +364,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Piazza il marker Home
                 placeHomeMarker(lat, lon, label);
 
+                // Nascondi la selected card: la home è già aggiornata
+                hideSelectedCard();
+
                 clickMarker.closePopup();
             });
 
@@ -358,6 +374,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 radarMap.removeLayer(clickMarker);
                 clickMarker = null;
                 clickLabel  = null;
+                hideSelectedCard();
                 closePanel();
             });
 
@@ -474,25 +491,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // ── FETCH GRID FOR COORDS ─────────────────────────────────────────────────
-    async function fetchAndShowGrid(lat, lon) {
+    async function fetchAndShowGrid(lat, lon, locationName) {
         showLoading('Fetching AI grid...');
         try {
             const response = await fetch(`${API_BASE}/forecast?lat=${lat}&lon=${lon}`);
             if (!response.ok) throw new Error('API Error');
             const data = await response.json();
 
-            // Keep location name if clicking on current home
-            const locationName = baseData?.locationName || `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
-            baseData = { ...data, locationName };
+            const name = locationName || `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+            baseData = { ...data, locationName: name };
 
-            // Il marker viene ora gestito da placeClickMarker() prima del fetch
-
-            // Update grid timestamp
             gridTimestamp.textContent = new Date(data.timestamp).toLocaleString('it-IT', {
                 day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
             });
 
             updateGridDisplay();
+
+            // Aggiorna la selected card con la cella centrale
+            const targetCell = data.grid.find(c => c.is_target);
+            if (targetCell) {
+                updateSelectedCard(targetCell, name);
+            }
         } catch (err) {
             console.error(err);
         } finally {
@@ -907,6 +926,72 @@ function drawDayNightLayer(date) {
         summaryIcon.setAttribute('data-lucide', iconName);
         lucide.createIcons();
     }
+
+    // ── SELECTED LOCATION CARD ────────────────────────────────────────────────
+    function updateSelectedCard(cell, locationName) {
+        if (!cell) return;
+        selectedLocationData = { cell, locationName };
+
+        selectedLocation.textContent = locationName;
+        selectedTemp.textContent = `${cell.temp}°`;
+        selectedPrecip.textContent = `${cell.precip_prob}%`;
+        selectedWind.textContent = `${cell.wind_speed} km/h`;
+
+        const iconName = getConditionIcon(cell.condition);
+        selectedIcon.setAttribute('data-lucide', iconName);
+
+        // Posiziona la card subito sotto la home card
+        const homeBottom = summaryCard.offsetTop + summaryCard.offsetHeight;
+        selectedCard.style.top = (homeBottom + 12) + 'px';
+
+        selectedCard.style.display = 'block';
+        lucide.createIcons();
+    }
+
+    function hideSelectedCard() {
+        selectedCard.style.display = 'none';
+        selectedLocationData = null;
+    }
+
+    // "Imposta come Home" dalla selected card
+    setHomeBtn.addEventListener('click', () => {
+        if (!selectedLocationData) return;
+        const { cell, locationName } = selectedLocationData;
+
+        // Aggiorna home lat/lon se disponiamo delle coordinate
+        if (baseData?.center_coords) {
+            homeLat = baseData.center_coords.lat;
+            homeLon = baseData.center_coords.lon;
+        }
+
+        // Aggiorna la summary card home
+        renderSummaryCard(cell, locationName);
+
+        // Aggiorna option nel select
+        const customOpt = document.getElementById('custom-home-option') || document.createElement('option');
+        customOpt.id = 'custom-home-option';
+        customOpt.value = `${homeLat},${homeLon}`;
+        customOpt.textContent = `⌂ ${locationName}`;
+        if (!document.getElementById('custom-home-option')) {
+            locationSelect.insertBefore(customOpt, locationSelect.firstChild);
+        }
+        locationSelect.value = customOpt.value;
+
+        // Piazza marker home sulla mappa
+        if (homeLat && homeLon) placeHomeMarker(homeLat, homeLon, locationName);
+
+        // Nascondi la selected card
+        hideSelectedCard();
+    });
+
+    document.getElementById('deselect-btn').addEventListener('click', () => {
+        hideSelectedCard();
+        if (clickMarker) {
+            radarMap.removeLayer(clickMarker);
+            clickMarker = null;
+            clickLabel = null;
+        }
+    });
 
     // ── GRID DISPLAY ──────────────────────────────────────────────────────────
     function updateGridDisplay() {
