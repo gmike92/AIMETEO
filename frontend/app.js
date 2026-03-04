@@ -572,6 +572,13 @@ document.addEventListener('DOMContentLoaded', () => {
             renderSummaryCard(data.grid.find(c => c.is_target), locationName);
             summaryCard.style.display = 'block';
 
+            hideSelectedCard();
+            if (clickMarker) {
+                radarMap.removeLayer(clickMarker);
+                clickMarker = null;
+                clickLabel = null;
+            }
+
             // Popola hypergrid di default con la posizione corrente
             baseData = { ...data, locationName };
             gridTimestamp.textContent = new Date(data.timestamp).toLocaleString('it-IT', {
