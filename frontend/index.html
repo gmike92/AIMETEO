@@ -183,6 +183,127 @@
         </div>
     </div>
 
+    <!-- SETTINGS BUTTON -->
+    <button class="settings-btn" id="settings-btn">
+        <i data-lucide="settings-2"></i>
+    </button>
+
+    <!-- SETTINGS OVERLAY -->
+    <div class="settings-overlay" id="settings-overlay"></div>
+
+    <!-- SETTINGS DRAWER -->
+    <div class="settings-drawer" id="settings-drawer">
+        <div class="settings-header">
+            <div class="settings-header-title">
+                <i data-lucide="settings-2"></i>
+                Impostazioni
+            </div>
+            <button class="settings-close" id="settings-close">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+
+        <div class="settings-body">
+
+            <!-- Layer visibili -->
+            <div>
+                <div class="settings-section-title">
+                    <i data-lucide="layers"></i> Layer visibili nella sidebar
+                </div>
+                <div class="settings-row">
+                    <div class="settings-row-label"><i data-lucide="thermometer"></i> Temperatura</div>
+                    <label class="toggle"><input type="checkbox" data-layer-toggle="temp" checked><span class="toggle-slider"></span></label>
+                </div>
+                <div class="settings-row">
+                    <div class="settings-row-label"><i data-lucide="droplets"></i> Precipitazioni</div>
+                    <label class="toggle"><input type="checkbox" data-layer-toggle="precip" checked><span class="toggle-slider"></span></label>
+                </div>
+                <div class="settings-row">
+                    <div class="settings-row-label"><i data-lucide="wind"></i> Vento</div>
+                    <label class="toggle"><input type="checkbox" data-layer-toggle="wind" checked><span class="toggle-slider"></span></label>
+                </div>
+                <div class="settings-row">
+                    <div class="settings-row-label"><i data-lucide="sun-moon"></i> Giorno / Notte</div>
+                    <label class="toggle"><input type="checkbox" data-layer-toggle="daynight" checked><span class="toggle-slider"></span></label>
+                </div>
+                <div class="settings-row">
+                    <div class="settings-row-label"><i data-lucide="cloud"></i> Nuvole</div>
+                    <label class="toggle"><input type="checkbox" data-layer-toggle="clouds" checked><span class="toggle-slider"></span></label>
+                </div>
+                <div class="settings-row">
+                    <div class="settings-row-label"><i data-lucide="sparkles"></i> Aurora</div>
+                    <label class="toggle"><input type="checkbox" data-layer-toggle="aurora" checked><span class="toggle-slider"></span></label>
+                </div>
+                <div class="settings-row">
+                    <div class="settings-row-label"><i data-lucide="triangle-alert"></i> Eventi Atmosferici</div>
+                    <label class="toggle"><input type="checkbox" data-layer-toggle="hazards" checked><span class="toggle-slider"></span></label>
+                </div>
+                <div class="settings-row">
+                    <div class="settings-row-label"><i data-lucide="star"></i> Amazing</div>
+                    <label class="toggle"><input type="checkbox" data-layer-toggle="amazing" checked><span class="toggle-slider"></span></label>
+                </div>
+            </div>
+
+            <!-- Unità di misura -->
+            <div>
+                <div class="settings-section-title">
+                    <i data-lucide="ruler"></i> Unità di misura
+                </div>
+                <div class="settings-row">
+                    <div class="settings-row-label"><i data-lucide="thermometer"></i> Temperatura</div>
+                    <div class="unit-selector">
+                        <button class="unit-btn active" data-unit="temp" data-value="C">°C</button>
+                        <button class="unit-btn" data-unit="temp" data-value="F">°F</button>
+                    </div>
+                </div>
+                <div class="settings-row">
+                    <div class="settings-row-label"><i data-lucide="wind"></i> Vento</div>
+                    <div class="unit-selector">
+                        <button class="unit-btn active" data-unit="wind" data-value="kmh">km/h</button>
+                        <button class="unit-btn" data-unit="wind" data-value="ms">m/s</button>
+                        <button class="unit-btn" data-unit="wind" data-value="kt">kn</button>
+                    </div>
+                </div>
+                <div class="settings-row">
+                    <div class="settings-row-label"><i data-lucide="cloud-rain"></i> Precipitazioni</div>
+                    <div class="unit-selector">
+                        <button class="unit-btn active" data-unit="precip" data-value="mm">mm</button>
+                        <button class="unit-btn" data-unit="precip" data-value="in">in</button>
+                    </div>
+                </div>
+                <div class="settings-row">
+                    <div class="settings-row-label"><i data-lucide="gauge"></i> Pressione</div>
+                    <div class="unit-selector">
+                        <button class="unit-btn active" data-unit="pressure" data-value="hpa">hPa</button>
+                        <button class="unit-btn" data-unit="pressure" data-value="inhg">inHg</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lingua -->
+            <div>
+                <div class="settings-section-title">
+                    <i data-lucide="globe"></i> Lingua
+                </div>
+                <div class="lang-grid">
+                    <button class="lang-btn active" data-lang="it"><span class="lang-flag">🇮🇹</span>Italiano</button>
+                    <button class="lang-btn" data-lang="en"><span class="lang-flag">🇬🇧</span>English</button>
+                    <button class="lang-btn" data-lang="fr"><span class="lang-flag">🇫🇷</span>Français</button>
+                    <button class="lang-btn" data-lang="de"><span class="lang-flag">🇩🇪</span>Deutsch</button>
+                    <button class="lang-btn" data-lang="es"><span class="lang-flag">🇪🇸</span>Español</button>
+                    <button class="lang-btn" data-lang="pt"><span class="lang-flag">🇵🇹</span>Português</button>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="settings-footer">
+            <button class="settings-save-btn" id="settings-save">
+                Salva impostazioni
+            </button>
+        </div>
+    </div>
+
     <!-- LOADING OVERLAY -->
     <div class="loading-overlay" id="loading-overlay" style="display:none">
         <div class="loading-spinner"></div>

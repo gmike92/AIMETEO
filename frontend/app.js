@@ -68,6 +68,109 @@ document.addEventListener('DOMContentLoaded', () => {
             statusDot.classList.remove('online');
         }
     }
+    // ── SETTINGS ─────────────────────────────────────────────────────────────
+
+    // Stato impostazioni con default
+    let settings = {
+        layers:   { temp:true, precip:true, wind:true, daynight:true, clouds:true, aurora:true, hazards:true, amazing:true },
+        units:    { temp:'C', wind:'kmh', precip:'mm', pressure:'hpa' },
+        language: 'it'
+    };
+
+    // Carica da localStorage se presente
+    const saved = localStorage.getItem('aimeteo_settings');
+    if (saved) {
+        try { settings = { ...settings, ...JSON.parse(saved) }; } catch {}
+    }
+
+    function applySettings() {
+        // Mostra/nascondi layer buttons in sidebar
+        document.querySelectorAll('.layer-btn[data-layer]').forEach(btn => {
+            const layer = btn.dataset.layer;
+            btn.style.display = settings.layers[layer] === false ? 'none' : '';
+        });
+        // Mostra/nascondi flyout buttons
+        document.querySelectorAll('.flyout-btn[data-layer]').forEach(btn => {
+            const layer = btn.dataset.layer;
+            btn.style.display = settings.layers[layer] === false ? 'none' : '';
+        });
+    }
+
+    function syncSettingsUI() {
+        // Toggle layer
+        document.querySelectorAll('[data-layer-toggle]').forEach(input => {
+            input.checked = settings.layers[input.dataset.layerToggle] !== false;
+        });
+        // Unit buttons
+        document.querySelectorAll('.unit-btn[data-unit]').forEach(btn => {
+            btn.classList.toggle('active', settings.units[btn.dataset.unit] === btn.dataset.value);
+        });
+        // Language
+        document.querySelectorAll('.lang-btn[data-lang]').forEach(btn => {
+            btn.classList.toggle('active', settings.language === btn.dataset.lang);
+        });
+    }
+
+    // Drawer open/close
+    const settingsBtn     = document.getElementById('settings-btn');
+    const settingsDrawer  = document.getElementById('settings-drawer');
+    const settingsOverlay = document.getElementById('settings-overlay');
+    const settingsClose   = document.getElementById('settings-close');
+    const settingsSave    = document.getElementById('settings-save');
+
+    function openSettings() {
+        syncSettingsUI();
+        settingsDrawer.classList.add('open');
+        settingsOverlay.classList.add('open');
+    }
+    function closeSettings() {
+        settingsDrawer.classList.remove('open');
+        settingsOverlay.classList.remove('open');
+    }
+
+    settingsBtn.addEventListener('click', openSettings);
+    settingsClose.addEventListener('click', closeSettings);
+    settingsOverlay.addEventListener('click', closeSettings);
+
+    // Layer toggles
+    document.querySelectorAll('[data-layer-toggle]').forEach(input => {
+        input.addEventListener('change', () => {
+            settings.layers[input.dataset.layerToggle] = input.checked;
+        });
+    });
+
+    // Unit buttons
+    document.querySelectorAll('.unit-btn[data-unit]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            settings.units[btn.dataset.unit] = btn.dataset.value;
+            // Aggiorna visivamente tutti i btn dello stesso gruppo
+            document.querySelectorAll(`.unit-btn[data-unit="${btn.dataset.unit}"]`)
+                .forEach(b => b.classList.toggle('active', b === btn));
+        });
+    });
+
+    // Language buttons
+    document.querySelectorAll('.lang-btn[data-lang]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            settings.language = btn.dataset.lang;
+            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        });
+    });
+
+    // Salva
+    settingsSave.addEventListener('click', () => {
+        localStorage.setItem('aimeteo_settings', JSON.stringify(settings));
+        applySettings();
+        closeSettings();
+        // Feedback visivo
+        settingsSave.textContent = '✓ Salvato!';
+        setTimeout(() => { settingsSave.textContent = 'Salva impostazioni'; }, 1800);
+    });
+
+    // Applica subito al caricamento
+    applySettings();
+
     checkStatus();
     setInterval(checkStatus, 10_000);
 
