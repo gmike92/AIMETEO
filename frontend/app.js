@@ -254,6 +254,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     panelClose.addEventListener('click', closePanel);
 
+    // Mobile: tap on peek tab opens panel
+    document.querySelector('.detail-panel-peek')?.addEventListener('click', openPanel);
+
     // ── MAP INIT ──────────────────────────────────────────────────────────────
     function initMap(lat, lon) {
         if (radarMap) {
@@ -670,42 +673,110 @@ document.addEventListener('DOMContentLoaded', () => {
         if (currentLayer === 'amazing')  fetchAmazingLayer();
     }
 
-// ── CLOUDS LAYER (Open-Meteo via canvas tile) ──────────────────────────────
+// ── CLOUDS LAYER (SVG blob overlay, smooth & natural) ────────────────────
 async function drawCloudsLayer() {
-    // Open-Meteo non ha tile server: usiamo il suo API puntuale per
-    // colorare ogni tile canvas in base alla copertura nuvolosa interpolata.
-    // Per semplicità usiamo un GridLayer che campiona Open-Meteo sulla bbox.
-    cloudsLayer = L.GridLayer.extend({
-        createTile: function(coords) {
-            const tile = document.createElement('canvas');
-            const size = this.getTileSize();
-            tile.width  = size.x;
-            tile.height = size.y;
-            const ctx = tile.getContext('2d');
-            const TILE = 256;
+    if (!radarMap) return;
 
-            // Calcola centro geografico del tile
-            const worldX = (coords.x + 0.5) / Math.pow(2, coords.z);
-            const worldY = (coords.y + 0.5) / Math.pow(2, coords.z);
-            const lng = worldX * 360 - 180;
-            const latRad = Math.atan(Math.sinh(Math.PI * (1 - 2 * worldY)));
-            const lat = latRad * 180 / Math.PI;
+    // Sample a grid of points from Open-Meteo, then render as smooth SVG blobs
+    const bounds = radarMap.getBounds();
+    const zoom   = radarMap.getZoom();
 
-            // Fetch async: riempiamo il tile quando arriva la risposta
-            fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(2)}&longitude=${lng.toFixed(2)}&hourly=cloudcover&forecast_days=1&timezone=UTC`)
-                .then(r => r.json())
-                .then(data => {
-                    const cc = data?.hourly?.cloudcover?.[currentHourOffset] ?? 0;
-                    const alpha = (cc / 100) * 0.65;
-                    ctx.fillStyle = `rgba(180, 200, 220, ${alpha})`;
-                    ctx.fillRect(0, 0, TILE, TILE);
-                })
-                .catch(() => {});
+    // Density: more points at higher zoom
+    const steps = zoom >= 8 ? 7 : zoom >= 5 ? 5 : 4;
 
-            return tile;
+    const latMin = bounds.getSouth(), latMax = bounds.getNorth();
+    const lonMin = bounds.getWest(),  lonMax = bounds.getEast();
+    const latStep = (latMax - latMin) / steps;
+    const lonStep = (lonMax - lonMin) / steps;
+
+    // Build sample points
+    const points = [];
+    for (let i = 0; i <= steps; i++) {
+        for (let j = 0; j <= steps; j++) {
+            points.push({
+                lat: latMin + i * latStep,
+                lon: lonMin + j * lonStep
+            });
         }
+    }
+
+    // Fetch cloud cover for all points (batch: use bbox center with grid)
+    const centerLat = ((latMin + latMax) / 2).toFixed(3);
+    const centerLon = ((lonMin + lonMax) / 2).toFixed(3);
+    const latSpread = ((latMax - latMin) / 2).toFixed(3);
+    const lonSpread = ((lonMax - lonMin) / 2).toFixed(3);
+
+    // Fetch multiple points via individual requests (Open-Meteo is fast)
+    const fetchCloud = async (lat, lon) => {
+        try {
+            const r = await fetch(
+                `https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(2)}&longitude=${lon.toFixed(2)}&hourly=cloud_cover&forecast_days=1&timezone=UTC`
+            );
+            const d = await r.json();
+            return d?.hourly?.cloud_cover?.[currentHourOffset] ?? 0;
+        } catch { return 0; }
+    };
+
+    // Fetch a subset of points (not all — avoid rate limits)
+    const samplePoints = points.filter((_, i) => i % 2 === 0).slice(0, 16);
+    const coverValues  = await Promise.all(samplePoints.map(p => fetchCloud(p.lat, p.lon)));
+
+    // Build SVG overlay using Leaflet SVGOverlay
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const svgEl = document.createElementNS(svgNS, 'svg');
+    svgEl.setAttribute('xmlns', svgNS);
+    svgEl.setAttribute('width',  '100%');
+    svgEl.setAttribute('height', '100%');
+
+    const defs = document.createElementNS(svgNS, 'defs');
+
+    // One radial gradient definition
+    const grad = document.createElementNS(svgNS, 'radialGradient');
+    grad.setAttribute('id', 'cloudGrad');
+    grad.setAttribute('cx', '50%'); grad.setAttribute('cy', '50%');
+    grad.setAttribute('r',  '50%');
+    const s0 = document.createElementNS(svgNS, 'stop');
+    s0.setAttribute('offset', '0%');   s0.setAttribute('stop-color', 'rgba(200,215,230,0.7)');
+    const s1 = document.createElementNS(svgNS, 'stop');
+    s1.setAttribute('offset', '100%'); s1.setAttribute('stop-color', 'rgba(200,215,230,0)');
+    grad.appendChild(s0); grad.appendChild(s1);
+    defs.appendChild(grad);
+    svgEl.appendChild(defs);
+
+    // For each sampled point, place an ellipse sized by cloud cover
+    samplePoints.forEach((p, i) => {
+        const cc = coverValues[i]; // 0–100
+        if (cc < 10) return;       // skip clear sky
+
+        // Convert lat/lon → fractional position within the SVG bounds
+        const fx = (p.lon - lonMin) / (lonMax - lonMin);
+        const fy = 1 - (p.lat - latMin) / (latMax - latMin); // SVG y is flipped
+
+        // Blob radius proportional to cc and coverage density
+        const baseR = (1 / steps) * 0.9; // fraction of viewport
+        const rx = baseR * (0.8 + Math.sin(p.lat * 37) * 0.2); // slight organic variation
+        const ry = baseR * 0.65 * (0.8 + Math.cos(p.lon * 41) * 0.2);
+
+        const ellipse = document.createElementNS(svgNS, 'ellipse');
+        ellipse.setAttribute('cx', `${(fx * 100).toFixed(2)}%`);
+        ellipse.setAttribute('cy', `${(fy * 100).toFixed(2)}%`);
+        ellipse.setAttribute('rx', `${(rx * 100).toFixed(2)}%`);
+        ellipse.setAttribute('ry', `${(ry * 100).toFixed(2)}%`);
+        ellipse.setAttribute('fill', `url(#cloudGrad)`);
+        ellipse.setAttribute('opacity', (0.25 + (cc / 100) * 0.55).toFixed(2));
+        svgEl.appendChild(ellipse);
     });
-    cloudsLayer = new cloudsLayer({ zIndex: 6, opacity: 1, tileSize: 256 }).addTo(radarMap);
+
+    // Add a subtle blur filter for extra softness
+    const filter = document.createElementNS(svgNS, 'filter');
+    filter.setAttribute('id', 'cloudBlur');
+    const feBlur = document.createElementNS(svgNS, 'feGaussianBlur');
+    feBlur.setAttribute('stdDeviation', '4');
+    filter.appendChild(feBlur);
+    defs.appendChild(filter);
+    svgEl.querySelectorAll('ellipse').forEach(el => el.setAttribute('filter', 'url(#cloudBlur)'));
+
+    cloudsLayer = L.svgOverlay(svgEl, bounds, { opacity: 1, zIndex: 6 }).addTo(radarMap);
 }
 
 // ── CLEAR EVENT MARKERS ────────────────────────────────────────────────────

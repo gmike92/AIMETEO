@@ -499,7 +499,17 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.3); }
 }
 
 .detail-panel:hover {
-    transform: translateY(0); /* si espande SOLO all'hover */
+    transform: translateY(0); /* si espande all'hover su desktop */
+}
+
+/* On touch devices, hover doesn't work — panel is opened via JS tap */
+@media (hover: none) {
+    .detail-panel:hover {
+        transform: translateY(calc(100% - 36px));
+    }
+    .detail-panel.open {
+        transform: translateY(0);
+    }
 }
 
 /* Tab di anteprima sempre visibile in basso */
@@ -728,19 +738,189 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.3); }
 /* ── SPIN CLASS ── */
 .spin { animation: spin 0.8s linear infinite; }
 
-/* ── RESPONSIVE ── */
-@media (max-width: 768px) {
-    .summary-card { display: none; }
-    .weather-grid { grid-template-columns: repeat(3, 1fr); }
-    .top-bar { gap: 8px; }
-    .badge { display: none; }
-    .status-pill span { display: none; }
-    .run-btn span { display: none; }
-    .run-btn { padding: 8px; }
+/* ═══════════════════════════════════════════════════════
+   RESPONSIVE — TABLET  (≤ 900px)
+   ═══════════════════════════════════════════════════════ */
+@media (max-width: 900px) {
+    .search-bar { max-width: 240px; }
+    .summary-card { width: 170px; }
 }
 
-@media (max-width: 480px) {
-    .weather-grid { grid-template-columns: repeat(2, 1fr); }
+/* ═══════════════════════════════════════════════════════
+   RESPONSIVE — MOBILE  (≤ 640px)
+   ═══════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+
+    /* ── TOP BAR: two rows ── */
+    .top-bar {
+        flex-wrap: wrap;
+        padding: 8px 12px 6px;
+        gap: 8px;
+        row-gap: 6px;
+    }
+
+    .logo { flex: 1 0 auto; }
+    .badge { display: none; }
+
+    /* Status pill: icon only */
+    .status-pill { padding: 5px 8px; }
+    .status-pill span { display: none; }
+
+    /* Search bar: full-width second row */
+    .search-bar {
+        order: 10;
+        flex: 1 1 100%;
+        max-width: 100%;
+    }
+
+    /* Run button: icon only, fixed size */
+    .run-btn { padding: 8px 10px; }
+    .run-btn span { display: none; }
+
+    /* ── LEFT LAYER PANEL → horizontal strip at bottom-left ── */
+    .layer-panel {
+        left: 0; right: 0;
+        top: auto;
+        bottom: 70px;         /* above time bar */
+        transform: none;
+        flex-direction: row;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+        border-top: 1px solid var(--glass-border);
+        border-bottom: 1px solid var(--glass-border);
+        padding: 6px 12px;
+        gap: 2px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        justify-content: flex-start;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+    .layer-panel::-webkit-scrollbar { display: none; }
+
+    .layer-group-label { display: none; }
+
+    .layer-divider {
+        width: 1px;
+        height: 22px;
+        margin: 0 4px;
+    }
+
+    /* Flyout: opens upward on mobile */
+    .layer-flyout {
+        left: 50%;
+        transform: translateX(-50%);
+        top: auto;
+        bottom: calc(100% + 8px);
+    }
+
+    /* ── ZOOM CONTROL: move up so it's not behind panel ── */
+    .leaflet-control-zoom {
+        top: 64px !important;
+        left: 10px !important;
+    }
+
+    /* ── SUMMARY CARDS: horizontal strip across top-right ── */
+    .summary-card {
+        top: auto;
+        right: 0;
+        left: 0;
+        bottom: 140px;           /* above layer panel + time bar */
+        width: 100%;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+        flex-direction: row;
+        align-items: center;
+        padding: 10px 14px;
+        display: flex !important;    /* override inline display:none until data loads */
+        gap: 14px;
+    }
+    /* Keep hidden until data actually loads */
+    .summary-card[style*="display:none"],
+    .summary-card[style*="display: none"] {
+        display: none !important;
+    }
+    .summary-card .summary-location {
+        flex: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-bottom: 0;
+        font-size: 0.75rem;
+    }
+    .summary-card .summary-main {
+        margin-bottom: 0;
+        flex-shrink: 0;
+    }
+    .summary-card .summary-temp { font-size: 1.8rem; }
+    .summary-card .summary-meta {
+        flex-direction: row;
+        gap: 10px;
+        border-top: none;
+        border-left: 1px solid var(--glass-border);
+        padding-top: 0;
+        padding-left: 12px;
+        margin-bottom: 0;
+    }
+    .summary-card .summary-hint { display: none; }
+
+    .summary-card--selected {
+        bottom: 208px;     /* stack above the home card */
+    }
+
+    /* ── TIME BAR: compact ── */
+    .time-bar {
+        bottom: 0;
+        padding: 8px 12px 10px;
+    }
+    .time-bar.panel-open { bottom: var(--panel-h); }
+    .time-ticks { font-size: 0.55rem; }
+    .time-now-label { display: none; }
+
+    /* ── DETAIL PANEL: taller on mobile (takes more height) ── */
+    :root { --panel-h: 320px; }
+
+    .detail-panel-peek { font-size: 0.7rem; }
+
+    .panel-layer-tabs {
+        gap: 4px;
+        padding: 8px 10px;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+    .panel-layer-tabs::-webkit-scrollbar { display: none; }
+    .ptab { font-size: 0.72rem; padding: 4px 9px; white-space: nowrap; }
+
+    .weather-grid {
+        grid-template-columns: repeat(5, 1fr);
+        gap: 5px;
+        padding: 0 10px 12px;
+    }
+    .cell-card { padding: 7px 4px; border-radius: 8px; }
+    .cell-temp { font-size: 1rem; }
+    .cell-coords { font-size: 0.5rem; }
+
+    /* ── SETTINGS DRAWER: full-screen on mobile ── */
+    .settings-drawer { width: 100%; }
+
+    /* ── SETTINGS BUTTON: move up above layer panel ── */
+    .settings-btn {
+        bottom: 128px;
+        right: 12px;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════
+   RESPONSIVE — SMALL MOBILE  (≤ 375px)
+   ═══════════════════════════════════════════════════════ */
+@media (max-width: 375px) {
+    .weather-grid { grid-template-columns: repeat(3, 1fr); }
+    .summary-card .summary-meta { display: none; }
+    .logo-text { font-size: 0.95rem; }
 }
 
 /* ── GPS MARKER (pulsante blu dinamico) ── */
