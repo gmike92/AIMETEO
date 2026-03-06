@@ -41,6 +41,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const API_BASE = 'http://127.0.0.1:8000/api';
 
+    function normLon(lon) {
+        return ((lon + 180) % 360 + 360) % 360 - 180;
+    }
+
     // ── STATE ─────────────────────────────────────────────────────────────────
     let radarMap        = null;
     let rainLayer       = null;
@@ -699,7 +703,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const lats = [], lons = [];
         for (let i = 0; i <= GRID; i++) lats.push(+(Math.round((latMin + (latMax-latMin)*(i/GRID)) / SNAP) * SNAP).toFixed(2));
-        for (let j = 0; j <= GRID; j++) lons.push(+(Math.round((lonMin + (lonMax-lonMin)*(j/GRID)) / SNAP) * SNAP).toFixed(2));
+        for (let j = 0; j <= GRID; j++) lons.push(+normLon(Math.round((lonMin + (lonMax-lonMin)*(j/GRID)) / SNAP) * SNAP).toFixed(2));
 
         const missing = [];
         lats.forEach((la) => lons.forEach((lo) => {
@@ -826,36 +830,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const lats = [], lons = [];
         for (let i = 0; i <= GRID; i++) lats.push(+(Math.round((latMin + (latMax-latMin)*(i/GRID)) / SNAP) * SNAP).toFixed(2));
-        for (let j = 0; j <= GRID; j++) lons.push(+(Math.round((lonMin + (lonMax-lonMin)*(j/GRID)) / SNAP) * SNAP).toFixed(2));
+        for (let j = 0; j <= GRID; j++) lons.push(+normLon(Math.round((lonMin + (lonMax-lonMin)*(j/GRID)) / SNAP) * SNAP).toFixed(2));
 
         const missing = [];
         lats.forEach((la, i) => lons.forEach((lo, j) => {
-            const key = `${la}_${lo}_${currentHourOffset}`;
+            const key = `${la}_${normLon(lo)}_${currentHourOffset}`;
             if (!tempCache.has(key)) missing.push({ la, lo, key, i, j });
         }));
 
         if (missing.length > 0) {
-            const latStr = missing.map(p => p.la).join(',');
-            const lonStr = missing.map(p => p.lo).join(',');
-            try {
-                const r = await fetch(
-                    `https://api.open-meteo.com/v1/forecast?latitude=${latStr}&longitude=${lonStr}` +
-                    `&hourly=temperature_2m&forecast_days=2&timezone=UTC&timeformat=unixtime`
-                );
+            const CHUNK = 40;
+            for (let c = 0; c < missing.length; c += CHUNK) {
                 if (fetchId !== tempFetchId) return;
-                const d = await r.json();
-                const results = Array.isArray(d) ? d : [d];
-                results.forEach((res, idx) => {
-                    const val = res?.hourly?.temperature_2m?.[currentHourOffset] ?? null;
-                    if (val !== null && missing[idx]) tempCache.set(missing[idx].key, val);
-                });
-            } catch {}
+                const chunk = missing.slice(c, c + CHUNK);
+                const latStr = chunk.map(p => p.la).join(',');
+                const lonStr = chunk.map(p => p.lo).join(',');
+                try {
+                    const r = await fetch(
+                        `https://api.open-meteo.com/v1/forecast?latitude=${latStr}&longitude=${lonStr}` +
+                        `&hourly=temperature_2m&forecast_days=2&timezone=UTC&timeformat=unixtime`
+                    );
+                    if (fetchId !== tempFetchId) return;
+                    const d = await r.json();
+                    const results = Array.isArray(d) ? d : [d];
+                    results.forEach((res, idx) => {
+                        const val = res?.hourly?.temperature_2m?.[currentHourOffset] ?? null;
+                        if (val !== null && chunk[idx]) tempCache.set(chunk[idx].key, val);
+                    });
+                } catch {}
+            }
         }
 
         if (fetchId !== tempFetchId) return;
 
         const grid = lats.map(la => lons.map(lo => {
-            const key = `${la}_${lo}_${currentHourOffset}`;
+            const key = `${la}_${normLon(lo)}_${currentHourOffset}`;
             return tempCache.get(key) ?? null;
         }));
         const allVals = grid.flat().filter(v => v !== null);
@@ -927,11 +936,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const windCache = new Map();
 
     async function fetchWindForPoint(lat, lon) {
-        const key = `${lat.toFixed(1)}_${lon.toFixed(1)}_${currentHourOffset}`;
+        const key = `${lat.toFixed(1)}_${normLon(lon).toFixed(1)}_${currentHourOffset}`;
         if (windCache.has(key)) return windCache.get(key);
         try {
             const r = await fetch(
-                `https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(2)}&longitude=${lon.toFixed(2)}&hourly=wind_speed_10m,wind_direction_10m&forecast_days=2&timezone=UTC`
+                `https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(2)}&longitude=${normLon(lon).toFixed(2)}&hourly=wind_speed_10m,wind_direction_10m&forecast_days=2&timezone=UTC`
             );
             const d = await r.json();
             const speed = d?.hourly?.wind_speed_10m?.[currentHourOffset] ?? 0;
@@ -964,7 +973,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const gLats = [], gLons = [];
         for (let la = latMin; la <= latMax + gridStep; la += gridStep) gLats.push(Math.round(la / gridStep) * gridStep);
-        for (let lo = lonMin; lo <= lonMax + gridStep; lo += gridStep) gLons.push(Math.round(lo / gridStep) * gridStep);
+        for (let lo = lonMin; lo <= lonMax + gridStep; lo += gridStep) gLons.push(normLon(Math.round(lo / gridStep) * gridStep));
 
         const maxPoints = 64;
         const skipL = Math.max(1, Math.ceil(gLats.length * gLons.length / maxPoints));
@@ -1204,7 +1213,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const zoom  = radarMap.getZoom();
 
         auroraData.forEach(({ days, kp, minLat }) => {
-            const label = days === 0 ? 'Stasera' : `tra ${days} giorno${days > 1 ? 'i' : ''}`;
+            const label = days === 0 ? 'Stasera' : `tra ${days} ${days > 1 ? 'giorni' : 'giorno'}`;
             const intensity = Math.min(1, kp / 9);
             const alpha = 0.6 + intensity * 0.4;
             const numMarkers = zoom <= 4 ? 12 : zoom <= 6 ? 8 : 5;
@@ -1264,7 +1273,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const [lon, lat] = geo.coordinates;
                 const evtDate = new Date(geo.date).getTime();
                 const days    = Math.max(0, Math.round((evtDate - now) / 86400000));
-                const label   = days === 0 ? 'In corso' : `tra ${days} giorno${days>1?'i':''}`;
+                const label = days === 0 ? 'In corso' : `tra ${days} ${days > 1 ? 'giorni' : 'giorno'}`;
                 const el = document.createElement('div');
                 el.className = `event-marker ${meta.cls}`;
                 el.textContent = meta.emoji;
@@ -1299,7 +1308,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const evtDate = new Date(evt.date).getTime();
             const days = Math.round((evtDate - now) / 86400000);
             if (days < -1 || days > 7) return;
-            const label = days < 0 ? 'Concluso' : days === 0 ? 'Oggi!' : `tra ${days} giorno${days>1?'i':''}`;
+            const label = days < 0 ? 'Concluso' : days === 0 ? 'Oggi!' : `tra ${days} ${days > 1 ? 'giorni' : 'giorno'}`;
             const el = document.createElement('div');
             el.className = 'event-marker amazing';
             el.textContent = evt.emoji;
