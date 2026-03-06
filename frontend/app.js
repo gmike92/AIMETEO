@@ -712,21 +712,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }));
 
         if (missing.length > 0) {
-            const latStr = missing.map(p => p.la).join(',');
-            const lonStr = missing.map(p => p.lo).join(',');
-            try {
-                const r = await fetch(
-                    `https://api.open-meteo.com/v1/forecast?latitude=${latStr}&longitude=${lonStr}` +
-                    `&hourly=precipitation_probability&forecast_days=2&timezone=UTC&timeformat=unixtime`
-                );
+            const CHUNK = 40;
+            for (let c = 0; c < missing.length; c += CHUNK) {
                 if (fetchId !== precipFetchId) return;
-                const d = await r.json();
-                const results = Array.isArray(d) ? d : [d];
-                results.forEach((res, idx) => {
-                    const val = res?.hourly?.precipitation_probability?.[currentHourOffset] ?? 0;
-                    if (missing[idx]) precipCache.set(missing[idx].key, val);
-                });
-            } catch {}
+                const chunk = missing.slice(c, c + CHUNK);
+                const latStr = chunk.map(p => p.la).join(',');
+                const lonStr = chunk.map(p => p.lo).join(',');
+                try {
+                    const r = await fetch(
+                        `https://api.open-meteo.com/v1/forecast?latitude=${latStr}&longitude=${lonStr}` +
+                        `&hourly=precipitation_probability&forecast_days=2&timezone=UTC&timeformat=unixtime`
+                    );
+                    if (fetchId !== precipFetchId) return;
+                    const d = await r.json();
+                    const results = Array.isArray(d) ? d : [d];
+                    results.forEach((res, idx) => {
+                        const val = res?.hourly?.precipitation_probability?.[currentHourOffset] ?? 0;
+                        if (chunk[idx]) precipCache.set(chunk[idx].key, val);
+                    });
+                } catch {}
+            }
         }
 
         if (fetchId !== precipFetchId) return;
