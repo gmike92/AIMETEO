@@ -1447,3 +1447,87 @@ input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.3); }
     transition: opacity 0.35s;
 }
 .settings-overlay.open { opacity: 1; pointer-events: auto; }
+/* ── LEGEND BAR ──────────────────────────────────────────────────────────── */
+.legend-bar {
+    position: fixed;
+    top: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 900;
+    background: rgba(10, 14, 26, 0.82);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 40px;
+    padding: 8px 18px 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.45);
+    pointer-events: none;
+    animation: legendFadeIn 0.3s ease;
+}
+@keyframes legendFadeIn {
+    from { opacity: 0; transform: translateX(-50%) translateY(-8px); }
+    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+.legend-inner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.legend-gradient {
+    width: 180px;
+    height: 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.12);
+}
+.legend-label-min,
+.legend-label-max {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--muted);
+    white-space: nowrap;
+}
+.legend-title {
+    font-family: var(--font);
+    font-size: 0.62rem;
+    color: rgba(255,255,255,0.45);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+/* ── WIND ARROW MARKER ───────────────────────────────────────────────────── */
+.wind-arrow-marker {
+    background: none;
+    border: none;
+}
+.wind-arrow {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(10,14,26,0.55);
+    border: 1px solid rgba(255,255,255,0.12);
+    font-size: 14px;
+    transition: transform 0.4s ease;
+}
+
+/* ── AURORA GLOW ANIMATION ───────────────────────────────────────────────── */
+@keyframes auroraGlow {
+    from { opacity: 0.65; transform: scale(0.92); filter: blur(1px); }
+    to   { opacity: 1;    transform: scale(1.08); filter: blur(0px); }
+}
+
+/* ── WIND CANVAS (managed by JS, ensure no pointer capture) ──────────────── */
+.leaflet-overlay-pane canvas {
+    pointer-events: none !important;
+}
+
+/* ── IMAGE OVERLAY smoothing (temperatura / precipitazioni) ──────────────── */
+.leaflet-image-layer {
+    image-rendering: auto;
+    image-rendering: smooth;
+}
