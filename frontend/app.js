@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let clickHistory  = [];
 
     let baseData        = null;
-    let currentLayer    = 'temp';
+    let currentLayer    = 'precip';
     let selectedLocationData = null;
     let dayNightLayer    = null;
     let cloudsLayer      = null;
@@ -1386,9 +1386,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderSummaryCard(cell, locationName) {
         if (!cell) return;
         summaryLocation.textContent = locationName;
-        summaryTemp.textContent = `${cell.temp}°`;
+        summaryTemp.textContent = `${cell.temp_c}°`;
         summaryPrecip.textContent = `${cell.precip_prob}%`;
-        summaryWind.textContent = `${cell.wind_speed} km/h`;
+        summaryWind.textContent = `${cell.wind_speed_kmh} km/h`;
 
         const iconName = getConditionIcon(cell.condition);
         summaryIcon.setAttribute('data-lucide', iconName);
@@ -1401,9 +1401,9 @@ document.addEventListener('DOMContentLoaded', () => {
         selectedLocationData = { cell, locationName };
 
         selectedLocation.textContent = locationName;
-        selectedTemp.textContent = `${cell.temp}°`;
+        selectedTemp.textContent = `${cell.temp_c}°`;
         selectedPrecip.textContent = `${cell.precip_prob}%`;
-        selectedWind.textContent = `${cell.wind_speed} km/h`;
+        selectedWind.textContent = `${cell.wind_speed_kmh} km/h`;
 
         const iconName = getConditionIcon(cell.condition);
         selectedIcon.setAttribute('data-lucide', iconName);
@@ -1488,7 +1488,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const hue = Math.max(0, 240 - cell.temp * 8);
                 card.style.backgroundColor = `hsla(${hue}, 65%, 18%, 0.45)`;
                 inner += `
-                    <div class="cell-temp">${cell.temp}°</div>
+                    <div class="cell-temp">${cell.temp_c}°</div>
                     <i data-lucide="${getConditionIcon(cell.condition)}" class="cell-icon"></i>`;
             } else if (currentLayer === 'precip') {
                 const alpha = 0.12 + (cell.precip_prob / 100) * 0.55;
@@ -1499,7 +1499,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (currentLayer === 'wind') {
                 const color = cell.wind_speed > 10 ? 'var(--danger)' : 'var(--text)';
                 inner += `
-                    <div class="cell-temp" style="font-size:1rem; color:${color}">${cell.wind_speed}<span style="font-size:.55rem;margin-left:2px">km/h</span></div>
+                    <div class="cell-temp" style="font-size:1rem; color:${color}">${cell.wind_speed_kmh}<span style="font-size:.55rem;margin-left:2px">km/h</span></div>
                     <i data-lucide="navigation" class="cell-icon" style="transform:rotate(${cell.wind_dir}deg);transition:transform .3s"></i>`;
             } else if (currentLayer === 'clouds') {
                 const cc = Math.round(Math.random() * 40 + cell.precip_prob * 0.6);
