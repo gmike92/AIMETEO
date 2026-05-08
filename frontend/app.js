@@ -236,6 +236,9 @@ document.addEventListener('DOMContentLoaded', () => {
         currentHourOffset = parseInt(e.target.value);
         timeLabel.textContent = currentHourOffset === 0 ? '+0h' : `+${currentHourOffset}h`;
         if (baseData) updateGridDisplay();
+        if (currentLayer === 'precip' && currentHourOffset !== globalPrecipHour) {
+            refreshPrecipFallbackLayer();
+        }
     });
 
     // ── HOME BUTTON ───────────────────────────────────────────────────────────
@@ -562,6 +565,11 @@ document.addEventListener('DOMContentLoaded', () => {
             loadingMsg.textContent = 'Caricamento radar...';
             await loadRainViewer();
             updateRadarLayer();
+            setInterval(() => {
+                loadRainViewer().then(() => {
+                    if (currentLayer === 'precip') updateRadarLayer();
+                });
+            }, 5 * 60 * 1000);
 
             loadingMsg.textContent = 'Running AI inference...';
             const response = await fetch(`${API_BASE}/forecast?lat=${lat}&lon=${lon}`);
@@ -640,7 +648,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const showPrecipTiles = () => {
                 if (latestRainTime) {
                     const url = `https://tilecache.rainviewer.com/v2/radar/${latestRainTime}/256/{z}/{x}/{y}/2/1_1.png`;
-                    rainLayer = L.tileLayer(url, { opacity: 0.7, zIndex: 10, maxZoom: 19, minZoom: 1 }).addTo(radarMap);
+                    rainLayer = L.tileLayer(url, { opacity: 0.7, zIndex: 10, maxZoom: 19, minZoom: 1 });
+                    rainLayer.on('tileerror', () => {
+                        radarMap.removeLayer(rainLayer);
+                        rainLayer = null;
+                        latestRainTime = null;
+                        refreshPrecipFallbackLayer();
+                    });
+                    rainLayer.addTo(radarMap);
                 } else {
                     refreshPrecipFallbackLayer();
                 }
@@ -665,88 +680,65 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
-    // PRECIPITAZIONI FALLBACK
-    // FIX: il canvas viene renderizzato offscreen con coordinate geografiche,
-    // poi passato a L.imageOverlay(dataUrl, bounds) che gestisce il posizionamento.
+    // PRECIPITAZIONI — griglia globale stabile
+    // Griglia mondiale precalcolata a 2.5° (non dipendente dai bounds/zoom).
+    // Fetchata una volta, aggiornata ogni ora. Il canvas copre il mondo intero.
     // ═══════════════════════════════════════════════════════════════════════════
-    const precipCache = new Map();
-    let precipFetchId = 0;
+    const precipCache   = new Map();   // key: `prec_${la}_${lo}_${hOffset}`
+    let precipFetchId   = 0;
+    let globalPrecipOverlay = null;    // L.imageOverlay mondiale
+    let globalPrecipHour = -1;         // ora per cui il layer è stato renderizzato
 
-    function precipToColor(prob) {
-        if (prob < 5)  return [34, 211, 238, 0];
-        if (prob < 20) return [34, 211, 238, Math.round(prob * 1.5)];
-        if (prob < 50) return [14, 165, 233, Math.round(80 + prob)];
-        if (prob < 80) return [99, 102, 241, Math.round(120 + prob * 0.8)];
-        return [162, 28, 175, Math.round(160 + prob * 0.6)];
+    const PRECIP_SNAP = 2.5;           // risoluzione griglia globale (gradi)
+
+    // Griglia mondiale fissa: latitudini -90→90, longitudini -180→180
+    function buildGlobalGrid() {
+        const lats = [], lons = [];
+        for (let la = -90; la <= 90; la = Math.round((la + PRECIP_SNAP) * 10) / 10) {
+            lats.push(+la.toFixed(1));
+        }
+        for (let lo = -180; lo <= 180; lo = Math.round((lo + PRECIP_SNAP) * 10) / 10) {
+            lons.push(+lo.toFixed(1));
+        }
+        return { lats, lons };
     }
 
     function removePrecipOverlay() {
-        if (precipImageOverlay) {
-            radarMap.removeLayer(precipImageOverlay);
-            precipImageOverlay = null;
+        if (globalPrecipOverlay) {
+            radarMap.removeLayer(globalPrecipOverlay);
+            globalPrecipOverlay = null;
         }
     }
 
     async function refreshPrecipFallbackLayer() {
         if (!radarMap) return;
-        removePrecipOverlay();
         const fetchId = ++precipFetchId;
 
-        const zoom   = radarMap.getZoom();
-        const bounds = radarMap.getBounds();
+        // Fetch griglia dal backend (cachata 60min, niente chiamate dirette a Open-Meteo)
+        let snap = 5.0;
+        try {
+            const r = await fetch(`${API_BASE}/precip-grid?hour_offset=${currentHourOffset}`);
+            if (!r.ok) throw new Error(`Backend error: ${r.status}`);
+            const d = await r.json();
+            snap = d.snap || 5.0;
 
-        const GRID = zoom <= 4 ? 6 : zoom <= 7 ? 9 : 12;
-        const SNAP = zoom <= 5 ? 2.0 : zoom <= 8 ? 0.5 : 0.25;
-
-        const latMin = bounds.getSouth(), latMax = bounds.getNorth();
-        const lonMin = bounds.getWest(),  lonMax = bounds.getEast();
-
-        const lats = [], lons = [];
-        for (let i = 0; i <= GRID; i++) lats.push(+(Math.round((latMin + (latMax-latMin)*(i/GRID)) / SNAP) * SNAP).toFixed(2));
-        for (let j = 0; j <= GRID; j++) lons.push(+normLon(Math.round((lonMin + (lonMax-lonMin)*(j/GRID)) / SNAP) * SNAP).toFixed(2));
-
-        const missing = [];
-        lats.forEach((la) => lons.forEach((lo) => {
-            const key = `prec_${la}_${lo}_${currentHourOffset}`;
-            if (!precipCache.has(key)) missing.push({ la, lo, key });
-        }));
-
-        if (missing.length > 0) {
-            const CHUNK = 40;
-            for (let c = 0; c < missing.length; c += CHUNK) {
-                if (fetchId !== precipFetchId) return;
-                const chunk = missing.slice(c, c + CHUNK);
-                const latStr = chunk.map(p => p.la).join(',');
-                const lonStr = chunk.map(p => p.lo).join(',');
-                try {
-                    const r = await fetch(
-                        `https://api.open-meteo.com/v1/forecast?latitude=${latStr}&longitude=${lonStr}` +
-                        `&hourly=precipitation_probability&forecast_days=2&timezone=UTC&timeformat=unixtime`
-                    );
-                    if (fetchId !== precipFetchId) return;
-                    const d = await r.json();
-                    const results = Array.isArray(d) ? d : [d];
-                    results.forEach((res, idx) => {
-                        const val = res?.hourly?.precipitation_probability?.[currentHourOffset] ?? 0;
-                        if (chunk[idx]) precipCache.set(chunk[idx].key, val);
-                    });
-                } catch {}
-            }
+            // Popola cache locale
+            Object.entries(d.points).forEach(([key, val]) => {
+                const [la, lo] = key.split(',').map(Number);
+                precipCache.set(`prec_${la}_${lo}_${currentHourOffset}`, val);
+            });
+        } catch (e) {
+            console.warn('[precip] Fetch griglia fallito:', e);
+            return;
         }
 
         if (fetchId !== precipFetchId) return;
 
-        const grid = lats.map(la => lons.map(lo => {
-            const key = `prec_${la}_${lo}_${currentHourOffset}`;
-            return precipCache.get(key) ?? 0;
-        }));
-
-        // Render offscreen: le coordinate pixel sono calcolate direttamente
-        // in spazio geografico, NON in pixel schermo. L.imageOverlay si occupa
-        // di mappare i bounds geografici ai pixel corretti durante pan/zoom.
-        const RW = 256, RH = 256;
+        // Canvas mondiale fisso — bounds non cambiano mai con zoom/pan
+        const worldBounds = L.latLngBounds(L.latLng(-85, -180), L.latLng(85, 180));
+        const RW = 720, RH = 360;
         const offscreen = document.createElement('canvas');
-        offscreen.width = RW;
+        offscreen.width  = RW;
         offscreen.height = RH;
         const ctx = offscreen.getContext('2d');
         const imgData = ctx.createImageData(RW, RH);
@@ -754,28 +746,45 @@ document.addEventListener('DOMContentLoaded', () => {
 
         for (let py = 0; py < RH; py++) {
             for (let px = 0; px < RW; px++) {
-                // Interpola in spazio geografico (lat decresce top→bottom)
-                const lat = latMax - (py / (RH - 1)) * (latMax - latMin);
-                const lng = lonMin + (px / (RW - 1)) * (lonMax - lonMin);
+                const lat =  85  - (py / (RH - 1)) * 170;
+                const lng = -180 + (px / (RW - 1)) * 360;
 
-                const fi  = (lat - lats[0]) / (lats[GRID] - lats[0]) * GRID;
-                const fj  = (lng - lons[0]) / (lons[GRID] - lons[0]) * GRID;
-                const ii  = Math.max(0, Math.min(GRID-1, Math.floor(fi)));
-                const jj  = Math.max(0, Math.min(GRID-1, Math.floor(fj)));
-                const di  = fi - ii, dj = fj - jj;
-                const prob = grid[ii][jj]             * (1-di) * (1-dj)
-                           + (grid[ii][jj+1]   || 0)  * (1-di) * dj
-                           + (grid[ii+1]?.[jj]  || 0) * di     * (1-dj)
-                           + (grid[ii+1]?.[jj+1]|| 0) * di     * dj;
-                const [r,g,b,a] = precipToColor(prob);
+                const la0 = +(Math.floor(lat / snap) * snap).toFixed(1);
+                const la1 = +(la0 + snap).toFixed(1);
+                const lo0 = +(Math.floor(lng / snap) * snap).toFixed(1);
+                const lo1 = +(lo0 + snap).toFixed(1);
+
+                const di = (lat - la0) / snap;
+                const dj = (lng - lo0) / snap;
+
+                const v00 = precipCache.get(`prec_${la0}_${lo0}_${currentHourOffset}`) ?? 0;
+                const v01 = precipCache.get(`prec_${la0}_${lo1}_${currentHourOffset}`) ?? 0;
+                const v10 = precipCache.get(`prec_${la1}_${lo0}_${currentHourOffset}`) ?? 0;
+                const v11 = precipCache.get(`prec_${la1}_${lo1}_${currentHourOffset}`) ?? 0;
+
+                const prob = v00 * (1-di) * (1-dj)
+                        + v01 * (1-di) * dj
+                        + v10 * di     * (1-dj)
+                        + v11 * di     * dj;
+
+                const [r, g, b, a] = precipToColor(prob);
                 const k = (py * RW + px) * 4;
                 data[k]=r; data[k+1]=g; data[k+2]=b; data[k+3]=a;
             }
         }
+
         ctx.putImageData(imgData, 0, 0);
 
-        const dataUrl = offscreen.toDataURL();
-        precipImageOverlay = L.imageOverlay(dataUrl, bounds, { opacity: 0.85, zIndex: 10 }).addTo(radarMap);
+        if (fetchId !== precipFetchId) return;
+
+        removePrecipOverlay();
+        globalPrecipOverlay = L.imageOverlay(
+            offscreen.toDataURL(),
+            worldBounds,
+            { opacity: 0.85, zIndex: 10, interactive: false }
+        ).addTo(radarMap);
+
+        globalPrecipHour = currentHourOffset;
     }
 
     // ═══════════════════════════════════════════════════════════════════════════
@@ -980,7 +989,7 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let la = latMin; la <= latMax + gridStep; la += gridStep) gLats.push(Math.round(la / gridStep) * gridStep);
         for (let lo = lonMin; lo <= lonMax + gridStep; lo += gridStep) gLons.push(normLon(Math.round(lo / gridStep) * gridStep));
 
-        const maxPoints = 64;
+        const maxPoints = 100;
         const skipL = Math.max(1, Math.ceil(gLats.length * gLons.length / maxPoints));
         const allPoints = [];
         gLats.forEach(la => gLons.forEach(lo => allPoints.push({ lat: la, lon: lo })));

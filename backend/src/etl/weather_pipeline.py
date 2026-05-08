@@ -18,6 +18,7 @@ import logging
 import httpx
 from datetime import datetime, timezone
 from typing import Optional
+import asyncio
 
 from models.schemas import (
     HourlyForecast, DailyForecast, ForecastResponse,
@@ -178,8 +179,13 @@ async def _fetch_open_meteo(lat: float, lon: float) -> Optional[ForecastResponse
 
     try:
         async with httpx.AsyncClient(timeout=15.0) as client:
-            resp = await client.get(url, params=params)
-            resp.raise_for_status()
+            for attempt in range(3):
+                resp = await client.get(url, params=params)
+                if resp.status_code == 429:
+                    await asyncio.sleep(1.5 * (attempt + 1))
+                    continue
+                resp.raise_for_status()
+                break
             data = resp.json()
     except Exception as e:
         logger.error(f"[open_meteo] Errore HTTP: {e}")

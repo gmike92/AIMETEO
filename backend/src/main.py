@@ -141,6 +141,70 @@ async def all_bulletins_endpoint():
         ],
     }
 
+@app.get("/api/precip-grid")
+async def precip_grid_endpoint(hour_offset: int = 0):
+    """
+    Griglia globale precipitazioni per il layer frontend.
+    Cachata 60 minuti — evita che frontend e backend si pestino i piedi
+    su Open-Meteo.
+    """
+    import asyncio
+    from cache import cache
+
+    cache_key = f"precip_grid_{hour_offset}"
+    cached = cache.get(cache_key)
+    if cached:
+        return cached
+
+    # Griglia globale a 5°
+    snap = 5.0
+    points = []
+    la = -90.0
+    while la <= 90.0:
+        lo = -180.0
+        while lo <= 180.0:
+            points.append((round(la, 1), round(lo, 1)))
+            lo = round(lo + snap, 1)
+        la = round(la + snap, 1)
+
+    # Fetch in batch con delay tra chunk
+    CHUNK = 40
+    results = {}
+    for c in range(0, len(points), CHUNK):
+        chunk = points[c:c + CHUNK]
+        lat_str = ",".join(str(p[0]) for p in chunk)
+        lon_str = ",".join(str(p[1]) for p in chunk)
+        for attempt in range(3):
+            try:
+                async with httpx.AsyncClient(timeout=15.0) as client:
+                    r = await client.get(
+                        "https://api.open-meteo.com/v1/forecast",
+                        params={
+                            "latitude": lat_str,
+                            "longitude": lon_str,
+                            "hourly": "precipitation_probability",
+                            "forecast_days": 2,
+                            "timezone": "UTC",
+                            "timeformat": "unixtime",
+                        }
+                    )
+                if r.status_code == 429:
+                    await asyncio.sleep(1.5 * (attempt + 1))
+                    continue
+                data = r.json()
+                items = data if isinstance(data, list) else [data]
+                for i, item in enumerate(items):
+                    val = item.get("hourly", {}).get("precipitation_probability", [0])[hour_offset] or 0
+                    la_, lo_ = chunk[i]
+                    results[f"{la_},{lo_}"] = val
+                break
+            except Exception:
+                await asyncio.sleep(1.0)
+        await asyncio.sleep(0.3)  # delay tra chunk
+
+    payload = {"snap": snap, "points": results}
+    cache.set(cache_key, payload, TTL_FORECAST)
+    return payload
 
 # ──────────────────────────────────────────────────────────────────────────────
 # CACHE MANAGEMENT (dev/ops)
