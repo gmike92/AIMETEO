@@ -1,0 +1,1846 @@
+{
+ "_note": "Seed sample for schema v1. Values are plausible references compiled from public sources and MUST be verified by the Route DB curator (a guide/alpinist) before production. verified_at is null on purpose — verification is the moat. GPX tracks and per-50m route_sample rows are omitted here (ingested separately from real GPX + Earth Engine DEM).",
+ "_zone_note": "avalanche_zone = EAWS macro-region file id (verified against static.avalanche.report). avalanche_subzone = micro-region id; some are best-effort and flagged — curator to confirm exact micro-region per route. Connector falls back to the file's most-dangerous bulletin when subzone is unmatched (conservative).",
+ "areas": [
+  {
+   "id": "area-ortles-cevedale",
+   "name": "Ortles-Cevedale",
+   "country": "IT",
+   "region": "Trentino-Alto Adige",
+   "default_locale": "it",
+   "avalanche_service": "AINEVA",
+   "avalanche_zone": "IT-32-BZ",
+   "avalanche_subzone": "IT-32-BZ-14"
+  },
+  {
+   "id": "area-dolomiti-fassa",
+   "name": "Dolomiti di Fassa (Marmolada)",
+   "country": "IT",
+   "region": "Trentino-Alto Adige",
+   "default_locale": "it",
+   "avalanche_service": "AINEVA",
+   "avalanche_zone": "IT-32-TN",
+   "avalanche_subzone": null
+  },
+  {
+   "id": "area-gran-paradiso",
+   "name": "Gran Paradiso",
+   "country": "IT",
+   "region": "Valle d'Aosta",
+   "default_locale": "it",
+   "avalanche_service": "AINEVA",
+   "avalanche_zone": "IT-23",
+   "avalanche_subzone": "IT-23-AO-21"
+  },
+  {
+   "id": "area-dolomiti-ampezzo",
+   "name": "Dolomiti Ampezzane",
+   "country": "IT",
+   "region": "Veneto",
+   "default_locale": "it",
+   "avalanche_service": "AINEVA",
+   "avalanche_zone": "IT-34",
+   "avalanche_subzone": null
+  },
+  {
+   "id": "area-orobie",
+   "name": "Alpi Orobie",
+   "country": "IT",
+   "region": "Lombardia",
+   "default_locale": "it",
+   "avalanche_service": "AINEVA",
+   "avalanche_zone": "IT-25",
+   "avalanche_subzone": "IT-25-BG-02"
+  }
+ ],
+ "refuges": [
+  {
+   "id": "ref-vioz",
+   "name": "Rifugio Vioz - Mantova",
+   "type": "rifugio",
+   "altitude_m": 3535
+  },
+  {
+   "id": "ref-vittorio-emanuele",
+   "name": "Rifugio Vittorio Emanuele II",
+   "type": "rifugio",
+   "altitude_m": 2732
+  }
+ ],
+ "routes": [
+  {
+   "slug": "scialpinismo-monte-vioz-da-pejo",
+   "name": "Monte Vioz da Pejo",
+   "area_id": "area-ortles-cevedale",
+   "activity": "scialpinismo",
+   "diff_scale": "BSA",
+   "diff_grade": "BSA",
+   "diff_index": 70,
+   "start_altitude_m": 1400,
+   "max_altitude_m": 3645,
+   "vertical_gain_m": 2245,
+   "avg_ascent_min": 360,
+   "avg_descent_min": 90,
+   "primary_aspects": [
+    "N",
+    "NE"
+   ],
+   "max_slope_deg": 35,
+   "ideal_conditions": "Salita lunga e d'alta quota; ideale con neve assestata e gelo notturno, discesa a neve trasformata nelle ore centrali.",
+   "exposure_notes": "Quota elevata, esposizione al vento sulla parte alta; attenzione a placche da vento sotto la vetta.",
+   "refuges": [
+    {
+     "id": "ref-vioz",
+     "role": "appoggio"
+    }
+   ],
+   "source": "CAI / Gulliver (riferimento pubblico)",
+   "verified_at": null
+  },
+  {
+   "slug": "alpinismo-gran-paradiso-via-normale",
+   "name": "Gran Paradiso - Via Normale dal Rif. Vittorio Emanuele II",
+   "area_id": "area-gran-paradiso",
+   "activity": "alpinismo",
+   "diff_scale": "FERRATA",
+   "diff_grade": "F+ (passaggio finale di roccia alla Madonna)",
+   "diff_index": 45,
+   "start_altitude_m": 1960,
+   "max_altitude_m": 4061,
+   "vertical_gain_m": 2101,
+   "avg_ascent_min": 420,
+   "avg_descent_min": 240,
+   "primary_aspects": [
+    "N",
+    "NW"
+   ],
+   "max_slope_deg": 35,
+   "ideal_conditions": "Ghiacciaio; partenza notturna dal rifugio, vetta in mattinata prima del rammollimento dei ponti di neve.",
+   "exposure_notes": "Crepacci sul Ghiacciaio del Gran Paradiso; tratto roccioso esposto e affollato in vetta.",
+   "refuges": [
+    {
+     "id": "ref-vittorio-emanuele",
+     "role": "base"
+    }
+   ],
+   "source": "CAI (riferimento pubblico)",
+   "verified_at": null,
+   "start_lat": 45.524651,
+   "start_lon": 7.200858,
+   "track_points": [
+    {
+     "lat": 45.524651,
+     "lon": 7.200858,
+     "ele": 1989.6
+    },
+    {
+     "lat": 45.524421,
+     "lon": 7.202615,
+     "ele": 1940.6
+    },
+    {
+     "lat": 45.522516,
+     "lon": 7.202767,
+     "ele": 1947.3
+    },
+    {
+     "lat": 45.521633,
+     "lon": 7.203482,
+     "ele": 1957.4
+    },
+    {
+     "lat": 45.52087,
+     "lon": 7.203508,
+     "ele": 1956.9
+    },
+    {
+     "lat": 45.519717,
+     "lon": 7.204458,
+     "ele": 1961.2
+    },
+    {
+     "lat": 45.519104,
+     "lon": 7.20475,
+     "ele": 1962.7
+    },
+    {
+     "lat": 45.51894,
+     "lon": 7.204527,
+     "ele": 1966.5
+    },
+    {
+     "lat": 45.517742,
+     "lon": 7.205324,
+     "ele": 1974.7
+    },
+    {
+     "lat": 45.51632,
+     "lon": 7.206576,
+     "ele": 1993.0
+    },
+    {
+     "lat": 45.51558,
+     "lon": 7.207428,
+     "ele": 2017.9
+    },
+    {
+     "lat": 45.515162,
+     "lon": 7.207749,
+     "ele": 2027.6
+    },
+    {
+     "lat": 45.51412,
+     "lon": 7.208587,
+     "ele": 2057.4
+    },
+    {
+     "lat": 45.514901,
+     "lon": 7.209025,
+     "ele": 2081.9
+    },
+    {
+     "lat": 45.514503,
+     "lon": 7.209649,
+     "ele": 2116.5
+    },
+    {
+     "lat": 45.515061,
+     "lon": 7.209776,
+     "ele": 2125.1
+    },
+    {
+     "lat": 45.515256,
+     "lon": 7.210542,
+     "ele": 2154.9
+    },
+    {
+     "lat": 45.514872,
+     "lon": 7.210977,
+     "ele": 2184.7
+    },
+    {
+     "lat": 45.513995,
+     "lon": 7.211005,
+     "ele": 2218.4
+    },
+    {
+     "lat": 45.513882,
+     "lon": 7.211476,
+     "ele": 2245.3
+    },
+    {
+     "lat": 45.514348,
+     "lon": 7.212582,
+     "ele": 2291.9
+    },
+    {
+     "lat": 45.514411,
+     "lon": 7.213275,
+     "ele": 2318.4
+    },
+    {
+     "lat": 45.513949,
+     "lon": 7.213539,
+     "ele": 2338.5
+    },
+    {
+     "lat": 45.514157,
+     "lon": 7.21537,
+     "ele": 2376.5
+    },
+    {
+     "lat": 45.513493,
+     "lon": 7.216437,
+     "ele": 2399.6
+    },
+    {
+     "lat": 45.514102,
+     "lon": 7.21666,
+     "ele": 2424.6
+    },
+    {
+     "lat": 45.514377,
+     "lon": 7.217729,
+     "ele": 2460.6
+    },
+    {
+     "lat": 45.514611,
+     "lon": 7.218397,
+     "ele": 2497.6
+    },
+    {
+     "lat": 45.514585,
+     "lon": 7.219352,
+     "ele": 2521.7
+    },
+    {
+     "lat": 45.51447,
+     "lon": 7.220053,
+     "ele": 2535.6
+    },
+    {
+     "lat": 45.513977,
+     "lon": 7.221287,
+     "ele": 2564.0
+    },
+    {
+     "lat": 45.51468,
+     "lon": 7.221187,
+     "ele": 2588.0
+    },
+    {
+     "lat": 45.51488,
+     "lon": 7.222706,
+     "ele": 2607.7
+    },
+    {
+     "lat": 45.513798,
+     "lon": 7.22456,
+     "ele": 2651.0
+    },
+    {
+     "lat": 45.513109,
+     "lon": 7.227982,
+     "ele": 2688.0
+    },
+    {
+     "lat": 45.512604,
+     "lon": 7.229172,
+     "ele": 2716.3
+    },
+    {
+     "lat": 45.512963,
+     "lon": 7.229903,
+     "ele": 2725.0
+    },
+    {
+     "lat": 45.512597,
+     "lon": 7.229448,
+     "ele": 2726.0
+    },
+    {
+     "lat": 45.513257,
+     "lon": 7.229064,
+     "ele": 2726.9
+    },
+    {
+     "lat": 45.512531,
+     "lon": 7.229527,
+     "ele": 2726.9
+    },
+    {
+     "lat": 45.512566,
+     "lon": 7.229807,
+     "ele": 2726.4
+    },
+    {
+     "lat": 45.513501,
+     "lon": 7.231617,
+     "ele": 2742.3
+    },
+    {
+     "lat": 45.51544,
+     "lon": 7.232633,
+     "ele": 2787.0
+    },
+    {
+     "lat": 45.517054,
+     "lon": 7.232478,
+     "ele": 2827.8
+    },
+    {
+     "lat": 45.517491,
+     "lon": 7.233114,
+     "ele": 2844.2
+    },
+    {
+     "lat": 45.517527,
+     "lon": 7.234718,
+     "ele": 2878.8
+    },
+    {
+     "lat": 45.518456,
+     "lon": 7.23622,
+     "ele": 2910.5
+    },
+    {
+     "lat": 45.518638,
+     "lon": 7.239343,
+     "ele": 2972.5
+    },
+    {
+     "lat": 45.519096,
+     "lon": 7.239534,
+     "ele": 2985.5
+    },
+    {
+     "lat": 45.519301,
+     "lon": 7.241602,
+     "ele": 3022.5
+    },
+    {
+     "lat": 45.519745,
+     "lon": 7.242817,
+     "ele": 3045.1
+    },
+    {
+     "lat": 45.519837,
+     "lon": 7.24333,
+     "ele": 3061.5
+    },
+    {
+     "lat": 45.51967,
+     "lon": 7.244937,
+     "ele": 3098.5
+    },
+    {
+     "lat": 45.519771,
+     "lon": 7.246264,
+     "ele": 3118.2
+    },
+    {
+     "lat": 45.519045,
+     "lon": 7.247698,
+     "ele": 3162.4
+    },
+    {
+     "lat": 45.519312,
+     "lon": 7.248459,
+     "ele": 3181.6
+    },
+    {
+     "lat": 45.519913,
+     "lon": 7.249953,
+     "ele": 3229.2
+    },
+    {
+     "lat": 45.518686,
+     "lon": 7.249804,
+     "ele": 3264.8
+    },
+    {
+     "lat": 45.518833,
+     "lon": 7.250862,
+     "ele": 3288.3
+    },
+    {
+     "lat": 45.517057,
+     "lon": 7.250426,
+     "ele": 3333.0
+    },
+    {
+     "lat": 45.514965,
+     "lon": 7.251547,
+     "ele": 3405.1
+    },
+    {
+     "lat": 45.513857,
+     "lon": 7.252824,
+     "ele": 3452.7
+    },
+    {
+     "lat": 45.514503,
+     "lon": 7.253406,
+     "ele": 3472.9
+    },
+    {
+     "lat": 45.514794,
+     "lon": 7.254093,
+     "ele": 3492.6
+    },
+    {
+     "lat": 45.514757,
+     "lon": 7.254397,
+     "ele": 3509.4
+    },
+    {
+     "lat": 45.515094,
+     "lon": 7.254729,
+     "ele": 3527.7
+    },
+    {
+     "lat": 45.515127,
+     "lon": 7.255109,
+     "ele": 3543.6
+    },
+    {
+     "lat": 45.513681,
+     "lon": 7.255565,
+     "ele": 3597.4
+    },
+    {
+     "lat": 45.513863,
+     "lon": 7.257757,
+     "ele": 3647.4
+    },
+    {
+     "lat": 45.513631,
+     "lon": 7.258631,
+     "ele": 3667.1
+    },
+    {
+     "lat": 45.51398,
+     "lon": 7.259811,
+     "ele": 3703.6
+    },
+    {
+     "lat": 45.513325,
+     "lon": 7.263072,
+     "ele": 3775.2
+    },
+    {
+     "lat": 45.51333,
+     "lon": 7.265087,
+     "ele": 3812.7
+    },
+    {
+     "lat": 45.512939,
+     "lon": 7.267509,
+     "ele": 3861.3
+    },
+    {
+     "lat": 45.51327,
+     "lon": 7.267701,
+     "ele": 3886.3
+    },
+    {
+     "lat": 45.514032,
+     "lon": 7.267276,
+     "ele": 3903.6
+    },
+    {
+     "lat": 45.514518,
+     "lon": 7.267483,
+     "ele": 3923.3
+    },
+    {
+     "lat": 45.51427,
+     "lon": 7.268547,
+     "ele": 3946.3
+    },
+    {
+     "lat": 45.516171,
+     "lon": 7.269123,
+     "ele": 3988.2
+    },
+    {
+     "lat": 45.516686,
+     "lon": 7.26862,
+     "ele": 4019.9
+    },
+    {
+     "lat": 45.516064,
+     "lon": 7.268703,
+     "ele": 3993.9
+    },
+    {
+     "lat": 45.515723,
+     "lon": 7.267804,
+     "ele": 3955.5
+    },
+    {
+     "lat": 45.514586,
+     "lon": 7.267827,
+     "ele": 3933.8
+    },
+    {
+     "lat": 45.513072,
+     "lon": 7.267066,
+     "ele": 3853.1
+    },
+    {
+     "lat": 45.513263,
+     "lon": 7.266337,
+     "ele": 3835.3
+    },
+    {
+     "lat": 45.513235,
+     "lon": 7.265412,
+     "ele": 3812.7
+    },
+    {
+     "lat": 45.513006,
+     "lon": 7.264106,
+     "ele": 3795.9
+    },
+    {
+     "lat": 45.513086,
+     "lon": 7.2632,
+     "ele": 3783.4
+    },
+    {
+     "lat": 45.513713,
+     "lon": 7.261876,
+     "ele": 3736.3
+    },
+    {
+     "lat": 45.5141,
+     "lon": 7.260387,
+     "ele": 3718.5
+    },
+    {
+     "lat": 45.513742,
+     "lon": 7.258708,
+     "ele": 3669.0
+    },
+    {
+     "lat": 45.513954,
+     "lon": 7.256222,
+     "ele": 3605.1
+    },
+    {
+     "lat": 45.514224,
+     "lon": 7.255632,
+     "ele": 3579.1
+    },
+    {
+     "lat": 45.514279,
+     "lon": 7.254869,
+     "ele": 3540.2
+    },
+    {
+     "lat": 45.514056,
+     "lon": 7.254072,
+     "ele": 3505.6
+    },
+    {
+     "lat": 45.514438,
+     "lon": 7.253149,
+     "ele": 3469.5
+    },
+    {
+     "lat": 45.513767,
+     "lon": 7.252658,
+     "ele": 3453.2
+    },
+    {
+     "lat": 45.513877,
+     "lon": 7.251965,
+     "ele": 3429.2
+    },
+    {
+     "lat": 45.514011,
+     "lon": 7.250887,
+     "ele": 3401.3
+    },
+    {
+     "lat": 45.515689,
+     "lon": 7.249562,
+     "ele": 3339.8
+    },
+    {
+     "lat": 45.516146,
+     "lon": 7.248263,
+     "ele": 3304.7
+    },
+    {
+     "lat": 45.516629,
+     "lon": 7.247627,
+     "ele": 3280.6
+    },
+    {
+     "lat": 45.517844,
+     "lon": 7.247922,
+     "ele": 3228.7
+    },
+    {
+     "lat": 45.518179,
+     "lon": 7.24741,
+     "ele": 3200.4
+    },
+    {
+     "lat": 45.51881,
+     "lon": 7.247551,
+     "ele": 3171.5
+    },
+    {
+     "lat": 45.519281,
+     "lon": 7.247128,
+     "ele": 3143.2
+    },
+    {
+     "lat": 45.520289,
+     "lon": 7.245065,
+     "ele": 3102.3
+    },
+    {
+     "lat": 45.520733,
+     "lon": 7.243257,
+     "ele": 3084.5
+    },
+    {
+     "lat": 45.520606,
+     "lon": 7.242556,
+     "ele": 3059.5
+    },
+    {
+     "lat": 45.51943,
+     "lon": 7.241075,
+     "ele": 3014.3
+    },
+    {
+     "lat": 45.519156,
+     "lon": 7.240296,
+     "ele": 2994.6
+    },
+    {
+     "lat": 45.519488,
+     "lon": 7.239255,
+     "ele": 2981.2
+    },
+    {
+     "lat": 45.518552,
+     "lon": 7.23742,
+     "ele": 2933.6
+    },
+    {
+     "lat": 45.518449,
+     "lon": 7.23637,
+     "ele": 2911.0
+    },
+    {
+     "lat": 45.517411,
+     "lon": 7.235429,
+     "ele": 2887.9
+    },
+    {
+     "lat": 45.516806,
+     "lon": 7.234254,
+     "ele": 2885.5
+    },
+    {
+     "lat": 45.516088,
+     "lon": 7.23422,
+     "ele": 2875.0
+    },
+    {
+     "lat": 45.516495,
+     "lon": 7.233521,
+     "ele": 2851.9
+    },
+    {
+     "lat": 45.515306,
+     "lon": 7.232871,
+     "ele": 2793.7
+    },
+    {
+     "lat": 45.513498,
+     "lon": 7.231498,
+     "ele": 2743.3
+    },
+    {
+     "lat": 45.51256,
+     "lon": 7.229688,
+     "ele": 2726.9
+    },
+    {
+     "lat": 45.513256,
+     "lon": 7.227743,
+     "ele": 2693.3
+    },
+    {
+     "lat": 45.513671,
+     "lon": 7.224805,
+     "ele": 2664.4
+    },
+    {
+     "lat": 45.514215,
+     "lon": 7.223867,
+     "ele": 2649.5
+    },
+    {
+     "lat": 45.514735,
+     "lon": 7.22182,
+     "ele": 2610.1
+    },
+    {
+     "lat": 45.514644,
+     "lon": 7.220999,
+     "ele": 2590.4
+    },
+    {
+     "lat": 45.514105,
+     "lon": 7.220936,
+     "ele": 2567.3
+    },
+    {
+     "lat": 45.514729,
+     "lon": 7.219946,
+     "ele": 2551.0
+    },
+    {
+     "lat": 45.514558,
+     "lon": 7.218929,
+     "ele": 2526.0
+    },
+    {
+     "lat": 45.514151,
+     "lon": 7.218422,
+     "ele": 2513.0
+    },
+    {
+     "lat": 45.514288,
+     "lon": 7.216935,
+     "ele": 2454.4
+    },
+    {
+     "lat": 45.514674,
+     "lon": 7.216506,
+     "ele": 2432.3
+    },
+    {
+     "lat": 45.514262,
+     "lon": 7.215706,
+     "ele": 2404.9
+    },
+    {
+     "lat": 45.514188,
+     "lon": 7.213747,
+     "ele": 2363.1
+    },
+    {
+     "lat": 45.514425,
+     "lon": 7.212894,
+     "ele": 2326.5
+    },
+    {
+     "lat": 45.514035,
+     "lon": 7.212422,
+     "ele": 2308.7
+    },
+    {
+     "lat": 45.514225,
+     "lon": 7.21197,
+     "ele": 2278.5
+    },
+    {
+     "lat": 45.514354,
+     "lon": 7.211146,
+     "ele": 2242.9
+    },
+    {
+     "lat": 45.514619,
+     "lon": 7.210673,
+     "ele": 2216.0
+    },
+    {
+     "lat": 45.515063,
+     "lon": 7.210805,
+     "ele": 2191.9
+    },
+    {
+     "lat": 45.515572,
+     "lon": 7.209795,
+     "ele": 2118.9
+    },
+    {
+     "lat": 45.515731,
+     "lon": 7.209441,
+     "ele": 2100.6
+    },
+    {
+     "lat": 45.515529,
+     "lon": 7.20822,
+     "ele": 2059.3
+    },
+    {
+     "lat": 45.515316,
+     "lon": 7.206788,
+     "ele": 2023.7
+    },
+    {
+     "lat": 45.515559,
+     "lon": 7.205623,
+     "ele": 2006.4
+    },
+    {
+     "lat": 45.516301,
+     "lon": 7.205626,
+     "ele": 2002.1
+    },
+    {
+     "lat": 45.516984,
+     "lon": 7.205115,
+     "ele": 1997.8
+    },
+    {
+     "lat": 45.517481,
+     "lon": 7.205619,
+     "ele": 1995.8
+    },
+    {
+     "lat": 45.518921,
+     "lon": 7.205023,
+     "ele": 1989.6
+    },
+    {
+     "lat": 45.520248,
+     "lon": 7.204186,
+     "ele": 1984.3
+    },
+    {
+     "lat": 45.520973,
+     "lon": 7.203328,
+     "ele": 1981.4
+    },
+    {
+     "lat": 45.52217,
+     "lon": 7.202612,
+     "ele": 1975.2
+    },
+    {
+     "lat": 45.52423,
+     "lon": 7.20226,
+     "ele": 1968.0
+    },
+    {
+     "lat": 45.524625,
+     "lon": 7.20094,
+     "ele": 1966.5
+    }
+   ]
+  },
+  {
+   "slug": "via-ferrata-tofana-punta-anna",
+   "name": "Ferrata Punta Anna - Tofana di Mezzo",
+   "area_id": "area-dolomiti-ampezzo",
+   "activity": "via_ferrata",
+   "diff_scale": "FERRATA",
+   "diff_grade": "D (difficile, molto esposta)",
+   "diff_index": 75,
+   "start_altitude_m": 2400,
+   "max_altitude_m": 3244,
+   "vertical_gain_m": 844,
+   "avg_ascent_min": 300,
+   "avg_descent_min": 120,
+   "primary_aspects": [
+    "S",
+    "SE"
+   ],
+   "max_slope_deg": 60,
+   "ideal_conditions": "Roccia asciutta, estate-inizio autunno; evitare in caso di rischio temporali pomeridiani.",
+   "exposure_notes": "Esposizione continua su cresta; alto rischio fulminazione su terreno esposto in caso di temporale.",
+   "refuges": [],
+   "source": "Riferimento pubblico - da verificare",
+   "verified_at": null
+  },
+  {
+   "slug": "scialpinismo-marmolada-dalla-fedaia",
+   "name": "Marmolada - itinerario dalla Fedaia",
+   "area_id": "area-dolomiti-fassa",
+   "activity": "scialpinismo",
+   "diff_scale": "BSA",
+   "diff_grade": "OSA",
+   "diff_index": 85,
+   "start_altitude_m": 2050,
+   "max_altitude_m": 3343,
+   "vertical_gain_m": 1293,
+   "avg_ascent_min": 300,
+   "avg_descent_min": 90,
+   "primary_aspects": [
+    "N"
+   ],
+   "max_slope_deg": 40,
+   "ideal_conditions": "Itinerario glaciale impegnativo; necessita condizioni stabili e buona copertura nevosa.",
+   "exposure_notes": "Ambiente glaciale con crepacci; pendii ripidi esposti a nord, valutazione valanghe critica.",
+   "refuges": [],
+   "source": "Riferimento pubblico - da verificare",
+   "verified_at": null,
+   "start_lat": 46.45828,
+   "start_lon": 11.863805,
+   "track_points": [
+    {
+     "lat": 46.45828,
+     "lon": 11.863805,
+     "ele": 2078.6
+    },
+    {
+     "lat": 46.457442,
+     "lon": 11.864738,
+     "ele": 2079.9
+    },
+    {
+     "lat": 46.456892,
+     "lon": 11.867181,
+     "ele": 2107.3
+    },
+    {
+     "lat": 46.455538,
+     "lon": 11.868255,
+     "ele": 2150.4
+    },
+    {
+     "lat": 46.454109,
+     "lon": 11.865398,
+     "ele": 2227.8
+    },
+    {
+     "lat": 46.453482,
+     "lon": 11.865153,
+     "ele": 2242.6
+    },
+    {
+     "lat": 46.451802,
+     "lon": 11.865871,
+     "ele": 2297.3
+    },
+    {
+     "lat": 46.451219,
+     "lon": 11.865564,
+     "ele": 2322.0
+    },
+    {
+     "lat": 46.451102,
+     "lon": 11.864891,
+     "ele": 2347.3
+    },
+    {
+     "lat": 46.450945,
+     "lon": 11.864501,
+     "ele": 2362.8
+    },
+    {
+     "lat": 46.451036,
+     "lon": 11.862121,
+     "ele": 2411.0
+    },
+    {
+     "lat": 46.450178,
+     "lon": 11.858978,
+     "ele": 2463.4
+    },
+    {
+     "lat": 46.449044,
+     "lon": 11.860766,
+     "ele": 2492.6
+    },
+    {
+     "lat": 46.448511,
+     "lon": 11.860142,
+     "ele": 2529.6
+    },
+    {
+     "lat": 46.448046,
+     "lon": 11.860664,
+     "ele": 2540.1
+    },
+    {
+     "lat": 46.447618,
+     "lon": 11.86037,
+     "ele": 2558.9
+    },
+    {
+     "lat": 46.446504,
+     "lon": 11.861346,
+     "ele": 2591.2
+    },
+    {
+     "lat": 46.446097,
+     "lon": 11.860943,
+     "ele": 2603.3
+    },
+    {
+     "lat": 46.445712,
+     "lon": 11.859839,
+     "ele": 2626.9
+    },
+    {
+     "lat": 46.443075,
+     "lon": 11.861745,
+     "ele": 2677.1
+    },
+    {
+     "lat": 46.442586,
+     "lon": 11.86255,
+     "ele": 2706.2
+    },
+    {
+     "lat": 46.442246,
+     "lon": 11.86202,
+     "ele": 2719.2
+    },
+    {
+     "lat": 46.441455,
+     "lon": 11.861535,
+     "ele": 2758.5
+    },
+    {
+     "lat": 46.44041,
+     "lon": 11.863227,
+     "ele": 2818.2
+    },
+    {
+     "lat": 46.43941,
+     "lon": 11.860239,
+     "ele": 2873.0
+    },
+    {
+     "lat": 46.438102,
+     "lon": 11.857887,
+     "ele": 2893.7
+    },
+    {
+     "lat": 46.437679,
+     "lon": 11.856407,
+     "ele": 2922.9
+    },
+    {
+     "lat": 46.436656,
+     "lon": 11.855387,
+     "ele": 3004.3
+    },
+    {
+     "lat": 46.436369,
+     "lon": 11.853369,
+     "ele": 3038.1
+    },
+    {
+     "lat": 46.435761,
+     "lon": 11.853167,
+     "ele": 3089.3
+    },
+    {
+     "lat": 46.435359,
+     "lon": 11.853176,
+     "ele": 3120.1
+    },
+    {
+     "lat": 46.434777,
+     "lon": 11.853293,
+     "ele": 3161.6
+    },
+    {
+     "lat": 46.434293,
+     "lon": 11.852469,
+     "ele": 3268.1
+    },
+    {
+     "lat": 46.434768,
+     "lon": 11.853165,
+     "ele": 3201.4
+    },
+    {
+     "lat": 46.4364,
+     "lon": 11.852431,
+     "ele": 3142.8
+    },
+    {
+     "lat": 46.436408,
+     "lon": 11.854325,
+     "ele": 3085.3
+    },
+    {
+     "lat": 46.436838,
+     "lon": 11.855733,
+     "ele": 3032.0
+    },
+    {
+     "lat": 46.437702,
+     "lon": 11.856698,
+     "ele": 2959.2
+    },
+    {
+     "lat": 46.438243,
+     "lon": 11.856201,
+     "ele": 2927.5
+    },
+    {
+     "lat": 46.4391,
+     "lon": 11.856099,
+     "ele": 2906.3
+    },
+    {
+     "lat": 46.439291,
+     "lon": 11.854955,
+     "ele": 2882.1
+    },
+    {
+     "lat": 46.439975,
+     "lon": 11.854241,
+     "ele": 2831.3
+    },
+    {
+     "lat": 46.440813,
+     "lon": 11.853221,
+     "ele": 2756.4
+    },
+    {
+     "lat": 46.441506,
+     "lon": 11.852021,
+     "ele": 2736.0
+    },
+    {
+     "lat": 46.442766,
+     "lon": 11.850647,
+     "ele": 2671.1
+    },
+    {
+     "lat": 46.443438,
+     "lon": 11.85053,
+     "ele": 2655.7
+    },
+    {
+     "lat": 46.443996,
+     "lon": 11.849144,
+     "ele": 2632.3
+    },
+    {
+     "lat": 46.443692,
+     "lon": 11.852047,
+     "ele": 2600.8
+    },
+    {
+     "lat": 46.444245,
+     "lon": 11.852037,
+     "ele": 2574.3
+    },
+    {
+     "lat": 46.445478,
+     "lon": 11.849698,
+     "ele": 2514.3
+    },
+    {
+     "lat": 46.446963,
+     "lon": 11.848321,
+     "ele": 2498.1
+    },
+    {
+     "lat": 46.44668,
+     "lon": 11.847674,
+     "ele": 2492.7
+    },
+    {
+     "lat": 46.446821,
+     "lon": 11.846696,
+     "ele": 2476.2
+    },
+    {
+     "lat": 46.447428,
+     "lon": 11.846382,
+     "ele": 2454.5
+    },
+    {
+     "lat": 46.448005,
+     "lon": 11.846124,
+     "ele": 2418.3
+    },
+    {
+     "lat": 46.448542,
+     "lon": 11.846077,
+     "ele": 2380.6
+    },
+    {
+     "lat": 46.449591,
+     "lon": 11.845209,
+     "ele": 2330.6
+    },
+    {
+     "lat": 46.45127,
+     "lon": 11.846358,
+     "ele": 2243.9
+    },
+    {
+     "lat": 46.451737,
+     "lon": 11.84628,
+     "ele": 2233.2
+    },
+    {
+     "lat": 46.452423,
+     "lon": 11.846665,
+     "ele": 2215.4
+    },
+    {
+     "lat": 46.453148,
+     "lon": 11.847751,
+     "ele": 2192.5
+    },
+    {
+     "lat": 46.453712,
+     "lon": 11.846884,
+     "ele": 2170.8
+    },
+    {
+     "lat": 46.454347,
+     "lon": 11.846832,
+     "ele": 2158.2
+    },
+    {
+     "lat": 46.455462,
+     "lon": 11.847471,
+     "ele": 2118.8
+    },
+    {
+     "lat": 46.456189,
+     "lon": 11.846854,
+     "ele": 2098.9
+    },
+    {
+     "lat": 46.456774,
+     "lon": 11.846408,
+     "ele": 2083.3
+    },
+    {
+     "lat": 46.459008,
+     "lon": 11.845834,
+     "ele": 2038.8
+    },
+    {
+     "lat": 46.46136,
+     "lon": 11.845367,
+     "ele": 2042.8
+    },
+    {
+     "lat": 46.461851,
+     "lon": 11.8446,
+     "ele": 2036.1
+    },
+    {
+     "lat": 46.462012,
+     "lon": 11.844269,
+     "ele": 2022.7
+    },
+    {
+     "lat": 46.462176,
+     "lon": 11.844123,
+     "ele": 2002.1
+    },
+    {
+     "lat": 46.461729,
+     "lon": 11.843032,
+     "ele": 1982.3
+    },
+    {
+     "lat": 46.462338,
+     "lon": 11.843567,
+     "ele": 1953.7
+    },
+    {
+     "lat": 46.461997,
+     "lon": 11.84254,
+     "ele": 1943.6
+    },
+    {
+     "lat": 46.46267,
+     "lon": 11.842647,
+     "ele": 1933.1
+    },
+    {
+     "lat": 46.462272,
+     "lon": 11.842058,
+     "ele": 1923.4
+    },
+    {
+     "lat": 46.462196,
+     "lon": 11.841716,
+     "ele": 1899.2
+    },
+    {
+     "lat": 46.461217,
+     "lon": 11.841858,
+     "ele": 1869.1
+    },
+    {
+     "lat": 46.460768,
+     "lon": 11.842747,
+     "ele": 1848.7
+    },
+    {
+     "lat": 46.4597,
+     "lon": 11.842125,
+     "ele": 1821.8
+    },
+    {
+     "lat": 46.45968,
+     "lon": 11.841417,
+     "ele": 1778.2
+    },
+    {
+     "lat": 46.460579,
+     "lon": 11.840802,
+     "ele": 1740.2
+    },
+    {
+     "lat": 46.460369,
+     "lon": 11.8401,
+     "ele": 1699.6
+    },
+    {
+     "lat": 46.460723,
+     "lon": 11.83962,
+     "ele": 1675.9
+    },
+    {
+     "lat": 46.461222,
+     "lon": 11.837563,
+     "ele": 1671.6
+    },
+    {
+     "lat": 46.460707,
+     "lon": 11.837013,
+     "ele": 1669.6
+    },
+    {
+     "lat": 46.460001,
+     "lon": 11.835269,
+     "ele": 1672.5
+    },
+    {
+     "lat": 46.459979,
+     "lon": 11.833471,
+     "ele": 1671.9
+    },
+    {
+     "lat": 46.459627,
+     "lon": 11.83151,
+     "ele": 1668.4
+    },
+    {
+     "lat": 46.459932,
+     "lon": 11.830182,
+     "ele": 1664.9
+    },
+    {
+     "lat": 46.459364,
+     "lon": 11.829456,
+     "ele": 1657.4
+    },
+    {
+     "lat": 46.459337,
+     "lon": 11.828081,
+     "ele": 1655.0
+    },
+    {
+     "lat": 46.459063,
+     "lon": 11.827323,
+     "ele": 1652.3
+    },
+    {
+     "lat": 46.459357,
+     "lon": 11.825641,
+     "ele": 1648.6
+    },
+    {
+     "lat": 46.459871,
+     "lon": 11.824835,
+     "ele": 1648.9
+    },
+    {
+     "lat": 46.458294,
+     "lon": 11.81949,
+     "ele": 1647.7
+    },
+    {
+     "lat": 46.458611,
+     "lon": 11.818425,
+     "ele": 1646.7
+    },
+    {
+     "lat": 46.45935,
+     "lon": 11.817663,
+     "ele": 1641.7
+    },
+    {
+     "lat": 46.459299,
+     "lon": 11.816387,
+     "ele": 1648.5
+    },
+    {
+     "lat": 46.459333,
+     "lon": 11.816287,
+     "ele": 1666.5
+    }
+   ]
+  },
+  {
+   "slug": "escursionismo-rifugio-coca-orobie",
+   "name": "Rifugio Coca dai Forni di Valbondione",
+   "area_id": "area-orobie",
+   "activity": "escursionismo",
+   "diff_scale": "EE_EEA",
+   "diff_grade": "E",
+   "diff_index": 35,
+   "start_altitude_m": 1280,
+   "max_altitude_m": 1892,
+   "vertical_gain_m": 612,
+   "avg_ascent_min": 150,
+   "avg_descent_min": 120,
+   "primary_aspects": [
+    "E",
+    "SE"
+   ],
+   "max_slope_deg": 20,
+   "ideal_conditions": "Estate e inizio autunno; sentiero ben tracciato, adatto come avvicinamento.",
+   "exposure_notes": "Pochi tratti esposti; attenzione ai temporali pomeridiani estivi.",
+   "refuges": [],
+   "source": "Riferimento pubblico - da verificare",
+   "verified_at": null
+  },
+  {
+   "slug": "scialpinismo-cima-orientale-dei-forni-par-le-val-pisella-versant-s-depuis-le-rifugio-forni",
+   "name": "Cima Orientale dei Forni - Par le val Pisella (versant S), depuis le rifugio Forni",
+   "area_id": "area-ortles-cevedale",
+   "activity": "scialpinismo",
+   "diff_scale": "c2c",
+   "diff_grade": "n.d.",
+   "diff_index": null,
+   "start_altitude_m": 2178,
+   "max_altitude_m": 3243,
+   "vertical_gain_m": 1060,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "S",
+    "W"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1899853 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1899853",
+   "verified_at": null
+  },
+  {
+   "slug": "scialpinismo-monte-gavia-q-2920m-per-il-rifugio-berni-e-il-versante-e",
+   "name": "Monte Gavia Q 2920m - Per il Rifugio Berni e il Versante E",
+   "area_id": "area-ortles-cevedale",
+   "activity": "scialpinismo",
+   "diff_scale": "c2c",
+   "diff_grade": "n.d.",
+   "diff_index": null,
+   "start_altitude_m": 1740,
+   "max_altitude_m": 2920,
+   "vertical_gain_m": 1250,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "SE",
+    "E"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1872882 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1872882",
+   "verified_at": null
+  },
+  {
+   "slug": "scialpinismo-costa-sobretta-per-la-valle-dell-alpe",
+   "name": "Costa Sobretta - per la Valle dell'Alpe",
+   "area_id": "area-ortles-cevedale",
+   "activity": "scialpinismo",
+   "diff_scale": "c2c",
+   "diff_grade": "n.d.",
+   "diff_index": null,
+   "start_altitude_m": 1700,
+   "max_altitude_m": 2860,
+   "vertical_gain_m": 1200,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "S",
+    "SE",
+    "E"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1597398 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1597398",
+   "verified_at": null
+  },
+  {
+   "slug": "scialpinismo-monte-sief-dal-castello-di-andraz",
+   "name": "Monte Sief - dal castello di Andraz",
+   "area_id": "area-dolomiti-fassa",
+   "activity": "scialpinismo",
+   "diff_scale": "c2c",
+   "diff_grade": "n.d.",
+   "diff_index": null,
+   "start_altitude_m": 1725,
+   "max_altitude_m": 2424,
+   "vertical_gain_m": 700,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "E"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1171492 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1171492",
+   "verified_at": null
+  },
+  {
+   "slug": "scialpinismo-cima-ombrettola-dal-alba-di-canazei",
+   "name": "Cima Ombrettola - Dal Alba di Canazei",
+   "area_id": "area-dolomiti-fassa",
+   "activity": "scialpinismo",
+   "diff_scale": "c2c",
+   "diff_grade": "n.d.",
+   "diff_index": null,
+   "start_altitude_m": 1450,
+   "max_altitude_m": 2931,
+   "vertical_gain_m": 1500,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "N"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1083948 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1083948",
+   "verified_at": null
+  },
+  {
+   "slug": "scialpinismo-campanili-del-murfreit-couloir-n",
+   "name": "Campanili del Murfrëit - Couloir N",
+   "area_id": "area-dolomiti-fassa",
+   "activity": "scialpinismo",
+   "diff_scale": "c2c",
+   "diff_grade": "5.2",
+   "diff_index": null,
+   "start_altitude_m": 1950,
+   "max_altitude_m": 2550,
+   "vertical_gain_m": 600,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "N"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 508080 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/508080",
+   "verified_at": null
+  },
+  {
+   "slug": "scialpinismo-col-de-montandayne-face-w",
+   "name": "Col de Montandayné - face W",
+   "area_id": "area-gran-paradiso",
+   "activity": "scialpinismo",
+   "diff_scale": "c2c",
+   "diff_grade": "4.3",
+   "diff_index": null,
+   "start_altitude_m": 2710,
+   "max_altitude_m": 3723,
+   "vertical_gain_m": 1013,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "W"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1525126 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1525126",
+   "verified_at": null
+  },
+  {
+   "slug": "scialpinismo-tour-de-la-pointe-de-nivoletta",
+   "name": "Tour de la pointe de Nivoletta",
+   "area_id": "area-gran-paradiso",
+   "activity": "scialpinismo",
+   "diff_scale": "c2c",
+   "diff_grade": "2.2",
+   "diff_index": null,
+   "start_altitude_m": 1880,
+   "max_altitude_m": 3124,
+   "vertical_gain_m": 1295,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "NW",
+    "W",
+    "SW"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1521736 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1521736",
+   "verified_at": null
+  },
+  {
+   "slug": "scialpinismo-col-fenetre-de-torrent-versant-nw",
+   "name": "Col Fenêtre de Torrent - Versant NW",
+   "area_id": "area-gran-paradiso",
+   "activity": "scialpinismo",
+   "diff_scale": "c2c",
+   "diff_grade": "2.2",
+   "diff_index": null,
+   "start_altitude_m": 1650,
+   "max_altitude_m": 2840,
+   "vertical_gain_m": 1200,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "NW",
+    "N",
+    "W"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1408714 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1408714",
+   "verified_at": null
+  },
+  {
+   "slug": "via_ferrata-mont-averau-voie-normale-en-circuit-par-le-nuvolau",
+   "name": "Mont Averau - Voie normale, en circuit par le Nuvolau",
+   "area_id": "area-dolomiti-ampezzo",
+   "activity": "via_ferrata",
+   "diff_scale": "c2c",
+   "diff_grade": "K2",
+   "diff_index": null,
+   "start_altitude_m": 2235,
+   "max_altitude_m": 2648,
+   "vertical_gain_m": 800,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1049549 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1049549",
+   "verified_at": null
+  },
+  {
+   "slug": "via_ferrata-punta-fanes-n-dalla-capanna-alpina-per-la-cengia-veronesi",
+   "name": "Punta Fanes N - Dalla Capanna Alpina per la Cengia Veronesi",
+   "area_id": "area-dolomiti-ampezzo",
+   "activity": "via_ferrata",
+   "diff_scale": "c2c",
+   "diff_grade": "PD-",
+   "diff_index": null,
+   "start_altitude_m": 1730,
+   "max_altitude_m": 2969,
+   "vertical_gain_m": 1500,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1020182 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1020182",
+   "verified_at": null
+  },
+  {
+   "slug": "via_ferrata-tofana-di-mezzo-via-ferrata-olivieri",
+   "name": "Tofana di Mezzo - Via Ferrata  Olivieri",
+   "area_id": "area-dolomiti-ampezzo",
+   "activity": "via_ferrata",
+   "diff_scale": "c2c",
+   "diff_grade": "n.d.",
+   "diff_index": null,
+   "start_altitude_m": 2037,
+   "max_altitude_m": 3244,
+   "vertical_gain_m": 1200,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "S"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 466763 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/466763",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-pizzo-corzene-pizzo-corzene-dai-canali-bradipax-e-dito",
+   "name": "Pizzo Corzene - Pizzo Corzene dai canali Bradipax e Dito",
+   "area_id": "area-orobie",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "2.2",
+   "diff_index": null,
+   "start_altitude_m": 1260,
+   "max_altitude_m": 2196,
+   "vertical_gain_m": 950,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "N",
+    "NE",
+    "S",
+    "SW"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1598507 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1598507",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-pizzo-del-diavolo-di-tenda-versante-sw",
+   "name": "Pizzo del Diavolo di Tenda - Versante SW",
+   "area_id": "area-orobie",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T5",
+   "diff_index": null,
+   "start_altitude_m": 800,
+   "max_altitude_m": 2914,
+   "vertical_gain_m": 2250,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "SW"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 904660 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/904660",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-pizzo-di-poris-canale-n",
+   "name": "Pizzo di Poris - Canale N",
+   "area_id": "area-orobie",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "F",
+   "diff_index": null,
+   "start_altitude_m": 1110,
+   "max_altitude_m": 2712,
+   "vertical_gain_m": 1602,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "N"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 822051 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/822051",
+   "verified_at": null
+  }
+ ]
+}

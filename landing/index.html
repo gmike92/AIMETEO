@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zerotermico — Meteo per la montagna, fatto bene</title>
+<meta name="description" content="Previsioni meteo iperlocali, bollettini valanghe ufficiali AINEVA e pianificazione gite con l'AI. Per scialpinisti, alpinisti ed escursionisti. Italia-first.">
+<style>
+  :root{
+    --bg:#0b1722; --bg2:#0f2030; --ink:#eaf2f8; --muted:#9fb3c2;
+    --accent:#4fc3f7; --accent2:#7ee0c2; --line:rgba(255,255,255,.10);
+    --card:rgba(255,255,255,.04); --warn:#ffd166;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+  header{display:flex;justify-content:space-between;align-items:center;padding:22px 0}
+  .logo{font-weight:800;letter-spacing:.5px;font-size:20px}
+  .logo span{color:var(--accent)}
+  nav a{color:var(--muted);margin-left:22px;font-size:14px}
+  nav a:hover{color:var(--ink)}
+
+  /* hero */
+  .hero{position:relative;overflow:hidden;background:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%)}
+  .hero-inner{padding:64px 0 120px;position:relative;z-index:2;text-align:center}
+  .badge{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:6px 14px;
+    font-size:13px;color:var(--accent2);margin-bottom:22px}
+  h1{font-size:clamp(34px,6vw,60px);line-height:1.05;font-weight:800;letter-spacing:-1px;margin-bottom:18px}
+  h1 em{font-style:normal;color:var(--accent)}
+  .sub{font-size:clamp(16px,2.4vw,20px);color:var(--muted);max-width:620px;margin:0 auto 34px}
+  .ridge{position:absolute;bottom:-1px;left:0;width:100%;height:160px;z-index:1;display:block}
+
+  /* waitlist form */
+  .form{display:flex;gap:10px;max-width:460px;margin:0 auto;flex-wrap:wrap;justify-content:center}
+  .form input{flex:1;min-width:240px;padding:15px 16px;border-radius:12px;border:1px solid var(--line);
+    background:rgba(255,255,255,.06);color:var(--ink);font-size:15px}
+  .form input::placeholder{color:var(--muted)}
+  .btn{padding:15px 22px;border-radius:12px;border:0;font-weight:700;font-size:15px;cursor:pointer;
+    background:var(--accent);color:#04141f;transition:transform .08s ease,filter .2s ease}
+  .btn:hover{filter:brightness(1.08)}.btn:active{transform:translateY(1px)}
+  .formnote{font-size:13px;color:var(--muted);margin-top:12px}
+  .ok{color:var(--accent2);font-weight:600;margin-top:14px;display:none}
+
+  /* sections */
+  section{padding:72px 0;border-top:1px solid var(--line)}
+  .eyebrow{color:var(--accent2);font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+  h2{font-size:clamp(26px,4vw,38px);margin:10px 0 14px;letter-spacing:-.5px}
+  .lead{color:var(--muted);max-width:680px;font-size:17px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;margin-top:36px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px}
+  .card h3{font-size:18px;margin-bottom:8px}
+  .card p{color:var(--muted);font-size:15px}
+  .ic{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+    background:rgba(79,195,247,.12);margin-bottom:14px;font-size:20px}
+
+  /* pricing */
+  .tiers{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin-top:36px}
+  .tier{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:28px;position:relative}
+  .tier.pro{border-color:var(--accent)}
+  .tier .price{font-size:34px;font-weight:800;margin:6px 0 2px}
+  .tier .price small{font-size:15px;color:var(--muted);font-weight:500}
+  .tier ul{list-style:none;margin-top:18px}
+  .tier li{padding:8px 0;color:var(--muted);font-size:15px;display:flex;gap:10px}
+  .tier li::before{content:"›";color:var(--accent2);font-weight:800}
+  .tag{position:absolute;top:-12px;right:22px;background:var(--accent);color:#04141f;font-size:12px;
+    font-weight:800;padding:4px 12px;border-radius:999px}
+
+  /* safety strip */
+  .safety{background:rgba(255,209,102,.07);border:1px solid rgba(255,209,102,.25);border-radius:16px;
+    padding:22px 24px;display:flex;gap:16px;align-items:flex-start;margin-top:36px}
+  .safety .ic{background:rgba(255,209,102,.15);color:var(--warn);flex:0 0 auto}
+  .safety p{color:var(--muted);font-size:14px}
+  .safety strong{color:var(--ink)}
+
+  footer{padding:40px 0;border-top:1px solid var(--line);color:var(--muted);font-size:13px;text-align:center}
+  footer a{color:var(--accent2)}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="wrap">
+    <header>
+      <div class="logo">Zero<span>termico</span></div>
+      <nav>
+        <a href="#come">Come funziona</a>
+        <a href="#prezzi">Prezzi</a>
+        <a href="#waitlist">Lista d'attesa</a>
+      </nav>
+    </header>
+  </div>
+
+  <div class="wrap hero-inner">
+    <span class="badge">In arrivo · Italia-first · per chi va in montagna sul serio</span>
+    <h1>Meteo per la montagna,<br><em>fatto bene.</em></h1>
+    <p class="sub">Previsioni iperlocali sull'itinerario, bollettini valanghe ufficiali AINEVA e una relazione di gita scritta dall'AI. Per scialpinisti, alpinisti ed escursionisti.</p>
+
+    <form class="form" id="waitlist-form" onsubmit="return joinWaitlist(event)">
+      <input type="email" id="email" placeholder="La tua email" required aria-label="Email">
+      <button class="btn" type="submit">Entra nella lista</button>
+    </form>
+    <div class="formnote">Niente spam. Solo l'avviso quando apriamo, in anteprima.</div>
+    <div class="ok" id="ok">✓ Ci sei. Ti scriviamo noi quando partiamo.</div>
+  </div>
+
+  <!-- mountain ridge -->
+  <svg class="ridge" viewBox="0 0 1440 160" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,160 L0,90 L160,40 L320,100 L480,30 L640,95 L800,20 L980,90 L1140,45 L1300,100 L1440,55 L1440,160 Z" fill="#0f2030"/>
+    <path d="M0,160 L0,120 L200,80 L380,130 L560,70 L760,120 L960,65 L1180,120 L1440,90 L1440,160 Z" fill="#0b1722"/>
+  </svg>
+</div>
+
+<section id="come">
+  <div class="wrap">
+    <span class="eyebrow">Come funziona</span>
+    <h2>Il dato decide cosa è vero. L'AI decide cosa dire.</h2>
+    <p class="lead">Niente allucinazioni su terreno esposto. Filtriamo gli itinerari con dati strutturati e filtri di sicurezza non aggirabili; solo dopo l'AI scrive la relazione, in italiano, citando sempre il bollettino ufficiale.</p>
+    <div class="grid">
+      <div class="card"><div class="ic">📍</div><h3>Meteo iperlocale</h3><p>Previsioni sul punto esatto dell'itinerario: zero termico, vento in quota, finestre di bel tempo.</p></div>
+      <div class="card"><div class="ic">🏔️</div><h3>Bollettini ufficiali</h3><p>AINEVA e Meteomont aggregati e ben presentati, sempre con link alla fonte ufficiale.</p></div>
+      <div class="card"><div class="ic">🧭</div><h3>Pianificatore di gite AI</h3><p>«Vorrei una gita scialpinistica in Dolomiti, livello BSA, mezza giornata.» In 5 minuti hai una relazione, non un wrapper di Gemini.</p></div>
+      <div class="card"><div class="ic">🔔</div><h3>Avvisi che contano</h3><p>Cambio del zero termico, soglie di vento, nuovo bollettino sulla tua zona salvata. Ti avvisiamo in minuti.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="prezzi">
+  <div class="wrap">
+    <span class="eyebrow">Prezzi</span>
+    <h2>Gratis ottimo. Pro senza attriti.</h2>
+    <p class="lead">Entrambi i piani servono la stessa persona: chi va in montagna. Il gratuito è già un buon prodotto di montagna; il Pro toglie i limiti e sblocca la profondità.</p>
+    <div class="tiers">
+      <div class="tier">
+        <h3>Free</h3>
+        <div class="price">€0</div>
+        <ul>
+          <li>Meteo iperlocale per qualunque punto in Italia</li>
+          <li>Database itinerari consultabile</li>
+          <li>Previsione a 3 giorni sugli itinerari salvati</li>
+          <li>Bollettino AINEVA / Meteomont ufficiale</li>
+          <li>1 relazione AI al giorno · webcam</li>
+        </ul>
+      </div>
+      <div class="tier pro">
+        <span class="tag">CONSIGLIATO</span>
+        <h3>Pro</h3>
+        <div class="price">€6,99<small>/mese · o €49/anno</small></div>
+        <ul>
+          <li>Pianificatore di gite AI illimitato</li>
+          <li>Previsioni a 7–10 giorni sugli itinerari</li>
+          <li>Avvisi push: zero termico, vento, nuovo bollettino</li>
+          <li>Carico da vento e accumulo per versante</li>
+          <li>Modalità offline · export GPX · niente pubblicità</li>
+        </ul>
+      </div>
+    </div>
+    <div class="safety">
+      <div class="ic">⚠️</div>
+      <p><strong>Sicurezza prima di tutto.</strong> Non pubblichiamo mai gradi di pericolo nostri. Le valutazioni valanghe restano quelle ufficiali di AINEVA e Meteomont. I piani sono un <strong>supporto alla decisione</strong>, non una raccomandazione: la responsabilità finale resta al capogita, e il bollettino ufficiale prevale sempre.</p>
+    </div>
+  </div>
+</section>
+
+<section id="waitlist">
+  <div class="wrap" style="text-align:center">
+    <span class="eyebrow">Lista d'attesa</span>
+    <h2>Entra in anteprima</h2>
+    <p class="lead" style="margin:0 auto 28px">Stiamo costruendo, partendo dalle Dolomiti, Lombardia e Piemonte. Lascia la mail: avrai accesso prima degli altri.</p>
+    <form class="form" onsubmit="return joinWaitlist(event)">
+      <input type="email" id="email2" placeholder="La tua email" required aria-label="Email">
+      <button class="btn" type="submit">Avvisami al lancio</button>
+    </form>
+    <div class="ok" id="ok2">✓ Ci sei. Ti scriviamo noi quando partiamo.</div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    Zerotermico · Meteo per la montagna, fatto bene · Italia<br>
+    Bollettini valanghe: fonte ufficiale <a href="https://www.aineva.it" target="_blank" rel="noopener">AINEVA</a> e Meteomont.<br>
+    <span style="opacity:.6">© 2026 · Nome di lavoro, soggetto a conferma.</span>
+  </div>
+</footer>
+
+<script>
+  // Base URL of the AIMETEO backend (exposes POST /waitlist).
+  // IMPORTANT: replace with the production API URL before deploying,
+  // e.g. const API = "https://api.zerotermico.it";
+  const API = "http://localhost:8000";
+
+  function showWaitlistMsg(form, text, isError){
+    const el = form.parentElement.querySelector('.ok');
+    if(!el) return;
+    el.textContent = text;
+    el.style.color = isError ? "#ff6b6b" : "var(--accent2)";
+    el.style.display = "block";
+  }
+
+  async function joinWaitlist(e){
+    e.preventDefault();
+    const form = e.target;
+    const input = form.querySelector('input[type=email]');
+    const email = (input.value || "").trim();
+    if(!email) return false;
+
+    try{
+      const res = await fetch(API + "/waitlist", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({email, source:"landing", locale:"it"})
+      });
+      if(res.status === 422){
+        showWaitlistMsg(form, "Email non valida. Controlla e riprova.", true);
+        return false;
+      }
+      if(!res.ok){
+        throw new Error("HTTP " + res.status);
+      }
+      input.value = "";
+      showWaitlistMsg(form, "Sei in lista! ✅", false);
+    }catch(err){
+      showWaitlistMsg(form, "Ops, non riusciamo a salvarti adesso. Riprova tra poco.", true);
+    }
+    return false;
+  }
+</script>
+</body>
+</html>

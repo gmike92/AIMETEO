@@ -1,0 +1,20 @@
+# dependencies / build
+node_modules/
+.next/
+out/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# secrets & local config (solo gli .example vanno in repo)
+.env
+.env.local
+backend/.env
+frontend/.env.local
+
+# OS / editor / drive sync
+.DS_Store
+Icon?
+*.log
+.tmp*
