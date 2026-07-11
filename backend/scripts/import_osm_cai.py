@@ -303,7 +303,9 @@ class LiveProvider:
             except Exception as exc:  # noqa: BLE001 — retry/mirror
                 last = exc
                 print(f"  ! {endpoint}: {exc}", file=sys.stderr)
-        raise SystemExit(f"Overpass non raggiungibile dopo 4 tentativi ({last})")
+        # NIENTE abort globale: il chiamante salta l'elemento e prosegue.
+        print(f"  ✗ rinuncio dopo 4 tentativi ({last})", file=sys.stderr)
+        return None
 
     def phase_a(self, area_id: str) -> Optional[dict]:
         return self._overpass(phase_a_query(area_id))
@@ -314,6 +316,8 @@ class LiveProvider:
         import time
         time.sleep(self.PAUSA_TRA_RELAZIONI)
         el = self._overpass(phase_b_query(rel_id))
+        if el is None:
+            return None  # relazione saltata, si prosegue con le altre
         for element in el.get("elements", []):
             if element.get("type") == "relation" and element.get("id") == rel_id:
                 return element
@@ -429,8 +433,8 @@ def main() -> None:
                 continue
             rel = provider.phase_b(cand["id"])
             if rel is None:
+                # geometria non recuperata: NON consuma il posto, prova la prossima
                 rows.append((area_id, rid, "PEND", "manca la geometria fase B"))
-                n_done += 1
                 continue
             line, reason = build_line(rel)
             if line is None:
