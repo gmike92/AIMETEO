@@ -131,7 +131,24 @@ def weather_along_route_block(points) -> str:
             f"  - {p.label} ({p.ele_m} m): {f.temp_c}°C, vento {f.wind_avg_kmh} km/h "
             f"(raffiche {f.wind_gust_kmh}), zero termico {f.freezing_level_m} m, "
             f"precip {f.precip_mm} mm"
-            + (" [DATI DIMOSTRATIVI]" if f.source == "mock" else "")
+            + (" [DATI DIMOSTRATIVI]" if f.source.startswith("mock") else "")
+        )
+    return "\n".join(lines)
+
+
+def model_insights_block(m) -> str:
+    """Modello v0 diagnostics (ModelInsights) — verbatim, with provenance."""
+    lines = [f"  MODELLO (profilo verticale, fonte {m.source}):"]
+    if m.zero_termico_m is not None:
+        lines.append(f"  - zero termico dal profilo: {m.zero_termico_m} m")
+    elif m.colonna_sotto_zero:
+        lines.append("  - colonna interamente sotto zero (nessuno zero termico)")
+    if m.inversione:
+        lines.append("  - INVERSIONE TERMICA rilevata: " + "; ".join(m.inversione_strati))
+    for aspect, t in (m.warming_onset or {}).items():
+        lines.append(
+            f"  - riscaldamento pendio {aspect}: "
+            + (f"dalle {t.strftime('%H:%M')} UTC" if t else "mai sopra soglia oggi")
         )
     return "\n".join(lines)
 
@@ -145,6 +162,8 @@ def build_briefing_payload(route: dict, bulletin: Bulletin,
         route_context(route, bulletin, forecast),
         *( [weather_along_route_block(route_weather.points)]
            if route_weather and route_weather.points else [] ),
+        *( [model_insights_block(route_weather.model)]
+           if route_weather and getattr(route_weather, "model", None) else [] ),
         "",
         "ISTRUZIONE: scrivi una breve relazione tecnica (campo 'relazione') per questo "
         "itinerario nelle condizioni date. Cita sempre grado ufficiale, fonte e link. "

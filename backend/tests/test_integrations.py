@@ -271,7 +271,8 @@ check("quote reali crescenti partenza<vetta",
       w["points"][0]["ele_m"] < w["points"][-1]["ele_m"])
 check("vetta ~4020 m (dalla traccia, non dalla scheda)",
       abs(w["points"][-1]["ele_m"] - 4020) < 5, str(w["points"][-1]["ele_m"]))
-check("mock disclosed", w["is_demo"] and w["points"][0]["forecast"]["source"] == "mock")
+check("mock disclosed (catena provider+profilo)",
+      w["is_demo"] and w["points"][0]["forecast"]["source"].startswith("mock"))
 check("temperatura cala con la quota (lapse demo)",
       w["points"][-1]["forecast"]["temp_c"] < w["points"][0]["forecast"]["temp_c"])
 check("no track -> 404",
@@ -280,6 +281,43 @@ from app.services.route_weather import route_weather as _rw
 _block = prompts.weather_along_route_block(_rw("alpinismo-gran-paradiso-via-normale").points)
 check("payload Gemini: blocco meteo per punto", "vetta (40" in _block and "zero termico" in _block)
 check("payload Gemini: mock marcato", "[DATI DIMOSTRATIVI]" in _block)
+
+print("== Modello v0 nel route weather (colonna mock) ==")
+r = client.get("/routes/alpinismo-gran-paradiso-via-normale/weather")
+w = r.json()
+check("model insights presenti", w.get("model") is not None, str(w.get("model")))
+check("fonte colonna dichiarata mock", w["model"]["source"] == "mock")
+check("zero termico dal profilo (mock ~1192 m)",
+      w["model"]["zero_termico_m"] is not None and 1100 < w["model"]["zero_termico_m"] < 1300,
+      str(w["model"]["zero_termico_m"]))
+check("niente inversione nella colonna mock", w["model"]["inversione"] is False)
+check("warming solo per esposizioni note della rotta",
+      set(w["model"]["warming_onset"].keys()) <= set(
+          store.get_route("alpinismo-gran-paradiso-via-normale")["primary_aspects"]))
+check("T vetta dal profilo, non dal mock a gradiente",
+      "profilo" in w["points"][-1]["forecast"]["source"])
+from app.providers import open_meteo as om
+FIX = {"hourly": {"time": ["2026-02-10T08:00"],
+  "temperature_850hPa": [[-2.0][0]], "geopotential_height_850hPa": [1500.0],
+  "temperature_700hPa": [-11.0], "geopotential_height_700hPa": [3000.0],
+  "cloud_cover": [40]}}
+col = om.parse_column(FIX)
+check("parse_column: 2 livelli dal fixture", len(col.levels) == 2)
+check("parse_column: nuvolosita 0.4", abs(col.cloud_cover - 0.4) < 1e-9)
+try:
+    om.parse_column({"hourly": {"time": ["2026-02-10T08:00"], "temperature_850hPa": [None],
+                                "geopotential_height_850hPa": [None]}})
+    check("colonna insufficiente -> errore, mai inventata", False)
+except om.ColumnFetchError:
+    check("colonna insufficiente -> errore, mai inventata", True)
+_rw_full = _rw("alpinismo-gran-paradiso-via-normale") if False else None
+from app.services.route_weather import route_weather as _rwf
+_w = _rwf("alpinismo-gran-paradiso-via-normale")
+_pb = prompts.build_briefing_payload(
+    store.get_route("alpinismo-gran-paradiso-via-normale"), BULLETIN, None, "it",
+    route_weather=_w)
+check("payload Gemini: blocco MODELLO presente", "MODELLO (profilo verticale" in _pb)
+check("payload Gemini: zero termico dal profilo", "zero termico dal profilo" in _pb)
 
 print("== GPX export (roundtrip through our own parser) ==")
 r = client.get("/routes/alpinismo-gran-paradiso-via-normale/gpx")

@@ -219,6 +219,18 @@ python backend/scripts/seed_db.py --schema
 ---
 
 ## Changelog
+- **2026-07-11 (d)** — **Modello v0 collegato ai dati.** Provider
+  `providers/open_meteo.py`: colonna verticale (T + quota geopotenziale a
+  1000/925/850/700/500 hPa) + nuvolosità, parser tollerante testato su fixture,
+  `ColumnFetchError` fail-safe, colonna mock invernale etichettata per l'offline.
+  `route_weather` v2: T di ogni punto letta dal profilo alla quota REALE (non più
+  dal grid), zero termico dal profilo, sezione `model` nella risposta (fonte,
+  inversione con strati, nuvolosità, **warming_onset per esposizione** — solo se
+  la pendenza è nota, mai inventata; fail-safe: colonna giù → model=null, si
+  tiene il provider). Payload Gemini: blocco MODELLO (zero termico dal profilo,
+  inversioni, orari di riscaldamento). `source` dei punti dichiara la catena
+  ("provider + profilo fonte"). Licenza Open-Meteo non-commerciale: dev/validazione
+  ok, al lancio serve il piano a pagamento (in checklist legale). Suite verdi.
 - **2026-07-11 (c)** — **Modello Zerotermico v0 — nucleo fisico** (`backend/app/model/`,
   fisica pura, zero I/O, 34 check esatti in `tests/test_model.py`).
   `solar.py`: declinazione/equazione del tempo (Spencer 1971), posizione solare
