@@ -19,7 +19,7 @@ Selection: name AND cai_scale required (the query enforces both); relations
     WITH ref are preferred; max --max-per-area NEW routes per area (default 2);
     slugs already in the seed are skipped.
 Phase B (per chosen relation):
-    [out:json][timeout:25];relation(ID);out geom;
+    [out:json][timeout:120];relation(ID);out geom;
     Way members are concatenated in the order given by the relation (a way is
     flipped only when its endpoints say so — always REAL OSM points, never
     interpolated), then decimated to ~100 m spacing, capped at 300 points.
@@ -162,7 +162,7 @@ def phase_a_query(area_id: str) -> str:
 
 
 def phase_b_query(rel_id: int) -> str:
-    return f"[out:json][timeout:25];relation({rel_id});out geom;"
+    return f"[out:json][timeout:120];relation({rel_id});out geom;"
 
 
 def overpass_url(endpoint: str, query: str) -> str:
@@ -277,28 +277,42 @@ class LiveProvider:
     def __init__(self, endpoint: str):
         self.endpoint = endpoint
 
-    def _get(self, url: str) -> dict:
+    def _get(self, url: str, read_timeout: float = 180.0) -> dict:
         import httpx  # lazy: --from-file mode is stdlib-only
 
-        resp = httpx.get(url, timeout=60.0,
-                         headers={"User-Agent": "AIMETEO route importer"})
+        # le query "out geom" possono impiegare minuti: read timeout generoso
+        resp = httpx.get(url, timeout=httpx.Timeout(10.0, read=read_timeout),
+                         headers={"User-Agent": "AIMETEO route importer (contatto: repo gmike92/AIMETEO)"})
         resp.raise_for_status()
         return resp.json()
 
     def _overpass(self, query: str) -> dict:
-        for endpoint in (self.endpoint, MIRROR_ENDPOINT):
+        import time
+        # Overpass fa rate limiting: 2 tentativi per endpoint con pausa crescente
+        attempts = [(self.endpoint, 0), (self.endpoint, 20),
+                    (MIRROR_ENDPOINT, 5), (MIRROR_ENDPOINT, 30)]
+        last = None
+        for endpoint, pause in attempts:
+            if pause:
+                print(f"  … attendo {pause}s (rate limit Overpass)", file=sys.stderr)
+                time.sleep(pause)
             url = overpass_url(endpoint, query)
             try:
                 print(f"GET {url}", file=sys.stderr)
                 return self._get(url)
-            except Exception as exc:  # noqa: BLE001 — try the mirror
+            except Exception as exc:  # noqa: BLE001 — retry/mirror
+                last = exc
                 print(f"  ! {endpoint}: {exc}", file=sys.stderr)
-        raise SystemExit("Overpass non raggiungibile (endpoint e mirror)")
+        raise SystemExit(f"Overpass non raggiungibile dopo 4 tentativi ({last})")
 
     def phase_a(self, area_id: str) -> Optional[dict]:
         return self._overpass(phase_a_query(area_id))
 
+    PAUSA_TRA_RELAZIONI = 10  # secondi, cortesia verso Overpass
+
     def phase_b(self, rel_id: int) -> Optional[dict]:
+        import time
+        time.sleep(self.PAUSA_TRA_RELAZIONI)
         el = self._overpass(phase_b_query(rel_id))
         for element in el.get("elements", []):
             if element.get("type") == "relation" and element.get("id") == rel_id:
