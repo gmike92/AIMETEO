@@ -32,6 +32,50 @@ from app.model.profile import PressureLevel  # noqa: E402
 REPO = pathlib.Path(__file__).resolve().parents[2]
 LOG = REPO / "docs" / "VALIDATION_LOG.md"
 
+
+# ── UTM 32N → WGS84 (le stazioni BZ arrivano in EPSG:25832, metri) ─────────
+_A, _F, _K0, _E0, _LON0 = 6378137.0, 1 / 298.257223563, 0.9996, 500000.0, 9.0
+
+
+def utm32n_to_wgs84(easting: float, northing: float) -> tuple[float, float]:
+    """Inversa UTM standard (serie di Krüger), precisione ~cm. → (lat, lon)."""
+    import math
+    e2 = _F * (2 - _F)
+    e1 = (1 - math.sqrt(1 - e2)) / (1 + math.sqrt(1 - e2))
+    m = northing / _K0
+    mu = m / (_A * (1 - e2 / 4 - 3 * e2**2 / 64 - 5 * e2**3 / 256))
+    phi1 = (mu
+            + (3 * e1 / 2 - 27 * e1**3 / 32) * math.sin(2 * mu)
+            + (21 * e1**2 / 16 - 55 * e1**4 / 32) * math.sin(4 * mu)
+            + (151 * e1**3 / 96) * math.sin(6 * mu)
+            + (1097 * e1**4 / 512) * math.sin(8 * mu))
+    ep2 = e2 / (1 - e2)
+    c1 = ep2 * math.cos(phi1) ** 2
+    t1 = math.tan(phi1) ** 2
+    n1 = _A / math.sqrt(1 - e2 * math.sin(phi1) ** 2)
+    r1 = _A * (1 - e2) / (1 - e2 * math.sin(phi1) ** 2) ** 1.5
+    d = (easting - _E0) / (n1 * _K0)
+    lat = phi1 - (n1 * math.tan(phi1) / r1) * (
+        d**2 / 2
+        - (5 + 3 * t1 + 10 * c1 - 4 * c1**2 - 9 * ep2) * d**4 / 24
+        + (61 + 90 * t1 + 298 * c1 + 45 * t1**2 - 252 * ep2 - 3 * c1**2) * d**6 / 720)
+    lon = math.radians(_LON0) + (
+        d - (1 + 2 * t1 + c1) * d**3 / 6
+        + (5 - 2 * c1 + 28 * t1 - 3 * c1**2 + 8 * ep2 + 24 * t1**2) * d**5 / 120
+    ) / math.cos(phi1)
+    return math.degrees(lat), math.degrees(lon)
+
+
+def _maybe_project(lon_or_e: float, lat_or_n: float) -> tuple[float, float]:
+    """Se le 'coordinate' sono metri UTM (valori enormi), converti. → (lat, lon)."""
+    if abs(lon_or_e) > 180 or abs(lat_or_n) > 90:
+        lat, lon = utm32n_to_wgs84(lon_or_e, lat_or_n)
+        if not (44.0 < lat < 48.5 and 8.0 < lon < 14.5):
+            raise ValueError(f"conversione UTM implausibile: {lat:.4f},{lon:.4f}")
+        return lat, lon
+    return lat_or_n, lon_or_e
+
+
 BZ_STATIONS = "https://daten.buergernetz.bz.it/services/meteo/v1/stations"
 BZ_SENSORS = "https://daten.buergernetz.bz.it/services/meteo/v1/sensors?station_code={code}"
 OM_LEVELS = [1000, 925, 850, 700, 500]
@@ -56,7 +100,7 @@ def bz_high_stations(min_ele: float, top: int) -> list[dict]:
         coords = geom.get("coordinates") or [p.get("LONG"), p.get("LAT")]
         try:
             ele = float(p.get("ALT"))
-            lon, lat = float(coords[0]), float(coords[1])
+            lat, lon = _maybe_project(float(coords[0]), float(coords[1]))
         except (TypeError, ValueError):
             continue
         if ele < min_ele:
