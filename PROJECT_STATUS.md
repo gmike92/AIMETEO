@@ -219,6 +219,17 @@ python backend/scripts/seed_db.py --schema
 ---
 
 ## Changelog
+- **2026-07-11 (b)** — **Differenzianti dal report competitivo (top-2 del piano).**
+  (1) **Meteo lungo l'itinerario a quota reale**: `GET /routes/{slug}/weather` campiona
+  partenza / metà salita (per quota, non per distanza — le tracce A/R ingannano) / vetta
+  ai punti REALI della traccia con le loro quote vere (il gap documentato di Windy:
+  quota del grid ≠ quota della cima). Strip sulla pagina rotta; il payload Gemini ora
+  include "zero termico in vetta". Mock con gradiente standard, dichiarato; 404 senza
+  traccia. Demo: partenza 1990 m −6°, metà 3022 m −13°, vetta 4020 m −19°.
+  (2) **Offline reale**: service worker v2 (cache API cross-origin network-first,
+  protocollo CACHE_URLS) + bottone "Salva per offline" sulla pagina rotta che precache
+  scheda+meteo+GPX+condizioni+tiles del riquadro traccia (z11-13, cap 350) — uso in
+  rifugio senza rete, ultima copia buona mai spacciata per fresca. Suite verdi.
 - **2026-07-11** — **Sprint quick-wins (da analisi concorrenti: Skitourenguru, White Risk,
   Whympr, Komoot).** (1) **Profilo altimetrico** SVG server-rendered sulla pagina rotta
   (dai track_points reali, zero librerie). (2) **Export GPX** `GET /routes/{slug}/gpx`
