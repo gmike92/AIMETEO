@@ -262,6 +262,25 @@ check("invalid email → 422",
 r = client.post("/waitlist", json={"email": "michele.test@example.com"})
 check("duplicate is idempotent", r.status_code == 200 and len(_MEM) == 1)
 
+print("== Meteo lungo l'itinerario (quote reali) ==")
+r = client.get("/routes/alpinismo-gran-paradiso-via-normale/weather")
+check("route weather 200", r.status_code == 200, r.text[:100])
+w = r.json()
+check("3 punti campionati", [p["label"] for p in w["points"]] == ["partenza", "meta", "vetta"])
+check("quote reali crescenti partenza<vetta",
+      w["points"][0]["ele_m"] < w["points"][-1]["ele_m"])
+check("vetta ~4020 m (dalla traccia, non dalla scheda)",
+      abs(w["points"][-1]["ele_m"] - 4020) < 5, str(w["points"][-1]["ele_m"]))
+check("mock disclosed", w["is_demo"] and w["points"][0]["forecast"]["source"] == "mock")
+check("temperatura cala con la quota (lapse demo)",
+      w["points"][-1]["forecast"]["temp_c"] < w["points"][0]["forecast"]["temp_c"])
+check("no track -> 404",
+      client.get("/routes/scialpinismo-monte-vioz-da-pejo/weather").status_code == 404)
+from app.services.route_weather import route_weather as _rw
+_block = prompts.weather_along_route_block(_rw("alpinismo-gran-paradiso-via-normale").points)
+check("payload Gemini: blocco meteo per punto", "vetta (40" in _block and "zero termico" in _block)
+check("payload Gemini: mock marcato", "[DATI DIMOSTRATIVI]" in _block)
+
 print("== GPX export (roundtrip through our own parser) ==")
 r = client.get("/routes/alpinismo-gran-paradiso-via-normale/gpx")
 check("gpx 200 for ingested route", r.status_code == 200, r.text[:100])

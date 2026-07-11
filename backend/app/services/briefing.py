@@ -48,12 +48,22 @@ def make_briefing(req: BriefingRequest) -> Briefing:
     # bulletin can be None (off-season): the relazione is generated without the
     # avalanche section — never with a fabricated rating.
 
+    # Weather along the route at REAL track elevations (when a GPX is ingested):
+    # lets the relazione say "zero termico in vetta", not "al parcheggio".
+    rw = None
+    try:
+        from .route_weather import route_weather as _rw_endpoint
+        rw = _rw_endpoint(route["slug"])
+    except Exception:
+        rw = None  # no track / live weather down → relazione without the block
+
     # Try Gemini first (live mode). The payload contains ONLY verified structured
     # data; the enforced JSON schema keeps output predictable and auditable.
     text: str | None = None
     model = "deterministic-stub"
     try:
-        payload = prompts.build_briefing_payload(route, bulletin, None, req.locale)
+        payload = prompts.build_briefing_payload(route, bulletin, None, req.locale,
+                                                 route_weather=rw)
         result = llm.generate_json(
             prompts.SYSTEM_INSTRUCTION, payload, prompts.BRIEFING_SCHEMA
         )

@@ -119,12 +119,32 @@ def route_context(route: dict, bulletin: Optional[Bulletin],
     ])
 
 
+def weather_along_route_block(points) -> str:
+    """
+    Per-point weather at REAL track elevations (partenza/metà/vetta).
+    `points` = list of RoutePointWeather. Verbatim numbers only.
+    """
+    lines = ["  METEO LUNGO L'ITINERARIO (quote reali della traccia):"]
+    for p in points:
+        f = p.forecast
+        lines.append(
+            f"  - {p.label} ({p.ele_m} m): {f.temp_c}°C, vento {f.wind_avg_kmh} km/h "
+            f"(raffiche {f.wind_gust_kmh}), zero termico {f.freezing_level_m} m, "
+            f"precip {f.precip_mm} mm"
+            + (" [DATI DIMOSTRATIVI]" if f.source == "mock" else "")
+        )
+    return "\n".join(lines)
+
+
 def build_briefing_payload(route: dict, bulletin: Bulletin,
-                           forecast: Optional[PointForecast], locale: str) -> str:
+                           forecast: Optional[PointForecast], locale: str,
+                           route_weather=None) -> str:
     return "\n".join([
         f"LINGUA RISPOSTA: {locale}",
         "DATI ITINERARIO E CONDIZIONI (usa solo questi):",
         route_context(route, bulletin, forecast),
+        *( [weather_along_route_block(route_weather.points)]
+           if route_weather and route_weather.points else [] ),
         "",
         "ISTRUZIONE: scrivi una breve relazione tecnica (campo 'relazione') per questo "
         "itinerario nelle condizioni date. Cita sempre grado ufficiale, fonte e link. "

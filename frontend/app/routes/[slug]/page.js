@@ -7,6 +7,8 @@ import { serverFetch, API_BASE } from "@/lib/api";
 import BriefingPanel from "./BriefingPanel";
 import ElevationProfile from "./ElevationProfile";
 import Meteogram from "./Meteogram";
+import RouteWeatherStrip from "./RouteWeatherStrip";
+import OfflineButton from "./OfflineButton";
 
 export const revalidate = 300;
 
@@ -76,6 +78,7 @@ export default async function RouteDetail({ params }) {
           >
             Scarica GPX ↓
           </a>
+          <OfflineButton slug={params.slug} trackPoints={route.track_points} />
         </>
       )}
       <span className="eyebrow" style={{ display: "block", marginTop: 18 }}>
@@ -114,6 +117,8 @@ export default async function RouteDetail({ params }) {
       ) : (
         <p className="note">Previsioni non disponibili al momento.</p>
       )}
+
+      <RouteWeatherStrip slug={params.slug} />
 
       <ElevationProfile trackPoints={route.track_points} />
 
