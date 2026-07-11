@@ -219,6 +219,19 @@ python backend/scripts/seed_db.py --schema
 ---
 
 ## Changelog
+- **2026-07-11 (f)** — **Validazione modello + verticale falesie.**
+  (1) Prima validazione vs 8 stazioni reali in quota (BZ open data, conversione
+  UTM32N aggiunta): profilo puro MAE 2.24° con bias freddo sistematico diurno
+  (strato superficiale surriscaldato che il profilo ignora); baseline om-2m 1.18°.
+  **Decisione data-driven (v0.1)**: T puntuale da om-2m downscalata alla quota
+  reale; profilo = autorità per zero termico/inversioni; solare per warming.
+  Log in docs/VALIDATION_LOG.md — da rilanciare di notte e in inverno.
+  (2) **Falesie v1**: entità `route-db/crags.json`, servizio `/falesie` con
+  **sole/ombra per parete** (slope 90° + esposizione reale, soglia 120 W/m²,
+  finestre della giornata al quarto d'ora; esposizione ignota → dichiarato,
+  mai inventato), `scripts/import_osm_crags.py` (sport=climbing, orientation,
+  quote OSM `ele` o DEM, ODbL), pagina `/falesie` + nav. Test fisici inclusi
+  (S > N per durata di sole). Suite verdi.
 - **2026-07-11 (e)** — **+10 sentieri CAI dal catasto REI via OSM** (`import_osm_cai.py`,
   lanciato da Michele dal Mac dopo i fix robustezza Overpass: skip-non-abort, retry,
   timeout 120s). Seed a **30 rotte** (14 escursionismo, tutte con traccia reale + quote

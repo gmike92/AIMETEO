@@ -319,6 +319,35 @@ _pb = prompts.build_briefing_payload(
 check("payload Gemini: blocco MODELLO presente", "MODELLO (profilo verticale" in _pb)
 check("payload Gemini: zero termico dal profilo", "zero termico dal profilo" in _pb)
 
+print("== Falesie: sole/ombra dalla fisica ==")
+from app.services import crags as crags_svc
+FAKE = [
+  {"slug": "falesia-sud", "name": "Placca Sud", "lat": 46.0, "lon": 10.5,
+   "ele_m": 1200, "aspect": "S", "source": "test", "verified_at": None},
+  {"slug": "falesia-nord", "name": "Strapiombo Nord", "lat": 46.0, "lon": 10.5,
+   "ele_m": 1200, "aspect": "N", "source": "test", "verified_at": None},
+  {"slug": "falesia-boh", "name": "Ignota", "lat": 46.0, "lon": 10.5,
+   "ele_m": 900, "aspect": None, "source": "test", "verified_at": None},
+]
+with patch.object(crags_svc, "load_crags", return_value=FAKE):
+    r = client.get("/falesie")
+    check("falesie 200", r.status_code == 200, r.text[:80])
+    out = {c["slug"]: c for c in r.json()}
+    sud, nord, boh = out["falesia-sud"], out["falesia-nord"], out["falesia-boh"]
+    check("parete S: ha finestre di sole oggi", len(sud["finestre_sole"]) >= 1)
+    check("esposizione ignota: nessun calcolo inventato",
+          boh["in_sole_adesso"] is None and "non censita" in (boh["nota"] or ""))
+    if nord["finestre_sole"] and sud["finestre_sole"]:
+        _iso = lambda x: __import__("datetime").datetime.fromisoformat(x.replace("Z", "+00:00"))
+        durata = lambda c: sum(
+            (_iso(w["alle"]) - _iso(w["dalle"])).total_seconds()
+            for w in c["finestre_sole"])
+        check("parete S prende più sole della N (fisica)", durata(sud) > durata(nord),
+              f"S={durata(sud)/3600:.1f}h N={durata(nord)/3600:.1f}h")
+    r2 = client.get("/falesie/falesia-sud/sole")
+    check("dettaglio falesia 200", r2.status_code == 200)
+    check("404 falesia inesistente", client.get("/falesie/nope/sole").status_code == 404)
+
 print("== GPX export (roundtrip through our own parser) ==")
 r = client.get("/routes/alpinismo-gran-paradiso-via-normale/gpx")
 check("gpx 200 for ingested route", r.status_code == 200, r.text[:100])

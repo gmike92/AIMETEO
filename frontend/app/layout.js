@@ -22,6 +22,7 @@ function Nav() {
           <div>
             <a href="/">Mappa</a>
             <a href="/itinerari">Itinerari</a>
+            <a href="/falesie">Falesie</a>
             <a href="/planner">Pianifica</a>
           </div>
         </nav>

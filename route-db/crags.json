@@ -1,0 +1,4 @@
+{
+  "_note": "Falesie — seed. Popolato da scripts/import_osm_crags.py (OSM sport=climbing, ODbL) e curatela. aspect = esposizione della PARETE (downslope della normale al muro); null = ignota, il calcolo sole/ombra la richiede.",
+  "crags": []
+}
