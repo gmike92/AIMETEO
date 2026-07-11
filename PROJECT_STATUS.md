@@ -219,6 +219,22 @@ python backend/scripts/seed_db.py --schema
 ---
 
 ## Changelog
+- **2026-07-11 (c)** — **Modello Zerotermico v0 — nucleo fisico** (`backend/app/model/`,
+  fisica pura, zero I/O, 34 check esatti in `tests/test_model.py`).
+  `solar.py`: declinazione/equazione del tempo (Spencer 1971), posizione solare
+  (atan2, niente bug di quadrante), air mass (Kasten-Young), DNI clear-sky (Meinel,
+  con correzione quota), attenuazione nuvole (Kasten-Czeplak), irradianza su pendio
+  inclinato per esposizione, **warming_onset**: "a che ora il pendio X si scalda"
+  (proxy neve bagnata; demo 15 feb: SE 07:15, E 07:30, S 07:45 UTC, NW mai).
+  `profile.py`: T(z) interpolata dal profilo ai livelli di pressione (estrapolazione
+  limitata, mai numeri inventati fuori colonna), **rilevamento inversioni** (il caso
+  in cui il gradiente standard sbaglia di 5-10°), zero termico letto dal profilo con
+  TUTTE le intersezioni riportate (inversioni ⇒ multiple) e flag colonna sotto zero.
+  Test: solstizi ±23.44°, culmine a Sud, parete N 40° MAI illuminata a dicembre,
+  Est si scalda prima di Sud, equinozio 12h, ecc. Prossimi: plumbing dati livelli
+  di pressione (Open-Meteo pressure levels), integrazione in route_weather e nel
+  filtro warming, poi hindcast vs stazioni Meteomont/ARPA (claim di skill SOLO dopo
+  validazione).
 - **2026-07-11 (b)** — **Differenzianti dal report competitivo (top-2 del piano).**
   (1) **Meteo lungo l'itinerario a quota reale**: `GET /routes/{slug}/weather` campiona
   partenza / metà salita (per quota, non per distanza — le tracce A/R ingannano) / vetta
