@@ -66,11 +66,13 @@ def sanity_check(route: dict, stats: gpx.TrackStats, force: bool) -> list[str]:
 
 
 def ingest_memory(slug: str, points: list[gpx.TrackPoint],
-                  stats: gpx.TrackStats) -> None:
+                  stats: gpx.TrackStats, track_source: str | None = None) -> None:
     data = json.loads(SEED.read_text(encoding="utf-8"))
     route = next((r for r in data["routes"] if r["slug"] == slug), None)
     if route is None:
         sys.exit(f"route '{slug}' non trovata in {SEED}")
+    if track_source:
+        route["track_source"] = track_source  # license/attribution of the TRACK
     route["start_lat"] = points[0].lat
     route["start_lon"] = points[0].lon
     route["track_points"] = [
@@ -128,6 +130,8 @@ def main() -> None:
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--force", action="store_true",
                     help="ignora i controlli di coerenza quota (usalo consapevolmente)")
+    ap.add_argument("--track-source", default=None,
+                    help='attribuzione/licenza della traccia, es. "Camptocamp.org route 123 (CC BY-SA)"')
     args = ap.parse_args()
 
     try:
@@ -160,7 +164,7 @@ def main() -> None:
         return
     if settings.database_url:
         ingest_pg(args.route, points, stats)
-    ingest_memory(args.route, points, stats)
+    ingest_memory(args.route, points, stats, track_source=args.track_source)
 
 
 if __name__ == "__main__":

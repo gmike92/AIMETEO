@@ -262,11 +262,25 @@ check("invalid email → 422",
 r = client.post("/waitlist", json={"email": "michele.test@example.com"})
 check("duplicate is idempotent", r.status_code == 200 and len(_MEM) == 1)
 
+print("== GPX export (roundtrip through our own parser) ==")
+r = client.get("/routes/alpinismo-gran-paradiso-via-normale/gpx")
+check("gpx 200 for ingested route", r.status_code == 200, r.text[:100])
+check("content-type gpx", "gpx" in r.headers.get("content-type", ""))
+check("attribution travels with the file", "Camptocamp" in r.text)
+from app import gpx as gpxmod
+_pts = gpxmod.parse_gpx(r.text)
+check("roundtrip: our parser reads our export", len(_pts) >= 100)
+check("elevations preserved", _pts[0].ele is not None)
+check("no track -> 404, never fabricated",
+      client.get("/routes/scialpinismo-monte-vioz-da-pejo/gpx").status_code == 404)
+check("unknown route -> 404",
+      client.get("/routes/nope/gpx").status_code == 404)
+
 print("== Container-import simulation (all routers mount) ==")
 # via openapi so it works across FastAPI versions (lazy router inclusion)
 paths = set(client.get("/openapi.json").json()["paths"].keys())
 for p in ["/waitlist", "/alert/run", "/planner/plan", "/briefing",
-          "/forecast/point", "/terrain/{slug}"]:
+          "/forecast/point", "/terrain/{slug}", "/routes/{slug}/gpx", "/conditions"]:
     check(f"route mounted: {p}", p in paths)
 
 print("\nALL INTEGRATION CHECKS PASSED")

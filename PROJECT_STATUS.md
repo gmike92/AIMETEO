@@ -219,6 +219,19 @@ python backend/scripts/seed_db.py --schema
 ---
 
 ## Changelog
+- **2026-07-11** — **Sprint quick-wins (da analisi concorrenti: Skitourenguru, White Risk,
+  Whympr, Komoot).** (1) **Profilo altimetrico** SVG server-rendered sulla pagina rotta
+  (dai track_points reali, zero librerie). (2) **Export GPX** `GET /routes/{slug}/gpx`
+  con attribuzione della traccia embedded (nuovo campo `track_source` — provenienza
+  della traccia distinta dalla scheda; `ingest_gpx.py --track-source`); roundtrip
+  testato col nostro stesso parser; 404 senza traccia, mai geometria inventata.
+  (3) **Meteogramma 7gg** client (Open-Meteo hourly: temperatura, zero termico,
+  precipitazioni) al trailhead reale. (4) **PWA**: manifest + icone (montagna brand)
+  + service worker conservativo (tiles cache-first bounded, API network-first) →
+  **app installabile standalone** (Chrome ⋮ → "Installa AIMETEO"; Safari → Aggiungi
+  al Dock) — risponde alla richiesta "app senza browser". Roadmap post-GCP annotata:
+  layer pendenza >30° + semaforo per-tratto stile Skitourenguru con AINEVA.
+  Suite verdi; pagina rotta verificata con screenshot headless.
 - **2026-07-09** — **Aesthetic coherence pass (da screenshot reale).** Temp field:
   griglia allargata (11×20, 220 punti), bordi sfumati (feathering alpha 9%) — niente più
   rettangolo netto; mappa vincolata alle Alpi (maxBounds+minZoom). Legenda temperatura ora

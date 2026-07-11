@@ -3,8 +3,10 @@
 // interactive part (the AI briefing) lives in the BriefingPanel client
 // component.
 import { notFound } from "next/navigation";
-import { serverFetch } from "@/lib/api";
+import { serverFetch, API_BASE } from "@/lib/api";
 import BriefingPanel from "./BriefingPanel";
+import ElevationProfile from "./ElevationProfile";
+import Meteogram from "./Meteogram";
 
 export const revalidate = 300;
 
@@ -59,13 +61,22 @@ export default async function RouteDetail({ params }) {
     <div>
       <a href="/itinerari" className="note">← Tutti gli itinerari</a>
       {hasRealCoords && (
-        <a
-          href={`/?route=${encodeURIComponent(params.slug)}`}
-          className="note"
-          style={{ marginLeft: 16, color: "var(--accent)" }}
-        >
-          Vedi traccia sulla mappa →
-        </a>
+        <>
+          <a
+            href={`/?route=${encodeURIComponent(params.slug)}`}
+            className="note"
+            style={{ marginLeft: 16, color: "var(--accent)" }}
+          >
+            Vedi traccia sulla mappa →
+          </a>
+          <a
+            href={`${API_BASE}/routes/${encodeURIComponent(params.slug)}/gpx`}
+            className="note"
+            style={{ marginLeft: 16, color: "var(--accent2)" }}
+          >
+            Scarica GPX ↓
+          </a>
+        </>
       )}
       <span className="eyebrow" style={{ display: "block", marginTop: 18 }}>
         {route.activity} · {route.area?.name}
@@ -102,6 +113,12 @@ export default async function RouteDetail({ params }) {
         </div>
       ) : (
         <p className="note">Previsioni non disponibili al momento.</p>
+      )}
+
+      <ElevationProfile trackPoints={route.track_points} />
+
+      {hasRealCoords && (
+        <Meteogram lat={route.start_lat} lon={route.start_lon} name={route.name} />
       )}
 
       <BriefingPanel slug={params.slug} />

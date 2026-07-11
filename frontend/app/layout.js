@@ -1,12 +1,17 @@
 import "leaflet/dist/leaflet.css";
 import "leaflet-velocity/dist/leaflet-velocity.min.css";
 import "./globals.css";
+import PwaRegister from "./components/PwaRegister";
 
 export const metadata = {
   title: "AIMETEO — Meteo per la montagna, fatto bene",
   description:
     "Previsioni iperlocali, bollettini valanghe ufficiali e pianificazione gite con l'AI. Per chi va in montagna sul serio.",
+  appleWebApp: { capable: true, title: "AIMETEO", statusBarStyle: "black-translucent" },
+  icons: { apple: "/apple-touch-icon.png" },
 };
+
+export const viewport = { themeColor: "#0a1420" };
 
 function Nav() {
   return (
@@ -34,6 +39,7 @@ export default function RootLayout({ children }) {
           href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap"
           rel="stylesheet"
         />
+        <PwaRegister />
         <Nav />
         <main className="wrap">{children}</main>
         <footer className="wrap">
