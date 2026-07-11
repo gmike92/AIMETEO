@@ -219,6 +219,14 @@ python backend/scripts/seed_db.py --schema
 ---
 
 ## Changelog
+- **2026-07-11 (e)** — **+10 sentieri CAI dal catasto REI via OSM** (`import_osm_cai.py`,
+  lanciato da Michele dal Mac dopo i fix robustezza Overpass: skip-non-abort, retry,
+  timeout 120s). Seed a **30 rotte** (14 escursionismo, tutte con traccia reale + quote
+  dal DEM Copernicus, attribuzione ODbL, unverified). Tra i nuovi: Alta Via 2 VdA
+  tappa (125 pt), Orobie Orientali tappe 1-2, Friedrich August, ferrata Gino Badia,
+  sentiero attrezzato Minazio. Gate al lavoro: scartato un sentiero fuori bbox.
+  Verificato: /weather sui nuovi sentieri (profilo alle quote reali), /gpx con ODbL
+  nel file, planner escursionismo con 14 candidati. Tutte le suite verdi.
 - **2026-07-11 (d)** — **Modello v0 collegato ai dati.** Provider
   `providers/open_meteo.py`: colonna verticale (T + quota geopotenziale a
   1000/925/850/700/500 hPa) + nuvolosità, parser tollerante testato su fixture,
