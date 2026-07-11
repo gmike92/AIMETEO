@@ -129,6 +129,11 @@ def main() -> None:
             lon = el.get("lon") or (el.get("center") or {}).get("lon")
             if not name or lat is None or lon is None:
                 continue
+            # non-falesie: palestre indoor e vie ferrate taggate sport=climbing
+            if (tags.get("climbing:indoor") == "yes" or tags.get("indoor") == "yes"
+                    or any(k in name.lower() for k in ("indoor", "klettersteig"))):
+                print(f"  SKIP {name} (indoor/ferrata, non falesia)")
+                continue
             slug = slugify(name)
             if slug in known:
                 print(f"  SKIP {name} (già presente)")
