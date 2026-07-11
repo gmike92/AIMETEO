@@ -103,6 +103,34 @@ def parse_column(payload: dict, when_utc: datetime | None = None) -> ColumnSampl
     )
 
 
+def fetch_t2m(lat: float, lon: float, elevation_m: float,
+              timeout_s: float = 15.0) -> float:
+    """
+    Temperatura 2m corrente ALLA QUOTA RICHIESTA (downscaling Open-Meteo via
+    parametro elevation). Scelta guidata dai dati: nella validazione su 8
+    stazioni in quota (2026-07-11) om-2m ha battuto il profilo puro per la T
+    puntuale diurna (MAE 1.18° vs 2.24°) — vedi docs/VALIDATION_LOG.md.
+    """
+    if settings.use_mock_data:
+        raise ColumnFetchError("mock mode: t2m live non disponibile")
+    url = (
+        "https://api.open-meteo.com/v1/forecast"
+        f"?latitude={lat:.4f}&longitude={lon:.4f}&elevation={elevation_m:.0f}"
+        "&current=temperature_2m&timezone=UTC"
+    )
+    try:
+        resp = httpx.get(url, timeout=timeout_s)
+        resp.raise_for_status()
+        t = (resp.json().get("current") or {}).get("temperature_2m")
+        if t is None:
+            raise ColumnFetchError("risposta senza temperature_2m")
+        return float(t)
+    except ColumnFetchError:
+        raise
+    except Exception as e:
+        raise ColumnFetchError(f"t2m non recuperabile: {e}") from e
+
+
 def fetch_column(lat: float, lon: float, timeout_s: float = 15.0) -> ColumnSample:
     """Live vertical column at (lat, lon), current hour. Mock in mock mode."""
     if settings.use_mock_data:

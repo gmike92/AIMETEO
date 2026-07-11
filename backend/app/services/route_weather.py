@@ -172,18 +172,40 @@ def route_weather(slug: str) -> RouteWeather:
                 )
         else:
             fc = _mock_at(p["lat"], p["lon"], ele)
-        # Modello v0: temperature at the point's REAL elevation from the
-        # actual column (beats grid-surface temp); source discloses the chain.
+        # Modello v0.1 — ripartizione guidata dalla validazione (2026-07-11,
+        # docs/VALIDATION_LOG.md): T puntuale da om-2m downscalata alla quota
+        # reale (MAE 1.18° vs 2.24° del profilo puro di giorno d'estate);
+        # il PROFILO resta l'autorità per zero termico e inversioni.
+        if live:
+            try:
+                t2m = open_meteo.fetch_t2m(p["lat"], p["lon"], float(ele))
+                fc = fc.model_copy(update={
+                    "temp_c": round(t2m, 1),
+                    "source": f"{fc.source} + om-2m@quota",
+                })
+            except open_meteo.ColumnFetchError:
+                # fallback: T dal profilo (meglio del grid nudo)
+                if column is not None:
+                    try:
+                        t_profile = vprofile.temp_at(column.levels, float(ele))
+                        fc = fc.model_copy(update={
+                            "temp_c": round(t_profile, 1),
+                            "source": f"{fc.source} + profilo {column.source}",
+                        })
+                    except vprofile.ProfileError:
+                        pass
         if column is not None:
             try:
-                t_profile = vprofile.temp_at(column.levels, float(ele))
+                if not live:  # demo: T dal profilo mock (comportamento invariato)
+                    t_profile = vprofile.temp_at(column.levels, float(ele))
+                    fc = fc.model_copy(update={"temp_c": round(t_profile, 1)})
                 fl = vprofile.freezing_levels(column.levels)
                 fc = fc.model_copy(update={
-                    "temp_c": round(t_profile, 1),
                     "freezing_level_m": (round(fl.principal_m)
                                          if fl.principal_m is not None
                                          else fc.freezing_level_m),
-                    "source": f"{fc.source} + profilo {column.source}",
+                    "source": (fc.source if "profilo" in fc.source
+                               else f"{fc.source} + profilo {column.source}"),
                 })
             except vprofile.ProfileError:
                 pass  # point outside the column: keep provider values
