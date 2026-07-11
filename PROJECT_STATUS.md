@@ -1,7 +1,7 @@
 # AIMETEO — Project Status & Next Steps
 
 > Snapshot of everything built so far and what comes next.
-> Last updated: **2026-07-01**. Living document.
+> Last updated: **2026-07-11**. Living document.
 
 **One-liner:** AI-native, Italy-first hyperlocal mountain-weather product for climbers,
 ski-mountaineers and alpine hikers. The moat is the structured Italian route database +
@@ -228,6 +228,21 @@ python backend/scripts/seed_db.py --schema
 ---
 
 ## Changelog
+- **2026-07-11(g) — Sprint best-practice + prodotto**: (1) **CI GitHub Actions**
+  (`.github/workflows/ci.yml`): a ogni push le 5 suite di test + build Next contro
+  backend mock. (2) **Validazione schedulata** (`validate-model.yml`): cron lun notte
+  + gio mezzogiorno, committa VALIDATION_LOG.md da solo (anche manuale da Actions).
+  (3) **Pagina `/fonti`**: attribuzioni ODbL/CC BY-SA/Open-Meteo/AINEVA/BZ (obbligo
+  di licenza) + "cosa non facciamo mai"; link nel footer. (4) **Finestra migliore
+  della settimana**: `GET /routes/{slug}/finestra` — punteggio 0-100/giorno alla
+  quota vetta reale (pioggia, vento, nuvole, freddo, zero termico) + finestra oraria
+  + sole sul versante (solo con pendenza/esposizione note); card sulla pagina rotta,
+  fail-safe (endpoint giù → card assente). (5) **Condivisione piano**: `/planner?i=…&a=…`
+  auto-esegue, bottone "Condividi col compagno di gita" — il piano è sempre
+  ricalcolato all'apertura, mai congelato. (6) **Push PWA**: sw v3 con handler
+  push/notificationclick, `/push/subscribe` + `/push/send-test` (pywebpush opzionale,
+  chiavi VAPID da env via `scripts/gen_vapid.py`), bottone "Avvisami" — consegna
+  reale al deploy (serve HTTPS). Fix: USE_MOCK_DATA richiede "true", non "1".
 - **2026-07-11 (f)** — **Validazione modello + verticale falesie.**
   (1) Prima validazione vs 8 stazioni reali in quota (BZ open data, conversione
   UTM32N aggiunta): profilo puro MAE 2.24° con bias freddo sistematico diurno

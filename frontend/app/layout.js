@@ -44,7 +44,8 @@ export default function RootLayout({ children }) {
         <Nav />
         <main className="wrap">{children}</main>
         <footer className="wrap">
-          Zerotermico · nome di lavoro · Bollettini: fonte ufficiale AINEVA / Meteomont.
+          Zerotermico · nome di lavoro · Bollettini: fonte ufficiale AINEVA / Meteomont ·{" "}
+          <a href="/fonti" style={{ textDecoration: "underline" }}>Fonti e licenze</a>
         </footer>
       </body>
     </html>

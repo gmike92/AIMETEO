@@ -10,7 +10,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .config import settings
 from .connectors import registry
-from .services import forecast, terrain, briefing, alert, planner, routes, waitlist, conditions, gpx_export, route_weather, crags
+from .services import forecast, terrain, briefing, alert, planner, routes, waitlist, conditions, gpx_export, route_weather, crags, best_window, push
 from . import store
 
 app = FastAPI(
@@ -29,6 +29,7 @@ app.add_middleware(
 
 app.include_router(gpx_export.router)  # before routes: /routes/{slug}/gpx
 app.include_router(route_weather.router)  # /routes/{slug}/weather
+app.include_router(best_window.router)  # /routes/{slug}/finestra
 app.include_router(routes.router)
 app.include_router(forecast.router)
 app.include_router(terrain.router)
@@ -38,6 +39,7 @@ app.include_router(planner.router)
 app.include_router(waitlist.router)
 app.include_router(conditions.router)
 app.include_router(crags.router)
+app.include_router(push.router)
 
 
 @app.get("/healthz", tags=["meta"])

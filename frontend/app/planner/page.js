@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 
 export default function Planner() {
@@ -10,18 +10,51 @@ export default function Planner() {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [copied, setCopied] = useState(false);
 
-  const run = async (e) => {
-    e.preventDefault();
+  const execute = async (intentText, act) => {
     setLoading(true);
     setError(null);
     setResult(null);
+    setCopied(false);
     try {
-      setResult(await api.plan({ intent_text: intent, activity }));
+      setResult(await api.plan({ intent_text: intentText, activity: act }));
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const run = (e) => {
+    e.preventDefault();
+    execute(intent, activity);
+  };
+
+  // Link condiviso: /planner?i=<richiesta>&a=<attività> → precompila ed
+  // esegue subito il piano (ricalcolato ORA, con bollettino e meteo attuali —
+  // mai un piano "congelato" potenzialmente scaduto).
+  useEffect(() => {
+    const sp = new URLSearchParams(window.location.search);
+    const i = sp.get("i");
+    if (i) {
+      const a = sp.get("a") || "scialpinismo";
+      setIntent(i);
+      setActivity(a);
+      execute(i, a);
+    }
+  }, []);
+
+  const copyLink = async () => {
+    const url =
+      `${window.location.origin}/planner?i=${encodeURIComponent(intent)}` +
+      `&a=${encodeURIComponent(activity)}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    } catch {
+      window.prompt("Copia il link:", url);
     }
   };
 
@@ -56,7 +89,17 @@ export default function Planner() {
 
       {result && (
         <>
-          <h2>Esito</h2>
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <h2 style={{ margin: "30px 0 12px" }}>Esito</h2>
+            <button type="button" className="btn ghost" onClick={copyLink}
+              style={{ padding: "7px 16px", fontSize: 13 }}>
+              {copied ? "Link copiato ✓" : "Condividi col compagno di gita"}
+            </button>
+          </div>
+          <p className="note" style={{ marginTop: -6 }}>
+            Chi apre il link vede il piano <strong>ricalcolato adesso</strong>, con
+            bollettino e meteo aggiornati — mai una copia vecchia.
+          </p>
           {result.forecast_notice && (
             <p className="err" role="status">{result.forecast_notice}</p>
           )}

@@ -9,6 +9,8 @@ import ElevationProfile from "./ElevationProfile";
 import Meteogram from "./Meteogram";
 import RouteWeatherStrip from "./RouteWeatherStrip";
 import OfflineButton from "./OfflineButton";
+import BestWindowCard from "./BestWindowCard";
+import PushButton from "../../components/PushButton";
 
 export const revalidate = 300;
 
@@ -79,6 +81,7 @@ export default async function RouteDetail({ params }) {
             Scarica GPX ↓
           </a>
           <OfflineButton slug={params.slug} trackPoints={route.track_points} />
+          <span style={{ marginLeft: 12 }}><PushButton /></span>
         </>
       )}
       <span className="eyebrow" style={{ display: "block", marginTop: 18 }}>
@@ -117,6 +120,8 @@ export default async function RouteDetail({ params }) {
       ) : (
         <p className="note">Previsioni non disponibili al momento.</p>
       )}
+
+      <BestWindowCard slug={params.slug} />
 
       <RouteWeatherStrip slug={params.slug} />
 

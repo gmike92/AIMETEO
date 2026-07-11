@@ -5,7 +5,7 @@
    - Pagine + API (anche cross-origin, es. backend :8000): network-first
      con fallback cache — l'ultima copia buona resta consultabile in rifugio.
    - Messaggio CACHE_URLS dal client: precache esplicito ("Salva per offline"). */
-const VER = "aimeteo-v2";
+const VER = "aimeteo-v3";
 const TILE_HOSTS = ["basemaps.cartocdn.com", "tile.opentopomap.org"];
 const MAX_TILES = 2000;
 
@@ -40,6 +40,29 @@ self.addEventListener("message", (e) => {
     const clients = await self.clients.matchAll();
     clients.forEach((c) => c.postMessage({ type: "CACHE_DONE", ok, total: urls.length, bucket }));
   })());
+});
+
+// ── Web Push ────────────────────────────────────────────────────
+self.addEventListener("push", (e) => {
+  let data = {};
+  try { data = e.data ? e.data.json() : {}; } catch { /* payload non-JSON */ }
+  e.waitUntil(self.registration.showNotification(data.title || "Zerotermico", {
+    body: data.body || "",
+    icon: "/apple-touch-icon.png",
+    badge: "/apple-touch-icon.png",
+    data: { url: data.url || "/" },
+  }));
+});
+
+self.addEventListener("notificationclick", (e) => {
+  e.notification.close();
+  const url = (e.notification.data && e.notification.data.url) || "/";
+  e.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((list) => {
+      for (const c of list) if ("focus" in c) { c.navigate(url); return c.focus(); }
+      return self.clients.openWindow(url);
+    })
+  );
 });
 
 self.addEventListener("fetch", (e) => {

@@ -30,6 +30,11 @@ class Settings:
     database_url: str = os.getenv("DATABASE_URL", "")
     db_pool_max: int = int(os.getenv("DB_POOL_MAX", "4"))
 
+    # Web Push (PWA). Genera le chiavi con scripts/gen_vapid.py; vuote = push off.
+    vapid_public_key: str = os.getenv("VAPID_PUBLIC_KEY", "")
+    vapid_private_key: str = os.getenv("VAPID_PRIVATE_KEY", "")
+    vapid_subject: str = os.getenv("VAPID_SUBJECT", "mailto:michele.guizzardi@gmail.com")
+
     # Feature flags
     use_mock_data: bool = os.getenv("USE_MOCK_DATA", "true").lower() == "true"
     trip_planner_enabled: bool = os.getenv("TRIP_PLANNER_ENABLED", "true").lower() == "true"
