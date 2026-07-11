@@ -169,6 +169,15 @@ montagna, fatto bene."*
 8. **Pin exact micro-regions** per route (Marmolada, Gran Paradiso, Ampezzo currently use the conservative whole-region fallback).
 9. **Broaden AINEVA coverage** (all Italian regions + Meteomont) and add per-route GPX + photos + recent reports.
 
+### Backlog prodotto (idee registrate)
+- **Ricerca località** (idea Michele, 2026-07-11): search box in home → geocoding
+  (Open-Meteo geocoding API, gratuita) → pagina località con (a) meteo della
+  settimana (meteogramma già esistente al punto), (b) itinerari e falesie VICINE
+  (raggio haversine su route-db, ordinati per distanza + fattibilità: stagione,
+  filtri sicurezza, sole/ombra per le falesie). SEO naturale: "/localita/cortina"
+  = pagina long-tail per ogni paese di montagna. Effort: medio-basso, quasi tutto
+  riusa componenti esistenti.
+
 ### Business / go-to-market
 10. **Lawyer engagement** for T&Cs + disclaimer (pre-launch, non-negotiable).
 11. **Brand name + domain** decision (Zerotermico vs Cengia vs Vetta) + UIBM/EUIPO check.
