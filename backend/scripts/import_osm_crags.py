@@ -35,6 +35,8 @@ AREAS = {
     "area-gran-paradiso": (45.40, 7.05, 45.65, 7.45),
     "area-dolomiti-ampezzo": (46.45, 11.95, 46.65, 12.25),
     "area-orobie": (45.90, 9.75, 46.10, 10.15),
+    # Alta Valle Camonica (Vezza d'Oglio) — bbox (s, w, n, e)
+    "area-alta-valcamonica": (46.10, 10.20, 46.32, 10.55),
 }
 
 VALID_ASPECTS = {"N", "NE", "E", "SE", "S", "SW", "W", "NW"}
@@ -108,6 +110,8 @@ def main() -> None:
     ap.add_argument("--max-per-area", type=int, default=6)
     ap.add_argument("--endpoint", default=MAIN_ENDPOINT)
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--area", choices=sorted(AREAS), default=None,
+                    help="importa solo quest'area (default: tutte)")
     args = ap.parse_args()
 
     data = json.loads(CRAGS.read_text(encoding="utf-8")) if CRAGS.exists() \
@@ -115,7 +119,8 @@ def main() -> None:
     known = {c["slug"] for c in data["crags"]}
     added: list[dict] = []
 
-    for area_id, bbox in AREAS.items():
+    areas = {args.area: AREAS[args.area]} if args.area else AREAS
+    for area_id, bbox in areas.items():
         resp = overpass_get(query(bbox), args.endpoint)
         if resp is None:
             continue

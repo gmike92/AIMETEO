@@ -51,6 +51,16 @@
    "avalanche_service": "AINEVA",
    "avalanche_zone": "IT-25",
    "avalanche_subzone": "IT-25-BG-02"
+  },
+  {
+   "id": "area-alta-valcamonica",
+   "name": "Alta Valle Camonica (Adamello nord / Gavia)",
+   "country": "IT",
+   "region": "Lombardia",
+   "default_locale": "it",
+   "avalanche_service": "AINEVA",
+   "avalanche_zone": "IT-25",
+   "avalanche_subzone": null
   }
  ],
  "refuges": [

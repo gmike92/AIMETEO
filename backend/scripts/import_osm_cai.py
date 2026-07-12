@@ -67,6 +67,9 @@ AREAS: dict[str, tuple[float, float, float, float]] = {
     "area-gran-paradiso": (45.40, 45.65, 7.05, 7.45),
     "area-dolomiti-ampezzo": (46.45, 46.65, 11.95, 12.25),
     "area-orobie": (45.90, 46.10, 9.75, 10.15),
+    # Alta Valle Camonica, centrata su Vezza d'Oglio: Val Grande, Aviolo,
+    # Mortirolo, Case di Viso / Gavia sud, Adamello nord.
+    "area-alta-valcamonica": (46.10, 46.32, 10.20, 10.55),
 }
 
 SPACING_M = 100.0        #: target decimation spacing
@@ -406,6 +409,8 @@ def main() -> None:
                     help=f"Overpass endpoint (default {DEFAULT_ENDPOINT})")
     ap.add_argument("--from-file", type=pathlib.Path, default=None,
                     help="offline mode: JSON file with saved responses")
+    ap.add_argument("--area", choices=sorted(AREAS), default=None,
+                    help="importa solo quest'area (default: tutte)")
     args = ap.parse_args()
 
     data = json.loads(SEED.read_text(encoding="utf-8"))
@@ -417,7 +422,7 @@ def main() -> None:
     added: list[dict] = []
     rows: list[tuple[str, str, str, str]] = []  # area, rel_id, status, detail
 
-    for area_id in AREAS:
+    for area_id in ([args.area] if args.area else AREAS):
         resp_a = provider.phase_a(area_id)
         if resp_a is None:
             rows.append((area_id, "-", "PEND", "manca la risposta fase A"))
