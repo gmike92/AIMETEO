@@ -16155,6 +16155,898 @@
     }
    ],
    "track_source": "Rete Escursionistica CAI via OpenStreetMap (ODbL) — relation 20613693"
+  },
+  {
+   "slug": "escursionismo-sentiero-72b-sentiero-delle-aquile",
+   "name": "Sentiero 72B — Sentiero delle Aquile",
+   "area_id": "area-alta-valcamonica",
+   "activity": "escursionismo",
+   "diff_scale": "cai",
+   "diff_grade": "n.d.",
+   "diff_index": null,
+   "start_altitude_m": 1903,
+   "max_altitude_m": 2428,
+   "vertical_gain_m": 549,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "season_months": null,
+   "source": "Rete Escursionistica CAI via OpenStreetMap (ODbL) — relation 3491589",
+   "source_url": "https://www.openstreetmap.org/relation/3491589",
+   "verified_at": null,
+   "start_lat": 46.208723,
+   "start_lon": 10.3895879,
+   "track_points": [
+    {
+     "lat": 46.208723,
+     "lon": 10.3895879,
+     "ele": 1903.0
+    },
+    {
+     "lat": 46.2080259,
+     "lon": 10.3902769,
+     "ele": 1910.0
+    },
+    {
+     "lat": 46.2074505,
+     "lon": 10.3915375,
+     "ele": 1923.0
+    },
+    {
+     "lat": 46.208599,
+     "lon": 10.3914103,
+     "ele": 1957.0
+    },
+    {
+     "lat": 46.2095709,
+     "lon": 10.3918809,
+     "ele": 1980.0
+    },
+    {
+     "lat": 46.2097498,
+     "lon": 10.3927226,
+     "ele": 1996.0
+    },
+    {
+     "lat": 46.2088983,
+     "lon": 10.3929269,
+     "ele": 2010.0
+    },
+    {
+     "lat": 46.2082863,
+     "lon": 10.3941623,
+     "ele": 2037.0
+    },
+    {
+     "lat": 46.2066627,
+     "lon": 10.3947306,
+     "ele": 2032.0
+    },
+    {
+     "lat": 46.2057659,
+     "lon": 10.3941565,
+     "ele": 2052.0
+    },
+    {
+     "lat": 46.2047288,
+     "lon": 10.3945833,
+     "ele": 2086.0
+    },
+    {
+     "lat": 46.2042908,
+     "lon": 10.395389,
+     "ele": 2094.0
+    },
+    {
+     "lat": 46.2037405,
+     "lon": 10.3955401,
+     "ele": 2115.0
+    },
+    {
+     "lat": 46.2029322,
+     "lon": 10.3955748,
+     "ele": 2157.0
+    },
+    {
+     "lat": 46.2019401,
+     "lon": 10.3953606,
+     "ele": 2194.0
+    },
+    {
+     "lat": 46.201355,
+     "lon": 10.3963139,
+     "ele": 2257.0
+    },
+    {
+     "lat": 46.2004342,
+     "lon": 10.3970937,
+     "ele": 2313.0
+    },
+    {
+     "lat": 46.1999196,
+     "lon": 10.3976254,
+     "ele": 2351.0
+    },
+    {
+     "lat": 46.1989336,
+     "lon": 10.398696,
+     "ele": 2420.0
+    },
+    {
+     "lat": 46.1986442,
+     "lon": 10.3997763,
+     "ele": 2428.0
+    },
+    {
+     "lat": 46.1987116,
+     "lon": 10.4005673,
+     "ele": 2418.0
+    },
+    {
+     "lat": 46.1988679,
+     "lon": 10.4014308,
+     "ele": 2392.0
+    },
+    {
+     "lat": 46.1989305,
+     "lon": 10.4024237,
+     "ele": 2356.0
+    },
+    {
+     "lat": 46.1986468,
+     "lon": 10.402496,
+     "ele": 2328.0
+    },
+    {
+     "lat": 46.1984545,
+     "lon": 10.4033759,
+     "ele": 2288.0
+    },
+    {
+     "lat": 46.1987528,
+     "lon": 10.4046198,
+     "ele": 2224.0
+    },
+    {
+     "lat": 46.1983366,
+     "lon": 10.4048075,
+     "ele": 2224.0
+    },
+    {
+     "lat": 46.19749,
+     "lon": 10.4048186,
+     "ele": 2168.0
+    },
+    {
+     "lat": 46.1975446,
+     "lon": 10.4057331,
+     "ele": 2178.0
+    },
+    {
+     "lat": 46.1975885,
+     "lon": 10.4065508,
+     "ele": 2116.0
+    },
+    {
+     "lat": 46.1970441,
+     "lon": 10.4074166,
+     "ele": 2042.0
+    },
+    {
+     "lat": 46.1968874,
+     "lon": 10.4089728,
+     "ele": 1979.0
+    },
+    {
+     "lat": 46.196851,
+     "lon": 10.4102284,
+     "ele": 1934.0
+    },
+    {
+     "lat": 46.1963803,
+     "lon": 10.4116976,
+     "ele": 1929.0
+    },
+    {
+     "lat": 46.1962121,
+     "lon": 10.4130682,
+     "ele": 1918.0
+    },
+    {
+     "lat": 46.1965624,
+     "lon": 10.4140688,
+     "ele": 1927.0
+    }
+   ],
+   "track_source": "Rete Escursionistica CAI via OpenStreetMap (ODbL) — relation 3491589"
+  },
+  {
+   "slug": "escursionismo-sentiero-34a-edolo-malga-stain-monte-aviolo-innesto-sentiero-34",
+   "name": "Sentiero 34A — Edolo (Malga Stain) - Monte Aviolo (Innesto Sentiero 34)",
+   "area_id": "area-alta-valcamonica",
+   "activity": "escursionismo",
+   "diff_scale": "cai",
+   "diff_grade": "n.d.",
+   "diff_index": null,
+   "start_altitude_m": 2294,
+   "max_altitude_m": 2306,
+   "vertical_gain_m": 27,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "season_months": null,
+   "source": "Rete Escursionistica CAI via OpenStreetMap (ODbL) — relation 5572150",
+   "source_url": "https://www.openstreetmap.org/relation/5572150",
+   "verified_at": null,
+   "start_lat": 46.1832106,
+   "start_lon": 10.3905141,
+   "track_points": [
+    {
+     "lat": 46.1832106,
+     "lon": 10.3905141,
+     "ele": 2294.0
+    },
+    {
+     "lat": 46.1822339,
+     "lon": 10.3903806,
+     "ele": 2294.0
+    },
+    {
+     "lat": 46.1816432,
+     "lon": 10.3894497,
+     "ele": 2301.0
+    },
+    {
+     "lat": 46.1814103,
+     "lon": 10.3883431,
+     "ele": 2286.0
+    },
+    {
+     "lat": 46.1814032,
+     "lon": 10.3871547,
+     "ele": 2298.0
+    },
+    {
+     "lat": 46.1810847,
+     "lon": 10.3862904,
+     "ele": 2306.0
+    },
+    {
+     "lat": 46.1806267,
+     "lon": 10.3865758,
+     "ele": 2288.0
+    },
+    {
+     "lat": 46.1798192,
+     "lon": 10.3869046,
+     "ele": 2274.0
+    },
+    {
+     "lat": 46.1789718,
+     "lon": 10.3868432,
+     "ele": 2259.0
+    },
+    {
+     "lat": 46.1784583,
+     "lon": 10.3868741,
+     "ele": 2259.0
+    },
+    {
+     "lat": 46.1778219,
+     "lon": 10.386256,
+     "ele": 2187.0
+    },
+    {
+     "lat": 46.177331,
+     "lon": 10.3855653,
+     "ele": 2121.0
+    },
+    {
+     "lat": 46.1766132,
+     "lon": 10.3849374,
+     "ele": 2076.0
+    },
+    {
+     "lat": 46.1759107,
+     "lon": 10.3844128,
+     "ele": 2076.0
+    },
+    {
+     "lat": 46.1752252,
+     "lon": 10.3835935,
+     "ele": 2044.0
+    },
+    {
+     "lat": 46.1745252,
+     "lon": 10.3831276,
+     "ele": 2008.0
+    },
+    {
+     "lat": 46.1739137,
+     "lon": 10.3827376,
+     "ele": 1990.0
+    },
+    {
+     "lat": 46.1731527,
+     "lon": 10.3821962,
+     "ele": 1946.0
+    },
+    {
+     "lat": 46.1724601,
+     "lon": 10.3821769,
+     "ele": 1927.0
+    },
+    {
+     "lat": 46.1716767,
+     "lon": 10.3815398,
+     "ele": 1897.0
+    },
+    {
+     "lat": 46.1709587,
+     "lon": 10.3814377,
+     "ele": 1868.0
+    },
+    {
+     "lat": 46.1704179,
+     "lon": 10.3813013,
+     "ele": 1851.0
+    },
+    {
+     "lat": 46.1704116,
+     "lon": 10.3812624,
+     "ele": 1851.0
+    }
+   ],
+   "track_source": "Rete Escursionistica CAI via OpenStreetMap (ODbL) — relation 5572150"
+  },
+  {
+   "slug": "escursionismo-sentiero-128b",
+   "name": "Sentiero 128B",
+   "area_id": "area-alta-valcamonica",
+   "activity": "escursionismo",
+   "diff_scale": "cai",
+   "diff_grade": "n.d.",
+   "diff_index": null,
+   "start_altitude_m": 1870,
+   "max_altitude_m": 2384,
+   "vertical_gain_m": 543,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "season_months": null,
+   "source": "Rete Escursionistica CAI via OpenStreetMap (ODbL) — relation 7615841",
+   "source_url": "https://www.openstreetmap.org/relation/7615841",
+   "verified_at": null,
+   "start_lat": 46.1247965,
+   "start_lon": 10.1954521,
+   "track_points": [
+    {
+     "lat": 46.1247965,
+     "lon": 10.1954521,
+     "ele": 1870.0
+    },
+    {
+     "lat": 46.1241162,
+     "lon": 10.196525,
+     "ele": 1900.0
+    },
+    {
+     "lat": 46.1234894,
+     "lon": 10.1971362,
+     "ele": 1922.0
+    },
+    {
+     "lat": 46.1227842,
+     "lon": 10.1964593,
+     "ele": 1930.0
+    },
+    {
+     "lat": 46.1224033,
+     "lon": 10.1951076,
+     "ele": 1964.0
+    },
+    {
+     "lat": 46.1215788,
+     "lon": 10.1946152,
+     "ele": 1974.0
+    },
+    {
+     "lat": 46.1208254,
+     "lon": 10.1938847,
+     "ele": 1945.0
+    },
+    {
+     "lat": 46.1203342,
+     "lon": 10.1948489,
+     "ele": 2013.0
+    },
+    {
+     "lat": 46.1201508,
+     "lon": 10.1956358,
+     "ele": 2029.0
+    },
+    {
+     "lat": 46.1199458,
+     "lon": 10.1967619,
+     "ele": 2113.0
+    },
+    {
+     "lat": 46.1194657,
+     "lon": 10.1980676,
+     "ele": 2149.0
+    },
+    {
+     "lat": 46.1189442,
+     "lon": 10.1994644,
+     "ele": 2186.0
+    },
+    {
+     "lat": 46.1180001,
+     "lon": 10.2002537,
+     "ele": 2205.0
+    },
+    {
+     "lat": 46.1170768,
+     "lon": 10.2007832,
+     "ele": 2231.0
+    },
+    {
+     "lat": 46.116345,
+     "lon": 10.2015012,
+     "ele": 2260.0
+    },
+    {
+     "lat": 46.1159073,
+     "lon": 10.2025951,
+     "ele": 2335.0
+    },
+    {
+     "lat": 46.1151372,
+     "lon": 10.2035188,
+     "ele": 2358.0
+    },
+    {
+     "lat": 46.1144652,
+     "lon": 10.2044297,
+     "ele": 2384.0
+    },
+    {
+     "lat": 46.115465,
+     "lon": 10.2053476,
+     "ele": 2347.0
+    },
+    {
+     "lat": 46.1161204,
+     "lon": 10.2060584,
+     "ele": 2320.0
+    },
+    {
+     "lat": 46.1164178,
+     "lon": 10.2072475,
+     "ele": 2283.0
+    },
+    {
+     "lat": 46.1165545,
+     "lon": 10.2077377,
+     "ele": 2257.0
+    }
+   ],
+   "track_source": "Rete Escursionistica CAI via OpenStreetMap (ODbL) — relation 7615841"
+  },
+  {
+   "slug": "escursionismo-sentiero-102a-sentiero-dell-asino",
+   "name": "Sentiero 102A — Sentiero dell'asino",
+   "area_id": "area-alta-valcamonica",
+   "activity": "escursionismo",
+   "diff_scale": "cai",
+   "diff_grade": "n.d.",
+   "diff_index": null,
+   "start_altitude_m": 2215,
+   "max_altitude_m": 2527,
+   "vertical_gain_m": 639,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "season_months": null,
+   "source": "Rete Escursionistica CAI via OpenStreetMap (ODbL) — relation 11630605",
+   "source_url": "https://www.openstreetmap.org/relation/11630605",
+   "verified_at": null,
+   "start_lat": 46.2764696,
+   "start_lon": 10.3567681,
+   "track_points": [
+    {
+     "lat": 46.2764696,
+     "lon": 10.3567681,
+     "ele": 2215.0
+    },
+    {
+     "lat": 46.2770234,
+     "lon": 10.3578078,
+     "ele": 2216.0
+    },
+    {
+     "lat": 46.2770925,
+     "lon": 10.359005,
+     "ele": 2200.0
+    },
+    {
+     "lat": 46.2764168,
+     "lon": 10.3598151,
+     "ele": 2195.0
+    },
+    {
+     "lat": 46.276681,
+     "lon": 10.3609604,
+     "ele": 2234.0
+    },
+    {
+     "lat": 46.2774281,
+     "lon": 10.3617704,
+     "ele": 2258.0
+    },
+    {
+     "lat": 46.2775412,
+     "lon": 10.3625804,
+     "ele": 2289.0
+    },
+    {
+     "lat": 46.2774744,
+     "lon": 10.3638974,
+     "ele": 2292.0
+    },
+    {
+     "lat": 46.2767811,
+     "lon": 10.3647611,
+     "ele": 2293.0
+    },
+    {
+     "lat": 46.2762546,
+     "lon": 10.3659278,
+     "ele": 2327.0
+    },
+    {
+     "lat": 46.2757262,
+     "lon": 10.3670356,
+     "ele": 2317.0
+    },
+    {
+     "lat": 46.2754203,
+     "lon": 10.3685242,
+     "ele": 2365.0
+    },
+    {
+     "lat": 46.2747195,
+     "lon": 10.369353,
+     "ele": 2358.0
+    },
+    {
+     "lat": 46.27385,
+     "lon": 10.3706029,
+     "ele": 2370.0
+    },
+    {
+     "lat": 46.2741949,
+     "lon": 10.3719145,
+     "ele": 2417.0
+    },
+    {
+     "lat": 46.2750607,
+     "lon": 10.3724992,
+     "ele": 2410.0
+    },
+    {
+     "lat": 46.2759543,
+     "lon": 10.3729311,
+     "ele": 2406.0
+    },
+    {
+     "lat": 46.2769609,
+     "lon": 10.3730088,
+     "ele": 2411.0
+    },
+    {
+     "lat": 46.2781622,
+     "lon": 10.3743044,
+     "ele": 2391.0
+    },
+    {
+     "lat": 46.2782401,
+     "lon": 10.3757259,
+     "ele": 2389.0
+    },
+    {
+     "lat": 46.2787091,
+     "lon": 10.3769356,
+     "ele": 2414.0
+    },
+    {
+     "lat": 46.2793987,
+     "lon": 10.377802,
+     "ele": 2472.0
+    },
+    {
+     "lat": 46.2797064,
+     "lon": 10.3787676,
+     "ele": 2458.0
+    },
+    {
+     "lat": 46.2804794,
+     "lon": 10.3795534,
+     "ele": 2483.0
+    },
+    {
+     "lat": 46.2813581,
+     "lon": 10.3797278,
+     "ele": 2492.0
+    },
+    {
+     "lat": 46.2825612,
+     "lon": 10.3817528,
+     "ele": 2477.0
+    },
+    {
+     "lat": 46.2837438,
+     "lon": 10.3820372,
+     "ele": 2465.0
+    },
+    {
+     "lat": 46.2847911,
+     "lon": 10.3823724,
+     "ele": 2476.0
+    },
+    {
+     "lat": 46.2847744,
+     "lon": 10.3836411,
+     "ele": 2481.0
+    },
+    {
+     "lat": 46.2849653,
+     "lon": 10.3852478,
+     "ele": 2512.0
+    },
+    {
+     "lat": 46.2858087,
+     "lon": 10.3855053,
+     "ele": 2527.0
+    },
+    {
+     "lat": 46.2866799,
+     "lon": 10.3855455,
+     "ele": 2467.0
+    },
+    {
+     "lat": 46.2875047,
+     "lon": 10.3863046,
+     "ele": 2395.0
+    },
+    {
+     "lat": 46.2883536,
+     "lon": 10.3854838,
+     "ele": 2360.0
+    },
+    {
+     "lat": 46.2890709,
+     "lon": 10.3847489,
+     "ele": 2366.0
+    },
+    {
+     "lat": 46.2893638,
+     "lon": 10.3856662,
+     "ele": 2353.0
+    },
+    {
+     "lat": 46.2902608,
+     "lon": 10.3854007,
+     "ele": 2367.0
+    },
+    {
+     "lat": 46.2908168,
+     "lon": 10.3844753,
+     "ele": 2371.0
+    },
+    {
+     "lat": 46.2916805,
+     "lon": 10.3838718,
+     "ele": 2375.0
+    },
+    {
+     "lat": 46.292509,
+     "lon": 10.3839308,
+     "ele": 2376.0
+    },
+    {
+     "lat": 46.2935042,
+     "lon": 10.3841266,
+     "ele": 2378.0
+    },
+    {
+     "lat": 46.2942359,
+     "lon": 10.3848118,
+     "ele": 2408.0
+    },
+    {
+     "lat": 46.2943168,
+     "lon": 10.3862672,
+     "ele": 2398.0
+    },
+    {
+     "lat": 46.2949071,
+     "lon": 10.3867954,
+     "ele": 2352.0
+    },
+    {
+     "lat": 46.2953287,
+     "lon": 10.3871524,
+     "ele": 2301.0
+    },
+    {
+     "lat": 46.2962841,
+     "lon": 10.3876701,
+     "ele": 2247.0
+    },
+    {
+     "lat": 46.2970387,
+     "lon": 10.388244,
+     "ele": 2244.0
+    },
+    {
+     "lat": 46.297459,
+     "lon": 10.3894454,
+     "ele": 2198.0
+    },
+    {
+     "lat": 46.297955,
+     "lon": 10.3903623,
+     "ele": 2203.0
+    },
+    {
+     "lat": 46.2986747,
+     "lon": 10.3914463,
+     "ele": 2234.0
+    },
+    {
+     "lat": 46.2995086,
+     "lon": 10.391854,
+     "ele": 2234.0
+    },
+    {
+     "lat": 46.3002832,
+     "lon": 10.3925407,
+     "ele": 2246.0
+    },
+    {
+     "lat": 46.3010467,
+     "lon": 10.3933185,
+     "ele": 2269.0
+    },
+    {
+     "lat": 46.3021659,
+     "lon": 10.3937745,
+     "ele": 2256.0
+    },
+    {
+     "lat": 46.3029405,
+     "lon": 10.3944236,
+     "ele": 2268.0
+    },
+    {
+     "lat": 46.3038336,
+     "lon": 10.3949332,
+     "ele": 2302.0
+    },
+    {
+     "lat": 46.3046563,
+     "lon": 10.3955287,
+     "ele": 2300.0
+    },
+    {
+     "lat": 46.3058385,
+     "lon": 10.3960758,
+     "ele": 2307.0
+    },
+    {
+     "lat": 46.3066353,
+     "lon": 10.3967946,
+     "ele": 2283.0
+    },
+    {
+     "lat": 46.3074134,
+     "lon": 10.3976691,
+     "ele": 2284.0
+    },
+    {
+     "lat": 46.3081249,
+     "lon": 10.3985488,
+     "ele": 2293.0
+    },
+    {
+     "lat": 46.3087085,
+     "lon": 10.3998685,
+     "ele": 2292.0
+    },
+    {
+     "lat": 46.3093959,
+     "lon": 10.4009896,
+     "ele": 2241.0
+    },
+    {
+     "lat": 46.3101653,
+     "lon": 10.4017328,
+     "ele": 2233.0
+    },
+    {
+     "lat": 46.3100629,
+     "lon": 10.4024729,
+     "ele": 2233.0
+    },
+    {
+     "lat": 46.3097976,
+     "lon": 10.4036475,
+     "ele": 2188.0
+    },
+    {
+     "lat": 46.3101857,
+     "lon": 10.4048003,
+     "ele": 2190.0
+    },
+    {
+     "lat": 46.3103788,
+     "lon": 10.405783,
+     "ele": 2176.0
+    },
+    {
+     "lat": 46.3099351,
+     "lon": 10.4069953,
+     "ele": 2128.0
+    },
+    {
+     "lat": 46.3099651,
+     "lon": 10.4084637,
+     "ele": 2100.0
+    },
+    {
+     "lat": 46.3101193,
+     "lon": 10.4098956,
+     "ele": 2118.0
+    },
+    {
+     "lat": 46.3104715,
+     "lon": 10.4111541,
+     "ele": 2086.0
+    },
+    {
+     "lat": 46.3110616,
+     "lon": 10.4121288,
+     "ele": 2082.0
+    },
+    {
+     "lat": 46.3108993,
+     "lon": 10.4131606,
+     "ele": 2053.0
+    },
+    {
+     "lat": 46.3104892,
+     "lon": 10.4133137,
+     "ele": 2034.0
+    }
+   ],
+   "track_source": "Rete Escursionistica CAI via OpenStreetMap (ODbL) — relation 11630605"
   }
  ]
 }
