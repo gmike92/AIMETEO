@@ -41,6 +41,8 @@ AREAS = {
 
 VALID_ASPECTS = {"N", "NE", "E", "SE", "S", "SW", "W", "NW"}
 
+PHASE_A_LIMIT = 40  #: max elementi per area nella query (--phase-a-limit)
+
 
 def slugify(name: str) -> str:
     s = unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode()
@@ -53,7 +55,7 @@ def query(area: tuple[float, float, float, float]) -> str:
     return (f"[out:json][timeout:60];("
             f'node["sport"="climbing"]["name"]({s},{w},{n},{e});'
             f'way["sport"="climbing"]["name"]({s},{w},{n},{e});'
-            f");out tags center 40;")
+            f");out tags center {PHASE_A_LIMIT};")
 
 
 def overpass_get(url_query: str, endpoint_pref: str) -> dict | None:
@@ -106,13 +108,17 @@ def normalize_aspect(raw: str | None) -> str | None:
 
 
 def main() -> None:
+    global PHASE_A_LIMIT
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--max-per-area", type=int, default=6)
     ap.add_argument("--endpoint", default=MAIN_ENDPOINT)
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--area", choices=sorted(AREAS), default=None,
                     help="importa solo quest'area (default: tutte)")
+    ap.add_argument("--phase-a-limit", type=int, default=PHASE_A_LIMIT,
+                    help="max elementi candidati per area (default 40)")
     args = ap.parse_args()
+    PHASE_A_LIMIT = args.phase_a_limit
 
     data = json.loads(CRAGS.read_text(encoding="utf-8")) if CRAGS.exists() \
         else {"crags": []}

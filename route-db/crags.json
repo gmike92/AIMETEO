@@ -364,6 +364,45 @@
    "source": "OpenStreetMap (ODbL) — node 3622933477",
    "source_url": "https://www.openstreetmap.org/node/3622933477",
    "verified_at": null
+  },
+  {
+   "slug": "falesia-palestra-di-roccia-rifugio-sandro-occhi",
+   "name": "Palestra di roccia rifugio Sandro Occhi",
+   "area_id": "area-alta-valcamonica",
+   "lat": 46.192939,
+   "lon": 10.419767,
+   "ele_m": 2006,
+   "aspect": null,
+   "rock": null,
+   "source": "OpenStreetMap (ODbL) — node 3658805427",
+   "source_url": "https://www.openstreetmap.org/node/3658805427",
+   "verified_at": null
+  },
+  {
+   "slug": "falesia-spigolo-delle-capre",
+   "name": "Spigolo delle capre",
+   "area_id": "area-alta-valcamonica",
+   "lat": 46.184279,
+   "lon": 10.394496,
+   "ele_m": 2536,
+   "aspect": null,
+   "rock": "granite",
+   "source": "OpenStreetMap (ODbL) — node 12863309778",
+   "source_url": "https://www.openstreetmap.org/node/12863309778",
+   "verified_at": null
+  },
+  {
+   "slug": "falesia-vermuga",
+   "name": "Vermuga",
+   "area_id": "area-alta-valcamonica",
+   "lat": 46.309489,
+   "lon": 10.286669,
+   "ele_m": 817,
+   "aspect": null,
+   "rock": null,
+   "source": "OpenStreetMap (ODbL) — node 13184333732",
+   "source_url": "https://www.openstreetmap.org/node/13184333732",
+   "verified_at": null
   }
  ]
 }

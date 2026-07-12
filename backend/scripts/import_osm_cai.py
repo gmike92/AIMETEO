@@ -72,6 +72,7 @@ AREAS: dict[str, tuple[float, float, float, float]] = {
     "area-alta-valcamonica": (46.10, 46.32, 10.20, 10.55),
 }
 
+PHASE_A_LIMIT = 30       #: max relazioni per area in fase A (--phase-a-limit)
 SPACING_M = 100.0        #: target decimation spacing
 MAX_POINTS = 300         #: hard cap on track points
 ELEV_BATCH = 100         #: Open-Meteo elevation API limit per call
@@ -161,7 +162,7 @@ def phase_a_query(area_id: str) -> str:
     return (f'[out:json][timeout:25];'
             f'relation["route"="hiking"]["cai_scale"]["name"]'
             f'({lat_min},{lon_min},{lat_max},{lon_max});'
-            f'out tags center 30;')
+            f'out tags center {PHASE_A_LIMIT};')
 
 
 def phase_b_query(rel_id: int) -> str:
@@ -399,6 +400,7 @@ class FileProvider:
 
 # ── main ─────────────────────────────────────────────────────────────────────
 def main() -> None:
+    global PHASE_A_LIMIT
     ap = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--max-per-area", type=int, default=2,
@@ -411,7 +413,10 @@ def main() -> None:
                     help="offline mode: JSON file with saved responses")
     ap.add_argument("--area", choices=sorted(AREAS), default=None,
                     help="importa solo quest'area (default: tutte)")
+    ap.add_argument("--phase-a-limit", type=int, default=PHASE_A_LIMIT,
+                    help="max relazioni candidate per area (default 30)")
     args = ap.parse_args()
+    PHASE_A_LIMIT = args.phase_a_limit
 
     data = json.loads(SEED.read_text(encoding="utf-8"))
     known_slugs = {r["slug"] for r in data["routes"]}
