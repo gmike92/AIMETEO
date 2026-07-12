@@ -73,6 +73,9 @@ AREAS: dict[str, tuple[float, float, float, float]] = {
 }
 
 PHASE_A_LIMIT = 30       #: max relazioni per area in fase A (--phase-a-limit)
+#: --include-unclassified: accetta anche relazioni SENZA cai_scale purché con
+#: numero di sentiero (ref). La difficoltà resta "n.d." — mai inventata.
+INCLUDE_UNCLASSIFIED = False
 SPACING_M = 100.0        #: target decimation spacing
 MAX_POINTS = 300         #: hard cap on track points
 ELEV_BATCH = 100         #: Open-Meteo elevation API limit per call
@@ -159,10 +162,14 @@ def decimate(pts: list[tuple[float, float]],
 # ── queries / URLs ───────────────────────────────────────────────────────────
 def phase_a_query(area_id: str) -> str:
     lat_min, lat_max, lon_min, lon_max = AREAS[area_id]
-    return (f'[out:json][timeout:25];'
-            f'relation["route"="hiking"]["cai_scale"]["name"]'
-            f'({lat_min},{lon_min},{lat_max},{lon_max});'
-            f'out tags center {PHASE_A_LIMIT};')
+    bbox = f"({lat_min},{lon_min},{lat_max},{lon_max})"
+    if INCLUDE_UNCLASSIFIED:
+        # unione: classificati (cai_scale) + numerati senza classificazione (ref)
+        sel = (f'(relation["route"="hiking"]["cai_scale"]["name"]{bbox};'
+               f'relation["route"="hiking"]["ref"]["name"]{bbox};);')
+    else:
+        sel = f'relation["route"="hiking"]["cai_scale"]["name"]{bbox};'
+    return f'[out:json][timeout:25];{sel}out tags center {PHASE_A_LIMIT};'
 
 
 def phase_b_query(rel_id: int) -> str:
@@ -204,9 +211,11 @@ def candidates_for_area(resp: dict) -> list[dict]:
         tags = el["tags"]
         name = (tags.get("name") or "").strip()
         cai_scale = (tags.get("cai_scale") or "").strip()
-        if not name or not cai_scale:
-            continue  # selection rule: both are required
         ref = (tags.get("ref") or "").strip() or None
+        if not name:
+            continue
+        if not cai_scale and not (INCLUDE_UNCLASSIFIED and ref):
+            continue  # regola: cai_scale, oppure (col flag) almeno il ref
         if ref and not name.lower().startswith(f"sentiero {ref}".lower()):
             display = f"Sentiero {ref} — {name}"
         else:
@@ -231,7 +240,7 @@ def build_route(area_id: str, cand: dict, coords: list[tuple[float, float]],
         "area_id": area_id,
         "activity": "escursionismo",
         "diff_scale": "cai",
-        "diff_grade": cand["cai_scale"],
+        "diff_grade": cand["cai_scale"] or "n.d.",  # mai inventata
         "diff_index": None,
         "start_altitude_m": round(eles[0]),
         "max_altitude_m": round(max(eles)),
@@ -400,7 +409,7 @@ class FileProvider:
 
 # ── main ─────────────────────────────────────────────────────────────────────
 def main() -> None:
-    global PHASE_A_LIMIT
+    global PHASE_A_LIMIT, INCLUDE_UNCLASSIFIED
     ap = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--max-per-area", type=int, default=2,
@@ -415,8 +424,12 @@ def main() -> None:
                     help="importa solo quest'area (default: tutte)")
     ap.add_argument("--phase-a-limit", type=int, default=PHASE_A_LIMIT,
                     help="max relazioni candidate per area (default 30)")
+    ap.add_argument("--include-unclassified", action="store_true",
+                    help="accetta sentieri con ref ma senza cai_scale "
+                         "(difficoltà resta n.d.)")
     args = ap.parse_args()
     PHASE_A_LIMIT = args.phase_a_limit
+    INCLUDE_UNCLASSIFIED = args.include_unclassified
 
     data = json.loads(SEED.read_text(encoding="utf-8"))
     known_slugs = {r["slug"] for r in data["routes"]}
