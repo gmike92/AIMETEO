@@ -338,15 +338,30 @@ class LiveProvider:
 
     def elevations(self, coords: list[tuple[float, float]]
                    ) -> Optional[list[float]]:
+        import time
         out: list[float] = []
         for batch in elevation_batches(coords):
             url = elevation_url(batch)
             print(f"GET {ELEVATION_API} ({len(batch)} punti)", file=sys.stderr)
-            resp = self._get(url)
+            resp = None
+            # anche l'API quote può avere timeout transitori: 3 tentativi,
+            # poi None → il chiamante marca PEND e la run PROSEGUE.
+            for pause in (0, 10, 30):
+                if pause:
+                    print(f"  … riprovo tra {pause}s", file=sys.stderr)
+                    time.sleep(pause)
+                try:
+                    resp = self._get(url, read_timeout=60.0)
+                    break
+                except Exception as exc:  # noqa: BLE001 — retry
+                    print(f"  ! elevation API: {exc}", file=sys.stderr)
+            if resp is None:
+                return None
             eles = resp.get("elevation") or []
             if len(eles) != len(batch):
-                raise SystemExit(f"elevation API: attesi {len(batch)} valori, "
-                                 f"ricevuti {len(eles)}")
+                print(f"  ! elevation API: attesi {len(batch)} valori, "
+                      f"ricevuti {len(eles)} — salto", file=sys.stderr)
+                return None
             out.extend(float(e) for e in eles)
         return out
 
