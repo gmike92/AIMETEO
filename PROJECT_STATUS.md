@@ -178,6 +178,16 @@ montagna, fatto bene."*
   = pagina long-tail per ogni paese di montagna. Effort: medio-basso, quasi tutto
   riusa componenti esistenti.
 
+- **Heatmap delle condizioni** (idea 2026-07-12, da analisi Strava/Komoot): layer
+  mappa che colora il territorio non per popolarità (heatmap Strava = dove va la
+  gente) ma per CONDIZIONI calcolate dal Modello Zerotermico: sole sul versante,
+  zero termico vs quota, vento, "dove si sta bene adesso/domani". Stessa seduzione
+  visiva della heatmap, ma fisica invece di folla — nessun competitor la ha, e non
+  richiede massa di utenti (vantaggio del cold start). Base tecnica: griglia di
+  punti sul viewport + solar.py/profile.py già esistenti; v1 possibile come
+  estensione del layer temperatura sulla mappa. Da valutare costo API per griglie
+  fitte (cache aggressiva per tile).
+
 ### Business / go-to-market
 10. **Lawyer engagement** for T&Cs + disclaimer (pre-launch, non-negotiable).
 11. **Brand name + domain** decision (Zerotermico vs Cengia vs Vetta) + UIBM/EUIPO check.
