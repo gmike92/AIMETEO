@@ -27,3 +27,15 @@ costruzione, il 2m del modello lo cattura con la sua fisica di superficie.
 struttura verticale; il solare per il warming per versante. Il profilo va
 ri-testato di notte e in inverno (inversioni): atteso il quadro opposto —
 continuare ad accumulare run a ore diverse prima di verdetti stagionali.
+
+## Run 2026-07-13 05:46 UTC
+Stazioni: 6 (Alto Adige, open data provincia BZ). MAE modello: **1.18 °C** · MAE baseline om-2m: **1.22 °C**
+
+| stazione | quota | osservata | modello | err | om-2m | err |
+|---|---|---|---|---|---|---|
+| Anticima Cima Libera | 3399 m | 5.9° | 6.7° | +0.8° | 5.8° | -0.1° |
+| Solda Cima Beltovo | 3328 m | 4.9° | 6.3° | +1.4° | 6.6° | +1.7° |
+| Ultimo Cima di Fontana Bianca | 3253 m | 6.4° | 6.9° | +0.5° | 7.4° | +1.0° |
+| Senales Croda d. Cornacchie | 3220 m | 7.3° | 7.3° | -0.0° | 8.6° | +1.3° |
+| Predoi Pizzo Lungo | 3105 m | 4.8° | 7.4° | +2.6° | 6.7° | +1.9° |
+| Senales Teufelsegg | 3035 m | 6.8° | 8.6° | +1.8° | 8.1° | +1.3° |
