@@ -1,7 +1,7 @@
 # AIMETEO — Project Status & Next Steps
 
 > Snapshot of everything built so far and what comes next.
-> Last updated: **2026-07-11**. Living document.
+> Last updated: **2026-07-12**. Living document.
 
 **One-liner:** AI-native, Italy-first hyperlocal mountain-weather product for climbers,
 ski-mountaineers and alpine hikers. The moat is the structured Italian route database +
@@ -238,6 +238,15 @@ python backend/scripts/seed_db.py --schema
 ---
 
 ## Changelog
+- **2026-07-12 — Pre-deploy sprint**: (1) **Ricerca località** (`/localita` +
+  backend `/localita/{search,settimana,vicino}`): geocoding Open-Meteo, settimana
+  0-100 (riusa scoring finestra), itinerari+falesie entro 25 km per distanza
+  haversine (da Vezza d'Oglio: Sentiero 16 a 0.4 km); mock = centroidi aree,
+  link condivisibile `?q=`. (2) **`/privacy`** GDPR-base (waitlist + push, titolare,
+  diritti) — obbligo pre-tester; link footer. (3) **`DEPLOY.md`**: checklist
+  weekend (Cloud Run + Vercel + dominio + quote/licenze + smoke test + primi
+  tester). Import Alta Valcamonica COMPLETO: 38 sentieri area (68 totali DB),
+  34A Monte Aviolo incluso; push su GitHub ok (fix scope workflow), CI attiva.
 - **2026-07-11(g) — Sprint best-practice + prodotto**: (1) **CI GitHub Actions**
   (`.github/workflows/ci.yml`): a ogni push le 5 suite di test + build Next contro
   backend mock. (2) **Validazione schedulata** (`validate-model.yml`): cron lun notte

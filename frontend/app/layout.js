@@ -21,6 +21,7 @@ function Nav() {
           <a href="/" className="logo">Zero<span>termico</span></a>
           <div>
             <a href="/">Mappa</a>
+            <a href="/localita">Cerca</a>
             <a href="/itinerari">Itinerari</a>
             <a href="/falesie">Falesie</a>
             <a href="/planner">Pianifica</a>
@@ -45,7 +46,8 @@ export default function RootLayout({ children }) {
         <main className="wrap">{children}</main>
         <footer className="wrap">
           Zerotermico · nome di lavoro · Bollettini: fonte ufficiale AINEVA / Meteomont ·{" "}
-          <a href="/fonti" style={{ textDecoration: "underline" }}>Fonti e licenze</a>
+          <a href="/fonti" style={{ textDecoration: "underline" }}>Fonti e licenze</a> ·{" "}
+          <a href="/privacy" style={{ textDecoration: "underline" }}>Privacy</a>
         </footer>
       </body>
     </html>
