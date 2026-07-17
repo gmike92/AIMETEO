@@ -113,7 +113,8 @@ export default async function RouteDetail({ params }) {
             <div className="stat"><div className="k">Temporali</div><div className="v">{Math.round(forecast.thunderstorm_prob * 100)}%</div></div>
           </div>
           <p className="note">
-            Fonte: {forecast.source}
+            Zero termico ≈ <strong>limite pioggia/neve</strong>: sopra quella
+            quota le precipitazioni cadono come neve. · Fonte: {forecast.source}
             {isDemoForecast ? " (dati dimostrativi)" : ""}
           </p>
         </div>

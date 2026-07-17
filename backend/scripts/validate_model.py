@@ -111,28 +111,38 @@ def bz_high_stations(min_ele: float, top: int) -> list[dict]:
     return out[:top]
 
 
-def bz_latest_temp(code: str):
-    """Ultima T osservata (sensore LT, °C) con timestamp; None se assente."""
+def bz_latest(code: str) -> dict:
+    """
+    Ultime osservazioni della stazione: {"LT": (°C, ts), "WG": (km/h, ts)}.
+    LT = temperatura; WG = velocità vento (l'API BZ la dà in m/s → ×3.6).
+    Solo sensori presenti: mai valori inventati.
+    """
+    out: dict[str, tuple[float, str | None]] = {}
     try:
         sensors = get_json(BZ_SENSORS.format(code=code))
     except Exception:
-        return None, None
+        return out
     for s in sensors if isinstance(sensors, list) else []:
-        if (s.get("TYPE") or s.get("SENSOR") or "").upper() == "LT":
-            try:
-                return float(s["VALUE"]), s.get("DATE")
-            except (TypeError, ValueError, KeyError):
-                return None, None
-    return None, None
+        typ = (s.get("TYPE") or s.get("SENSOR") or "").upper()
+        if typ not in ("LT", "WG"):
+            continue
+        try:
+            v = float(s["VALUE"])
+        except (TypeError, ValueError, KeyError):
+            continue
+        if typ == "WG":
+            v *= 3.6  # m/s → km/h
+        out[typ] = (v, s.get("DATE"))
+    return out
 
 
 def om_column_and_2m(lat: float, lon: float):
-    """Colonna livelli pressione + temperature_2m correnti da Open-Meteo."""
+    """Colonna livelli pressione + T2m e vento 10m correnti da Open-Meteo."""
     varlist = ",".join([f"temperature_{p}hPa" for p in OM_LEVELS]
                        + [f"geopotential_height_{p}hPa" for p in OM_LEVELS])
     url = (f"https://api.open-meteo.com/v1/forecast?latitude={lat:.4f}"
            f"&longitude={lon:.4f}&hourly={varlist}"
-           f"&current=temperature_2m&forecast_days=1&timezone=UTC")
+           f"&current=temperature_2m,wind_speed_10m&forecast_days=1&timezone=UTC")
     d = get_json(url)
     hourly = d.get("hourly", {})
     times = hourly.get("time", [])
@@ -144,8 +154,9 @@ def om_column_and_2m(lat: float, lon: float):
         z = hourly.get(f"geopotential_height_{p}hPa")
         if t and z and t[idx] is not None and z[idx] is not None:
             levels.append(PressureLevel(float(p), float(z[idx]), float(t[idx])))
-    t2m = (d.get("current") or {}).get("temperature_2m")
-    return sorted(levels, key=lambda l: l.height_m), t2m
+    cur = d.get("current") or {}
+    return (sorted(levels, key=lambda l: l.height_m),
+            cur.get("temperature_2m"), cur.get("wind_speed_10m"))
 
 
 def main() -> None:
@@ -163,12 +174,14 @@ def main() -> None:
 
     rows = []
     for s in stations:
-        obs, obs_time = bz_latest_temp(s["code"])
+        sens = bz_latest(s["code"])
+        obs, obs_time = sens.get("LT", (None, None))
         if obs is None:
             print(f"  - {s['name']}: nessuna T osservata, salto")
             continue
+        obs_wind, _ = sens.get("WG", (None, None))
         try:
-            levels, t2m = om_column_and_2m(s["lat"], s["lon"])
+            levels, t2m, om_wind = om_column_and_2m(s["lat"], s["lon"])
             t_model = vprofile.temp_at(levels, s["ele"])
         except Exception as e:  # noqa: BLE001
             print(f"  - {s['name']}: colonna non disponibile ({e}), salto")
@@ -179,6 +192,11 @@ def main() -> None:
             "om2m": round(float(t2m), 1) if t2m is not None else None,
             "err_model": round(t_model - obs, 1),
             "err_om2m": round(float(t2m) - obs, 1) if t2m is not None else None,
+            # vento: solo se la stazione HA l'anemometro (mai inventato)
+            "obs_wind": round(obs_wind) if obs_wind is not None else None,
+            "om_wind": round(float(om_wind)) if om_wind is not None else None,
+            "err_wind": (round(float(om_wind) - obs_wind)
+                         if obs_wind is not None and om_wind is not None else None),
         })
 
     if not rows:
@@ -198,6 +216,14 @@ def main() -> None:
     print(f"\nMAE modello (profilo→quota): {mae_model:.2f} °C su {len(rows)} stazioni")
     if mae_om is not None:
         print(f"MAE baseline (open-meteo 2m): {mae_om:.2f} °C su {len(om_rows)} stazioni")
+    wind_rows = [r for r in rows if r["err_wind"] is not None]
+    mae_wind = (sum(abs(r["err_wind"]) for r in wind_rows) / len(wind_rows)) if wind_rows else None
+    if mae_wind is not None:
+        print(f"MAE vento (om 10m vs anemometro): {mae_wind:.1f} km/h "
+              f"su {len(wind_rows)} stazioni")
+        for r in wind_rows:
+            print(f"  vento {r['name'][:28]:28} oss {r['obs_wind']:>3} km/h · "
+                  f"om {r['om_wind']:>3} km/h · err {r['err_wind']:+d}")
 
     # append al log di validazione
     LOG.parent.mkdir(exist_ok=True)
@@ -206,14 +232,20 @@ def main() -> None:
              f"Stazioni: {len(rows)} (Alto Adige, open data provincia BZ). ",
              f"MAE modello: **{mae_model:.2f} °C**"
              + (f" · MAE baseline om-2m: **{mae_om:.2f} °C**" if mae_om is not None else "")
-             + "\n\n| stazione | quota | osservata | modello | err | om-2m | err |\n"
-             "|---|---|---|---|---|---|---|\n"]
+             + (f" · MAE vento: **{mae_wind:.1f} km/h** ({len(wind_rows)} staz.)"
+                if mae_wind is not None else "")
+             + "\n\n| stazione | quota | osservata | modello | err | om-2m | err "
+               "| vento oss | vento om | err |\n"
+             "|---|---|---|---|---|---|---|---|---|---|\n"]
     for r in rows:
         om2m = f"{r['om2m']:.1f}°" if r["om2m"] is not None else "n.d."
         err_om = f"{r['err_om2m']:+.1f}°" if r["err_om2m"] is not None else "n.d."
+        w_obs = f"{r['obs_wind']} km/h" if r["obs_wind"] is not None else "n.d."
+        w_om = f"{r['om_wind']} km/h" if r["om_wind"] is not None else "n.d."
+        w_err = f"{r['err_wind']:+d}" if r["err_wind"] is not None else "n.d."
         lines.append(f"| {r['name']} | {r['ele']:.0f} m | {r['obs']:.1f}° "
                      f"| {r['model']:.1f}° | {r['err_model']:+.1f}° "
-                     f"| {om2m} | {err_om} |\n")
+                     f"| {om2m} | {err_om} | {w_obs} | {w_om} | {w_err} |\n")
     with open(LOG, "a", encoding="utf-8") as f:
         f.writelines(lines)
     print(f"\n✓ run registrato in {LOG.relative_to(REPO)}")

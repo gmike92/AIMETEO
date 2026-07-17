@@ -27,3 +27,35 @@ costruzione, il 2m del modello lo cattura con la sua fisica di superficie.
 struttura verticale; il solare per il warming per versante. Il profilo va
 ri-testato di notte e in inverno (inversioni): atteso il quadro opposto —
 continuare ad accumulare run a ore diverse prima di verdetti stagionali.
+
+## Run 2026-07-17 02:15 UTC
+Stazioni: 8 (Alto Adige, open data provincia BZ). MAE modello: **0.42 °C** · MAE baseline om-2m: **0.53 °C** · MAE vento: **7.4 km/h** (7 staz.)
+
+| stazione | quota | osservata | modello | err | om-2m | err | vento oss | vento om | err |
+|---|---|---|---|---|---|---|---|---|---|
+| Anticima Cima Libera | 3399 m | 4.6° | 6.0° | +1.4° | 5.1° | +0.5° | 21 km/h | 8 km/h | -12 |
+| Solda Cima Beltovo | 3328 m | 6.0° | 6.1° | +0.1° | 6.3° | +0.3° | 19 km/h | 14 km/h | -6 |
+| Ultimo Cima di Fontana Bianca | 3253 m | 7.3° | 7.3° | +0.0° | 6.8° | -0.5° | 14 km/h | 8 km/h | -6 |
+| Senales Croda d. Cornacchie | 3220 m | 6.6° | 6.3° | -0.3° | 7.1° | +0.5° | 3 km/h | 10 km/h | +7 |
+| Predoi Pizzo Lungo | 3105 m | 5.4° | 6.5° | +1.1° | 6.9° | +1.5° | 24 km/h | 8 km/h | -16 |
+| Senales Teufelsegg | 3035 m | 7.3° | 7.2° | -0.1° | 7.2° | -0.1° | n.d. | 12 km/h | n.d. |
+| Badia Cima Pisciadù | 2985 m | 8.7° | 8.3° | -0.4° | 9.2° | +0.5° | 14 km/h | 10 km/h | -4 |
+| Curon Cima Undici | 2926 m | 8.0° | 8.0° | -0.0° | 7.7° | -0.3° | 6 km/h | 8 km/h | +1 |
+
+## Analisi run 2026-07-17 (~04:15 locale, notte, estate)
+
+**T: profilo 0.42 °C batte baseline 0.53 °C — quadro OPPOSTO al mezzogiorno**
+(run 2026-07-11: 2.24 vs 1.18). Conferma sperimentale della fisica alla base
+della ripartizione v0.1: di notte lo strato superficiale si riaccoppia
+all'atmosfera libera e il profilo verticale è l'autorità; di giorno vince il
+2m con la sua fisica di superficie. Due run, due regimi, entrambi coerenti
+con l'ipotesi → la ripartizione giorno/notte per la T puntuale è un candidato
+upgrade v0.2 (oggi usiamo sempre om-2m per la T puntuale live).
+
+**Vento: MAE 7.4 km/h con struttura chiara — sottostima sulle cime ventose**
+(Cima Libera oss 21 → om 8, err −12; Pizzo Lungo oss 24 → om 8, err −16;
+quasi tutti gli errori negativi). È la conferma quantitativa della lamentela
+più diffusa nei forum ("il vento è l'elemento più toppato"). Ipotesi: il grid
+non vede l'esposizione delle creste. Direzione futura: fattore di correzione
+per esposizione/prominenza del punto (mai spacciare il vento grid per vento
+di cresta senza dirlo). Continuare ad accumulare: servono run ventose vere.
