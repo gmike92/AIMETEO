@@ -29,8 +29,11 @@ if [ ! -d .venv ]; then python3 -m venv .venv; fi
 source .venv/bin/activate
 pip install -q -r requirements.txt
 [ -f .env ] || cp .env.example .env   # USE_MOCK_DATA=true: demo offline, nessuna chiave richiesta
-echo "→ Avvio backend su http://localhost:8000 ..."
-python3 -m uvicorn app.main:app --port 8000 >/tmp/aimeteo-backend.log 2>&1 &
+echo "→ Avvio backend su http://localhost:8000 (dati meteo LIVE)..."
+# USE_MOCK_DATA=false: geocoding, meteo settimanale e temperature in quota
+# sono reali (API gratuite, nessuna chiave). Ciò che richiede chiavi (Google
+# Weather, Gemini) resta in fallback dichiarato. Per la demo offline: true.
+USE_MOCK_DATA=false python3 -m uvicorn app.main:app --port 8000 >/tmp/aimeteo-backend.log 2>&1 &
 BACKEND_PID=$!
 cd ..
 
@@ -74,7 +77,8 @@ echo "   · Gran Paradiso e Marmolada (traccia GPX reale)"
 echo "   · Pianifica gita (filtri di sicurezza + itinerari bloccati)"
 echo "   · Genera relazione AI su una scheda itinerario"
 echo ""
-echo "  Dati meteo dimostrativi (nessuna chiave API)."
+echo "  Meteo e ricerca località LIVE (Open-Meteo, gratuito)."
+echo "  Briefing AI e meteo Google in fallback finché non ci sono le chiavi."
 echo "  Per fermare tutto: Ctrl+C qui, o chiudi la finestra."
 echo "═══════════════════════════════════════════"
 wait
