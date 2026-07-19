@@ -1,5 +1,28 @@
 # Brand name + domain shortlist
 
+> **AGGIORNAMENTO 2026-07-12 — decisione operativa: ZEROTERMICO.**
+> Progetto GCP creato come `zerotermico`, il nome è già in uso di fatto (navbar,
+> servizio Cloud Run). Secondo giro di brainstorming fatto (v. §Candidati round 2):
+> Zerotermico confermato — unico nome che (a) è un termine VERO usato ogni
+> settimana dal pubblico target ("dov'è lo zero termico domani?"), (b) è
+> letteralmente la domanda a cui l'app risponde, (c) è inconfondibile.
+> Runner-up: **Versante** (corto, internazionale, incarna il modello fisico
+> per-esposizione) — riserva se servisse un brand export.
+> PRIMA di comprare il dominio: verifica `zerotermico.it` sul registrar +
+> ricerca marchi UIBM/EUIPO + Google per usi esistenti nel settore.
+
+## Candidati round 2 (2026-07-12, scartati con motivo)
+- **Versante** — il runner-up serio: mezzo modello gira sull'esposizione del
+  versante; corto, elegante, pronunciabile ovunque. Tenuto come piano B.
+- **Crinale** — bello e pulito, ma non dice meteo.
+- **Tramontana** — gran suono, memorabile, ma lungo e meno specifico del nostro
+  mestiere; rischio confusione con ristoranti/hotel omonimi.
+- **Favonio** — colto (il föhn italiano), forse troppo: il target lo conosce,
+  il pubblico allargato no.
+- **Isoterma / Inversione** — coerenti ma freddi, da paper accademico.
+- **Stambecco** — simpatico alla Komoot, ma sposta il brand verso il giocoso:
+  in conflitto col posizionamento serietà/sicurezza.
+
 > Resolves open question §10 of the strategy doc. Criteria: Italian-feeling, mountain-feeling, app-store-friendly (short, no collisions), `.it` **and** `.com` ideally both free, no trademark clash (especially in AI/weather).
 
 ## ⚠️ Verify before committing
