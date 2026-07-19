@@ -194,6 +194,12 @@ export default function MapView({ fullscreen = false, focusRoute = null, childre
         bases.chiaro.addTo(map);
         S.current = { L, map, bases, radarLayers: {} };
 
+        // Notifica il centro mappa agli overlay (striscia giorni weather-app).
+        const emitCenter = () =>
+          window.dispatchEvent(new CustomEvent("zt-map-center", { detail: map.getCenter() }));
+        map.on("moveend", emitCenter);
+        setTimeout(emitCenter, 400);
+
         // Live model grid (temperature + wind) — the map is never blank.
         try {
           setMsg("Carico temperatura e vento…");
