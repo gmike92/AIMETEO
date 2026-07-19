@@ -4,22 +4,26 @@ Obiettivo: app online per i tester di Vezza d'Oglio. Backend su Cloud Run,
 frontend su Vercel (gratis, il più semplice per Next.js). Tempo stimato: 2-4 ore.
 
 ## 0. Prerequisiti (10 min)
-- [ ] Account Google Cloud (console.cloud.google.com) — nuovo progetto `aimeteo-beta`
+- [ ] Account Google Cloud (console.cloud.google.com) — nuovo progetto `zerotermico`
 - [ ] `gcloud` CLI installata sul Mac: `brew install google-cloud-sdk`, poi `gcloud auth login`
 - [ ] Account Vercel (vercel.com, login con GitHub) — gratuito
 
 ## 1. Backend su Cloud Run (~45 min)
 ```bash
-cd backend
-gcloud config set project aimeteo-beta
-gcloud run deploy aimeteo-backend \
+# DALLA RADICE del progetto (AIWEATHER), NON da backend: il Dockerfile in
+# radice include anche route-db/ (itinerari + falesie) nel container.
+gcloud config set project zerotermico
+gcloud run deploy zerotermico-backend \
   --source . \
   --region europe-west1 \
   --allow-unauthenticated \
-  --set-env-vars "APP_ENV=prod,USE_MOCK_DATA=false,CORS_ORIGINS=https://TUODOMINIO"
+  --set-env-vars "APP_ENV=prod,USE_MOCK_DATA=false"
+# CORS_ORIGINS si aggiunge DOPO il deploy del frontend, con l'URL vero:
+#   gcloud run services update zerotermico-backend --region europe-west1 \
+#     --update-env-vars "CORS_ORIGINS=https://IL-TUO-URL-VERCEL"
 ```
 - Il Dockerfile c'è già. Primo deploy: gcloud chiede di abilitare le API — dì sì.
-- Annota l'URL che stampa (es. `https://aimeteo-backend-xxxx.a.run.app`).
+- Annota l'URL che stampa (es. `https://zerotermico-backend-xxxx.a.run.app`).
 - [ ] Smoke test: apri `URL/healthz` → deve dire `"mock_data": false`
 - [ ] DATABASE_URL: per la beta si può partire SENZA Postgres (store in-memory
       con i 68 itinerari dal seed). Cloud SQL si aggiunge dopo.
@@ -72,5 +76,5 @@ gcloud run deploy aimeteo-backend \
 
 ## Rollback
 Cloud Run tiene le revisioni: `gcloud run services update-traffic
-aimeteo-backend --to-revisions=REVISION=100`. Vercel: "Instant Rollback" dalla
+zerotermico-backend --to-revisions=REVISION=100`. Vercel: "Instant Rollback" dalla
 dashboard. Niente panico possibile.

@@ -2,17 +2,12 @@
 // Punteggio 0-100 per giorno alla quota della vetta + finestra oraria
 // consigliata. Fail-safe: endpoint giù → la card semplicemente non appare.
 import { serverFetch } from "@/lib/api";
+import { wxIcon, scoreColor } from "@/lib/wx";
 
 function dayLabel(iso) {
   return new Date(`${iso}T12:00:00`).toLocaleDateString("it-IT", {
     weekday: "short", day: "numeric", month: "short",
   });
-}
-
-function scoreColor(p) {
-  if (p >= 80) return "var(--accent2)";
-  if (p >= 55) return "var(--warn)";
-  return "var(--danger)";
 }
 
 export default async function BestWindowCard({ slug }) {
@@ -41,17 +36,28 @@ export default async function BestWindowCard({ slug }) {
       <p className="note">{fw.motivi.join(" · ")}</p>
 
       <div className="stats" style={{ marginBottom: 0 }}>
-        {fw.giorni.map((g) => (
-          <div className="stat" key={g.data}>
-            <div className="k">{dayLabel(g.data)}</div>
-            <div className="v" style={{ color: scoreColor(g.punteggio) }}>
-              {g.punteggio}
+        {fw.giorni.map((g) => {
+          const best = g.data === fw.giorno;
+          return (
+            <div className="stat" key={g.data}
+              style={best ? { outline: "1px solid var(--accent)", outlineOffset: -1 } : undefined}>
+              <div className="k">{dayLabel(g.data)}</div>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+                <span style={{ fontSize: 22 }} aria-hidden>
+                  {wxIcon({ precip_mm: g.precip_mm, nuvole_pct: g.nuvole_pct,
+                            neve: g.zero_termico_sotto_vetta })}
+                </span>
+                <span className="v" style={{ color: scoreColor(g.punteggio) }}>
+                  {g.punteggio}
+                </span>
+              </div>
+              <div className="k" style={{ textTransform: "none", letterSpacing: 0 }}>
+                {Math.round(g.temp_min_c)}°/{Math.round(g.temp_max_c)}° ·{" "}
+                {g.precip_mm > 0 ? `${g.precip_mm} mm` : "asciutto"} · {g.vento_max_kmh} km/h
+              </div>
             </div>
-            <div className="k" style={{ textTransform: "none", letterSpacing: 0 }}>
-              {g.precip_mm > 0 ? `${g.precip_mm} mm` : "asciutto"} · {g.vento_max_kmh} km/h
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
       <p className="note" style={{ opacity: 0.75 }}>
         Punteggio 0–100 a quota {fw.quota_riferimento_m} m: precipitazioni, vento,

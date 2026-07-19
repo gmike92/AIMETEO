@@ -3,16 +3,12 @@
 // L'idea: "dove abiti (o dove vai) → cosa puoi fare e quando".
 import { useEffect, useState } from "react";
 import { API_BASE } from "@/lib/api";
+import { wxIcon, scoreColor } from "@/lib/wx";
 
 function dayLabel(iso) {
   return new Date(`${iso}T12:00:00`).toLocaleDateString("it-IT", {
     weekday: "short", day: "numeric",
   });
-}
-function scoreColor(p) {
-  if (p >= 80) return "var(--accent2)";
-  if (p >= 55) return "var(--warn)";
-  return "var(--danger)";
 }
 
 export default function Localita() {
@@ -112,11 +108,17 @@ export default function Localita() {
                 {week.giorni.map((g) => (
                   <div className="stat" key={g.data}>
                     <div className="k">{dayLabel(g.data)}</div>
-                    <div className="v" style={{ color: scoreColor(g.punteggio) }}>
-                      {g.punteggio}
+                    <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+                      <span style={{ fontSize: 22 }} aria-hidden>
+                        {wxIcon({ precip_mm: g.precip_mm, nuvole_pct: g.nuvole_pct })}
+                      </span>
+                      <span className="v" style={{ color: scoreColor(g.punteggio) }}>
+                        {g.punteggio}
+                      </span>
                     </div>
                     <div className="k" style={{ textTransform: "none", letterSpacing: 0 }}>
-                      {g.temp_min_c}°/{g.temp_max_c}° · {g.precip_mm > 0 ? `${g.precip_mm} mm` : "asciutto"}
+                      {Math.round(g.temp_min_c)}°/{Math.round(g.temp_max_c)}° ·{" "}
+                      {g.precip_mm > 0 ? `${g.precip_mm} mm` : "asciutto"}
                     </div>
                   </div>
                 ))}
