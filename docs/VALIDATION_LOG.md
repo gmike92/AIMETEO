@@ -51,3 +51,14 @@ Stazioni: 6 (Alto Adige, open data provincia BZ). MAE modello: **1.50 °C** · M
 | Senales Croda d. Cornacchie | 3220 m | 10.3° | 8.1° | -2.2° | 12.4° | +2.1° |
 | Predoi Pizzo Lungo | 3105 m | 8.9° | 7.4° | -1.5° | 11.9° | +3.0° |
 | Senales Teufelsegg | 3035 m | 11.0° | 8.5° | -2.5° | 11.7° | +0.7° |
+
+## Run 2026-07-20 05:48 UTC
+Stazioni: 5 (Alto Adige, open data provincia BZ). MAE modello: **0.84 °C** · MAE baseline om-2m: **0.88 °C**
+
+| stazione | quota | osservata | modello | err | om-2m | err |
+|---|---|---|---|---|---|---|
+| Ultimo Cima di Fontana Bianca | 3253 m | 2.9° | 2.6° | -0.3° | 3.5° | +0.6° |
+| Senales Croda d. Cornacchie | 3220 m | 2.8° | 1.6° | -1.2° | 3.4° | +0.6° |
+| Predoi Pizzo Lungo | 3105 m | 2.4° | 1.6° | -0.8° | 2.7° | +0.3° |
+| Senales Teufelsegg | 3035 m | 3.8° | 2.1° | -1.7° | 2.4° | -1.4° |
+| Badia Cima Pisciadù | 2985 m | 4.2° | 4.0° | -0.2° | 5.7° | +1.5° |
