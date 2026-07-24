@@ -156,6 +156,22 @@ export default async function RouteDetail({ params }) {
 
       <BriefingPanel slug={params.slug} />
 
+      <p className="note" style={{ marginTop: 26 }}>
+        Conosci questo sentiero?{" "}
+        <a
+          style={{ color: "var(--accent)", textDecoration: "underline" }}
+          href={`mailto:michele.guizzardi@gmail.com?subject=${encodeURIComponent(
+            `Zerotermico · segnalazione: ${route.name}`
+          )}&body=${encodeURIComponent(
+            "Cosa hai trovato di diverso? (traccia, tempi, condizioni, quota...)\n\n" +
+            `Itinerario: ${route.name} (${params.slug})\n`
+          )}`}
+        >
+          Segnala un errore o le condizioni che hai trovato
+        </a>{" "}
+        — ogni segnalazione verificata migliora il database per tutti.
+      </p>
+
       <p className="disclaimer">
         Le relazioni sono un <strong>supporto alla decisione</strong>, non una raccomandazione.
         La responsabilità finale è del capogita; il bollettino ufficiale prevale sempre.
