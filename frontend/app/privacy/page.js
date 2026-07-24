@@ -40,7 +40,7 @@ export default function Privacy() {
       <div className="panel">
         <strong>Titolare e diritti</strong>
         <p className="note">
-          Titolare del trattamento: Michele Guizzardi (progetto Zerotermico/Zerotermico,
+          Titolare del trattamento: Michele Guizzardi (progetto Zerotermico,
           in fase beta) — contatto: michele.guizzardi@gmail.com. Hai diritto ad
           accesso, rettifica, cancellazione e portabilità dei tuoi dati (art. 15-20
           GDPR): scrivici e provvediamo.
