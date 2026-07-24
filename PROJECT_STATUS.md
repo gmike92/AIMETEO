@@ -188,6 +188,18 @@ montagna, fatto bene."*
   estensione del layer temperatura sulla mappa. Da valutare costo API per griglie
   fitte (cache aggressiva per tile).
 
+- **Curatori/influencer con collezioni** (idea Michele 2026-07-13): guide alpine
+  e creator locali pubblicano le LORO gite come collezioni firmate ("le gite di
+  Marco, guida di Ponte di Legno") — il modello Komoot Collections ma con la
+  nostra differenza: contenuto VERIFICATO (badge curatore guadagnato, mai
+  autoproclamato) + condizioni-consapevole ("questo canale solo con Finestra
+  ≥80"). Loop di crescita: profilo bello → condivisione social → follower su
+  Zerotermico. Compenso curatore: visibilità + strumento gratis, poi revenue
+  share Pro. Regole ferree: filtri sicurezza uguali per tutti, nessuna deroga
+  per fama. V1 economica (pre-auth): campo `proposto_da` sulle rotte + pagina
+  /autori/[slug] statica; i tester di Vezza che confermano sentieri = primi
+  micro-curatori col nome sulla scheda. Versione piena richiede auth (post-beta).
+
 ### Business / go-to-market
 10. **Lawyer engagement** for T&Cs + disclaimer (pre-launch, non-negotiable).
 11. **Brand name + domain** decision (Zerotermico vs Cengia vs Vetta) + UIBM/EUIPO check.
