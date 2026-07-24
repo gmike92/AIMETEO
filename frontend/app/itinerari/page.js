@@ -7,7 +7,7 @@ import ConditionsBoard from "../components/ConditionsBoard";
 export const revalidate = 300;
 
 export const metadata = {
-  title: "Itinerari e condizioni — AIMETEO",
+  title: "Itinerari e condizioni — Zerotermico",
   description:
     "Itinerari di scialpinismo, alpinismo, ferrate ed escursionismo con bollettino valanghe ufficiale, meteo sul percorso e relazione di gita AI.",
 };

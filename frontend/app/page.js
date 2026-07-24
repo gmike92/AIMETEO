@@ -5,7 +5,7 @@ import MapView from "./mappa/MapView";
 import { MapSearch, DayStrip } from "./components/MapOverlay";
 
 export const metadata = {
-  title: "AIMETEO — Meteo per la montagna, fatto bene",
+  title: "Zerotermico — Il meteo alla tua quota.",
   description:
     "Mappa meteo interattiva della montagna italiana: vento animato, radar precipitazioni, itinerari con traccia GPX reale e bollettino valanghe ufficiale per area.",
 };

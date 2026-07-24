@@ -1,5 +1,5 @@
 """
-AIMETEO backend — Cloud Run entrypoint.
+Zerotermico backend — Cloud Run entrypoint.
 
 Vertical-agnostic services: forecast · terrain · briefing · alert (+ planner).
 Country-agnostic via pluggable avalanche connectors. Run:
@@ -14,7 +14,7 @@ from .services import forecast, terrain, briefing, alert, planner, routes, waitl
 from . import store
 
 app = FastAPI(
-    title="AIMETEO backend",
+    title="Zerotermico backend",
     version="0.1.0",
     description="Mountain weather + safety engine. AI for language, structured data for facts.",
 )

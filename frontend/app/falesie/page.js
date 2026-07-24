@@ -5,7 +5,7 @@ import { serverFetch } from "@/lib/api";
 export const revalidate = 900;
 
 export const metadata = {
-  title: "Falesie: sole e ombra oggi | AIMETEO",
+  title: "Falesie: sole e ombra oggi | Zerotermico",
   description:
     "Quale falesia è al sole adesso? Calcolo fisico di sole e ombra per parete, dall'esposizione reale, ora per ora.",
 };

@@ -29,11 +29,11 @@ async function getRoute(slug) {
 export async function generateMetadata({ params }) {
   const route = await getRoute(params.slug);
   if (!route) {
-    return { title: "Itinerario non trovato | AIMETEO" };
+    return { title: "Itinerario non trovato | Zerotermico" };
   }
   const area = route.area?.name ? ` (${route.area.name})` : "";
   return {
-    title: `Meteo e condizioni — ${route.name} | AIMETEO`,
+    title: `Meteo e condizioni — ${route.name} | Zerotermico`,
     description:
       `Previsioni sul percorso, bollettino valanghe ufficiale e relazione di gita AI per ` +
       `${route.name}${area}: ${route.activity}, difficoltà ${route.diff_grade}, ` +

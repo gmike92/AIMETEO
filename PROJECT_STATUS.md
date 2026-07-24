@@ -238,6 +238,20 @@ python backend/scripts/seed_db.py --schema
 ---
 
 ## Changelog
+- **2026-07-12(b) — Sprint prodotto + REBRANDING**: (1) **Tempi di percorrenza**
+  (metodo svizzero/CAI, deterministico): model/timing.py + 22 test, campo `tempi`
+  su /routes, card e scheda ("⏱ 4h30 · 12 km", parametri dichiarati, soste escluse).
+  (2) **Layer pendenze fatto in casa**: OpenSlopeMap ESCLUSA (licenza solo uso
+  privato); pipeline propria Copernicus DEM→gdaldem→tile XYZ statici
+  (scripts/build_slope_tiles.py, area pilota Valcamonica; toggle "Pendenze"
+  appare solo se i tile esistono; attribuzione + disclaimer risoluzione).
+  (3) **Home ibrida Windy×weather-app**: search bar sulla mappa + striscia 7
+  giorni al centro mappa (si aggiorna al moveend). (4) **REBRANDING ZEROTERMICO**:
+  tagline ufficiale "Il meteo alla tua quota." (decisione Michele); monogramma 0°
+  (SVG navbar `zero°termico` + app icon PIL 512/192/maskable/apple); manifest,
+  metadata, backend title; identità completa in branding/BRAND_ZEROTERMICO.md
+  (soprannome "Zero", voce capogita, naming feature: la Finestra, il Semaforo).
+  (5) Launcher locale ora LIVE (geocoding/meteo veri senza chiavi).
 - **2026-07-12 — Pre-deploy sprint**: (1) **Ricerca località** (`/localita` +
   backend `/localita/{search,settimana,vicino}`): geocoding Open-Meteo, settimana
   0-100 (riusa scoring finestra), itinerari+falesie entro 25 km per distanza

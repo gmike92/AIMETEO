@@ -1,4 +1,4 @@
-/* AIMETEO design system v2 — "notte alpina".
+/* Zerotermico design system v2 — "notte alpina".
    Deep navy, one cyan accent, glass surfaces, generous air.
    All class names preserved from v1 (pages depend on them). */
 
@@ -34,9 +34,7 @@ a{color:inherit;text-decoration:none}
   backdrop-filter:var(--blur);border-bottom:1px solid var(--line)}
 .nav{display:flex;justify-content:space-between;align-items:center;padding:15px 0}
 .logo{font-weight:800;letter-spacing:-.3px;font-size:19px;display:flex;align-items:center;gap:9px}
-.logo::before{content:"";width:24px;height:24px;flex:none;
-  background:linear-gradient(160deg,var(--accent) 0%,#2563eb 90%);
-  clip-path:polygon(50% 6%, 96% 94%, 4% 94%)}
+.logo svg{flex:none}
 .logo span{color:var(--accent)}
 .nav>div{display:flex;gap:4px}
 .nav a:not(.logo){color:var(--muted);font-size:13.5px;font-weight:600;

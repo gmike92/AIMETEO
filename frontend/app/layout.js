@@ -4,10 +4,10 @@ import "./globals.css";
 import PwaRegister from "./components/PwaRegister";
 
 export const metadata = {
-  title: "AIMETEO — Meteo per la montagna, fatto bene",
+  title: "Zerotermico — Il meteo alla tua quota.",
   description:
     "Previsioni iperlocali, bollettini valanghe ufficiali e pianificazione gite con l'AI. Per chi va in montagna sul serio.",
-  appleWebApp: { capable: true, title: "AIMETEO", statusBarStyle: "black-translucent" },
+  appleWebApp: { capable: true, title: "Zerotermico", statusBarStyle: "black-translucent" },
   icons: { apple: "/apple-touch-icon.png" },
 };
 
@@ -18,7 +18,17 @@ function Nav() {
     <header className="navbar">
       <div className="wrap">
         <nav className="nav">
-          <a href="/" className="logo">Zero<span>termico</span></a>
+          <a href="/" className="logo" aria-label="Zerotermico">
+            <svg width="24" height="24" viewBox="0 0 32 32" aria-hidden>
+              <ellipse cx="14" cy="17" rx="9" ry="12" fill="none"
+                stroke="var(--accent)" strokeWidth="3.4" />
+              <line x1="7.5" y1="17" x2="20.5" y2="17"
+                stroke="var(--accent2)" strokeWidth="2.6" />
+              <circle cx="27.5" cy="6" r="3" fill="none"
+                stroke="var(--accent)" strokeWidth="2.4" />
+            </svg>
+            zero<span>°termico</span>
+          </a>
           <div>
             <a href="/">Mappa</a>
             <a href="/localita">Cerca</a>

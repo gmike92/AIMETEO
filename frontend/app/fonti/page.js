@@ -1,7 +1,7 @@
 // Fonti, licenze e attribuzioni — obbligo legale (ODbL, CC BY-SA) e
 // dichiarazione di trasparenza: da dove viene ogni dato dell'app.
 export const metadata = {
-  title: "Fonti e licenze | AIMETEO",
+  title: "Fonti e licenze | Zerotermico",
   description:
     "Da dove vengono i dati: bollettini ufficiali, OpenStreetMap, Camptocamp, Open-Meteo, stazioni meteo e mappe. Licenze e attribuzioni complete.",
 };

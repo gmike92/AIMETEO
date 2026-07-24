@@ -2,7 +2,7 @@
 // NOTA legale: bozza operativa da far rivedere a un professionista prima
 // del lancio pubblico — per la beta con tester informati copre l'essenziale.
 export const metadata = {
-  title: "Privacy | AIMETEO",
+  title: "Privacy | Zerotermico",
   description: "Come trattiamo i tuoi dati: waitlist, notifiche push, nessuna profilazione.",
 };
 
@@ -40,7 +40,7 @@ export default function Privacy() {
       <div className="panel">
         <strong>Titolare e diritti</strong>
         <p className="note">
-          Titolare del trattamento: Michele Guizzardi (progetto Zerotermico/AIMETEO,
+          Titolare del trattamento: Michele Guizzardi (progetto Zerotermico/Zerotermico,
           in fase beta) — contatto: michele.guizzardi@gmail.com. Hai diritto ad
           accesso, rettifica, cancellazione e portabilità dei tuoi dati (art. 15-20
           GDPR): scrivici e provvediamo.

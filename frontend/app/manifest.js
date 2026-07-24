@@ -1,12 +1,12 @@
 // PWA manifest (Next.js app-router convention → served at /manifest.webmanifest).
-// Makes AIMETEO installable as a STANDALONE app: own window/Dock icon, no
+// Makes Zerotermico installable as a STANDALONE app: own window/Dock icon, no
 // browser chrome. Works from localhost and from any HTTPS deploy.
 export default function manifest() {
   return {
-    name: "AIMETEO — Meteo per la montagna",
-    short_name: "AIMETEO",
+    name: "Zerotermico — Il meteo alla tua quota",
+    short_name: "Zerotermico",
     description:
-      "Mappa meteo interattiva, bollettini valanghe ufficiali e pianificazione gite per la montagna italiana.",
+      "Meteo alla quota reale, bollettini valanghe ufficiali, itinerari verificati e falesie sole/ombra per la montagna italiana.",
     start_url: "/",
     display: "standalone",
     background_color: "#0a1420",

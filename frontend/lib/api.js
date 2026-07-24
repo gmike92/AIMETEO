@@ -1,4 +1,4 @@
-// Thin client for the AIMETEO backend. Base URL is configurable per environment.
+// Thin client for the Zerotermico backend. Base URL is configurable per environment.
 export const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8000";
 
