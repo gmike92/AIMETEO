@@ -35,6 +35,12 @@ function diffColor(grade) {
   return "var(--muted)";
 }
 
+function fmtMin(min) {
+  if (min == null) return null;
+  const h = Math.floor(min / 60), m = min % 60;
+  return h ? `${h}h${m ? String(m).padStart(2, "0") : ""}` : `${m}min`;
+}
+
 // Mini profilo altimetrico alla Komoot — SVG server-rendered dai punti REALI.
 function Spark({ pts }) {
   const eles = (pts || []).map((p) => p.ele).filter((e) => e != null);
@@ -150,6 +156,15 @@ export default async function Itinerari({ searchParams }) {
               <Spark pts={r.track_points} />
 
               <div className="meta" style={{ fontVariantNumeric: "tabular-nums" }}>
+                {r.tempi?.totale_min != null && (
+                  <span title={`${r.tempi.metodo} · ${r.tempi.parametri}`}>
+                    ⏱ {fmtMin(r.tempi.totale_min)}
+                  </span>
+                )}
+                {r.tempi?.totale_min == null && r.tempi?.salita_min != null && (
+                  <span title={r.tempi.metodo}>⏱ ~{fmtMin(r.tempi.salita_min)} salita</span>
+                )}
+                {r.tempi?.distanza_km != null && <span>{r.tempi.distanza_km} km</span>}
                 <span>↗ {r.vertical_gain_m} m disl.</span>
                 <span>▲ {r.max_altitude_m} m</span>
                 <span style={{ color: verified ? "var(--accent2)" : "var(--faint)" }}>

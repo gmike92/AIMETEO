@@ -91,6 +91,18 @@ export default async function RouteDetail({ params }) {
       <p className="sub">{route.ideal_conditions}</p>
 
       <div className="stats">
+        {route.tempi?.totale_min != null && (
+          <div className="stat" title={`${route.tempi.metodo} · ${route.tempi.parametri}`}>
+            <div className="k">Tempo (no soste)</div>
+            <div className="v">
+              {Math.floor(route.tempi.totale_min / 60)}h
+              {String(route.tempi.totale_min % 60).padStart(2, "0")}
+            </div>
+          </div>
+        )}
+        {route.tempi?.distanza_km != null && (
+          <div className="stat"><div className="k">Distanza</div><div className="v">{route.tempi.distanza_km} km</div></div>
+        )}
         <div className="stat"><div className="k">Difficoltà</div><div className="v">{route.diff_grade}</div></div>
         <div className="stat"><div className="k">Partenza</div><div className="v">{route.start_altitude_m} m</div></div>
         <div className="stat"><div className="k">Quota max</div><div className="v">{route.max_altitude_m} m</div></div>
