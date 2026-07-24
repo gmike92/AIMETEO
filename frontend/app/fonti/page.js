@@ -43,6 +43,13 @@ const SOURCES = [
     url: "https://daten.buergernetz.bz.it",
   },
   {
+    name: "Modello del terreno (pendenze)",
+    what: "Layer pendenze 30/35/40/45° calcolato in casa dal modello digitale del terreno.",
+    who: "Copernicus DEM GLO-30 © ESA/Airbus — elaborazione Zerotermico (GDAL).",
+    license: "Copernicus data — uso libero con attribuzione",
+    url: "https://spacedata.copernicus.eu/collections/copernicus-digital-elevation-model",
+  },
+  {
     name: "Mappe di base",
     what: "Cartografia scura e rilievo terreno della mappa interattiva.",
     who: "© CARTO, © OpenTopoMap (dati © OpenStreetMap contributors).",

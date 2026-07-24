@@ -162,6 +162,8 @@ export default function MapView({ fullscreen = false, focusRoute = null, childre
   const [playing, setPlaying] = useState(false);
   const [tempRange, setTempRange] = useState(null);
   const [season, setSeason] = useState(false); // true = a bulletin is in force somewhere
+  const [slope, setSlope] = useState(false);
+  const [hasSlope, setHasSlope] = useState(false); // tile generati? (area pilota)
 
   useEffect(() => {
     let dead = false;
@@ -193,6 +195,12 @@ export default function MapView({ fullscreen = false, focusRoute = null, childre
         };
         bases.chiaro.addTo(map);
         S.current = { L, map, bases, radarLayers: {} };
+
+        // Layer pendenze fatto in casa (Copernicus DEM → gdaldem): il toggle
+        // appare solo se i tile sono stati generati (scripts/build_slope_tiles.py).
+        fetch("/tiles/slope/12/2166/1453.png", { method: "HEAD" })
+          .then((r) => !dead && setHasSlope(r.ok))
+          .catch(() => {});
 
         // Notifica il centro mappa agli overlay (striscia giorni weather-app).
         const emitCenter = () =>
@@ -310,6 +318,24 @@ export default function MapView({ fullscreen = false, focusRoute = null, childre
     }
   }, [temp, ready]);
 
+  // slope layer fatto in casa (statico, viaggia col frontend: zero dipendenze)
+  useEffect(() => {
+    const { L, map } = S.current;
+    if (!map) return;
+    if (S.current.slopeLayer) {
+      map.removeLayer(S.current.slopeLayer);
+      S.current.slopeLayer = null;
+    }
+    if (slope) {
+      S.current.slopeLayer = L.tileLayer("/tiles/slope/{z}/{x}/{y}.png", {
+        opacity: 0.62, maxNativeZoom: 15, minZoom: 8,
+        attribution: "pendenze: Copernicus DEM © ESA — elaborazione Zerotermico",
+        errorTileUrl:
+          "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==",
+      }).addTo(map);
+    }
+  }, [slope, ready]);
+
   // wind particles (color scale adapts to what's beneath)
   useEffect(() => {
     const { L, map, grid } = S.current;
@@ -385,6 +411,13 @@ export default function MapView({ fullscreen = false, focusRoute = null, childre
         <button className={`mapbtn ${radar ? "on" : ""}`} onClick={() => setRadar(!radar)} disabled={!ready || !frames.length}>
           <span className="dot" />Pioggia
         </button>
+        {hasSlope && (
+          <button className={`mapbtn ${slope ? "on" : ""}`} onClick={() => setSlope(!slope)}
+            disabled={!ready}
+            title="Pendenze dal DEM Copernicus: giallo ≥30° · arancio ≥35° · rosso ≥40° · viola ≥45° (area pilota)">
+            <span className="dot" />Pendenze
+          </button>
+        )}
         <button className="mapbtn" onClick={() => setBase(BASES[(BASES.indexOf(base) + 1) % BASES.length])} disabled={!ready}>
           {base === "chiaro" ? "Chiaro" : base === "terreno" ? "Terreno" : "Scuro"} ↺
         </button>

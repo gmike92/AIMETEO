@@ -25,7 +25,9 @@ export default function Home({ searchParams }) {
       <p className="disclaimer" style={{ marginTop: 14 }}>
         Supporto alla decisione, non una raccomandazione. Il bollettino valanghe ufficiale
         (AINEVA) prevale sempre. Mappa © CARTO / OpenTopoMap / OpenStreetMap contributors ·
-        radar © RainViewer · vento © Open-Meteo.
+        radar © RainViewer · vento © Open-Meteo · pendenze: elaborazione propria da
+        Copernicus DEM © ESA (30 m, indicative: la risoluzione non vede canali e rocce —
+        la valutazione del terreno resta tua).
       </p>
     </div>
   );
