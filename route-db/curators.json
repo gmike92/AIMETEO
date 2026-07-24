@@ -1,0 +1,25 @@
+{
+ "_note": "Curatori con nome e faccia — il contrario del crowd anonimo. Il badge 'curatore' si GUADAGNA (verifica nostra, mai autoproclamato). Le collezioni sono proposte firmate; la verifica dei singoli itinerari (verified_at) resta un processo separato. I percorsi dei curatori passano gli stessi filtri di sicurezza di tutti.",
+ "curators": [
+  {
+   "slug": "michele-guizzardi",
+   "name": "Michele Guizzardi",
+   "ruolo": "Fondatore di Zerotermico · fisico · Vezza d'Oglio",
+   "bio": "Cresciuto tra Val Grande e Aviolo. Ha costruito Zerotermico per rispondere alla domanda che si fa ogni weekend: dove e quando vale la pena salire. Le gite di questa collezione sono quelle di casa — le conosce a memoria, in tutte le stagioni.",
+   "links": {},
+   "curatore_verificato": true,
+   "collezione": {
+    "titolo": "Le gite di casa — alta Valcamonica",
+    "descrizione": "Da Vezza d'Oglio in su: Val Grande, i laghi Seroti, l'Aviolo. Sentieri veri, con traccia reale e quote vere — e il consiglio di guardare la Finestra prima di partire.",
+    "routes": [
+     "escursionismo-sentiero-16-slaase",
+     "escursionismo-sentiero-72b-sentiero-delle-aquile",
+     "escursionismo-sentiero-102a-sentiero-dell-asino",
+     "escursionismo-sentiero-108a-bassa-via-val-grande-sinistra",
+     "escursionismo-sentiero-173b-giro-dei-laghi-seroti-superiori",
+     "escursionismo-sentiero-34a-edolo-malga-stain-monte-aviolo-innesto-sentiero-34"
+    ]
+   }
+  }
+ ]
+}

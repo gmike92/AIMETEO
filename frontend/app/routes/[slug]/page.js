@@ -88,6 +88,16 @@ export default async function RouteDetail({ params }) {
         {route.activity} · {route.area?.name}
       </span>
       <h1>{route.name}</h1>
+      {route.proposto_da && (
+        <p className="note" style={{ marginTop: 2 }}>
+          Nella collezione di{" "}
+          <a href={`/autori/${route.proposto_da.slug}`}
+            style={{ color: "var(--accent)", textDecoration: "underline" }}>
+            {route.proposto_da.name}
+          </a>
+          {route.proposto_da.ruolo ? ` — ${route.proposto_da.ruolo}` : ""}
+        </p>
+      )}
       <p className="sub">{route.ideal_conditions}</p>
 
       <div className="stats">

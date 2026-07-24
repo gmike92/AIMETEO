@@ -6,6 +6,7 @@ from __future__ import annotations
 from fastapi import APIRouter, HTTPException
 from .. import store
 from ..model import timing
+from . import autori
 
 router = APIRouter(prefix="/routes", tags=["routes"])
 
@@ -43,4 +44,5 @@ def get_route(slug: str) -> dict:
     if not r:
         raise HTTPException(404, f"route '{slug}' not found")
     area = store.area_for_route(r) or {}
-    return {**r, "area": area, "tempi": _tempi(r)}
+    return {**r, "area": area, "tempi": _tempi(r),
+            "proposto_da": autori.curator_for_route(r["slug"])}
