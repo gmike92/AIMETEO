@@ -106,3 +106,15 @@ Stazioni: 6 (Alto Adige, open data provincia BZ). MAE modello: **1.18 °C** · M
 | Senales Croda d. Cornacchie | 3220 m | 2.4° | 2.2° | -0.2° | 6.4° | +4.0° |
 | Predoi Pizzo Lungo | 3105 m | 2.2° | 0.6° | -1.6° | 5.2° | +3.0° |
 | Senales Teufelsegg | 3035 m | 4.7° | 2.5° | -2.2° | 5.3° | +0.6° |
+
+## Run 2026-07-27 05:58 UTC
+Stazioni: 6 (Alto Adige, open data provincia BZ). MAE modello: **0.58 °C** · MAE baseline om-2m: **0.95 °C** · MAE vento: **5.4 km/h** (5 staz.)
+
+| stazione | quota | osservata | modello | err | om-2m | err | vento oss | vento om | err |
+|---|---|---|---|---|---|---|---|---|---|
+| Anticima Cima Libera | 3399 m | 0.2° | 0.9° | +0.7° | 1.0° | +0.8° | 22 km/h | 22 km/h | +0 |
+| Solda Cima Beltovo | 3328 m | 0.4° | 1.2° | +0.8° | 1.5° | +1.1° | 28 km/h | 19 km/h | -9 |
+| Ultimo Cima di Fontana Bianca | 3253 m | 2.0° | 2.1° | +0.1° | 2.9° | +0.9° | 13 km/h | 22 km/h | +9 |
+| Senales Croda d. Cornacchie | 3220 m | 2.4° | 1.9° | -0.5° | 2.9° | +0.5° | 22 km/h | 14 km/h | -8 |
+| Predoi Pizzo Lungo | 3105 m | 1.8° | 1.8° | +0.0° | 3.1° | +1.3° | 15 km/h | 14 km/h | -1 |
+| Senales Teufelsegg | 3035 m | 3.6° | 2.2° | -1.4° | 2.5° | -1.1° | n.d. | 24 km/h | n.d. |
