@@ -151,3 +151,15 @@ Stazioni: 5 (Alto Adige, open data provincia BZ). MAE modello: **2.12 °C** · M
 | Ultimo Cima di Fontana Bianca | 3253 m | 9.5° | 8.4° | -1.1° | 10.9° | +1.4° | 10 km/h | 16 km/h | +5 |
 | Senales Croda d. Cornacchie | 3220 m | 10.7° | 7.9° | -2.8° | 12.3° | +1.6° | 9 km/h | 16 km/h | +7 |
 | Predoi Pizzo Lungo | 3105 m | 13.3° | 9.2° | -4.1° | 14.6° | +1.3° | 4 km/h | 17 km/h | +12 |
+
+## Run 2026-08-10 04:03 UTC
+Stazioni: 6 (Alto Adige, open data provincia BZ). MAE modello: **0.87 °C** · MAE baseline om-2m: **0.58 °C** · MAE vento: **6.3 km/h** (6 staz.)
+
+| stazione | quota | osservata | modello | err | om-2m | err | vento oss | vento om | err |
+|---|---|---|---|---|---|---|---|---|---|
+| Anticima Cima Libera | 3399 m | 4.3° | 5.4° | +1.1° | 4.5° | +0.2° | 21 km/h | 7 km/h | -14 |
+| Solda Cima Beltovo | 3328 m | 4.7° | 6.3° | +1.6° | 6.1° | +1.4° | 17 km/h | 7 km/h | -11 |
+| Ultimo Cima di Fontana Bianca | 3253 m | 6.3° | 6.8° | +0.5° | 6.2° | -0.1° | 6 km/h | 5 km/h | -2 |
+| Senales Croda d. Cornacchie | 3220 m | 6.3° | 7.0° | +0.7° | 6.8° | +0.5° | 9 km/h | 8 km/h | -1 |
+| Predoi Pizzo Lungo | 3105 m | 6.6° | 7.3° | +0.7° | 6.7° | +0.1° | 14 km/h | 6 km/h | -8 |
+| Curon Cima Undici | 2926 m | 7.9° | 8.5° | +0.6° | 6.7° | -1.2° | 8 km/h | 6 km/h | -2 |
