@@ -1,8 +1,8 @@
-fastapi
-uvicorn
-google-cloud-aiplatform
-xarray
-dask
-netCDF4
-numpy
-pandas
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+pydantic==2.10.4
+httpx==0.28.1
+psycopg[binary,pool]==3.3.4
+google-auth==2.40.3
+# Optional, live terrain sampling only (heavy): earthengine-api
+# Optional, web push notifications: pywebpush (+ cryptography for gen_vapid.py)
