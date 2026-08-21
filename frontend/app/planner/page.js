@@ -75,8 +75,12 @@ export default function Planner() {
         <select value={activity} onChange={(e) => setActivity(e.target.value)}>
           <option value="scialpinismo">Scialpinismo</option>
           <option value="alpinismo">Alpinismo</option>
+          <option value="arrampicata">Arrampicata</option>
           <option value="via_ferrata">Via ferrata</option>
           <option value="escursionismo">Escursionismo</option>
+          <option value="trail_running">Trail running</option>
+          <option value="mtb_alpino">MTB alpino</option>
+          <option value="volo_libero">Volo libero (parapendio)</option>
         </select>
         <div style={{ marginTop: 16 }}>
           <button className="btn" type="submit" disabled={loading}>
