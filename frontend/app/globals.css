@@ -166,6 +166,14 @@ footer.wrap{color:var(--faint);font-size:12px;padding-top:10px;padding-bottom:26
   display:flex;flex-direction:column;gap:8px;align-items:flex-end;white-space:nowrap}
 .soontag{font-size:9px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;
   opacity:.65;font-style:normal;margin-left:2px}
+
+/* "Livelli" (what to show: itinerari/falesie/...) sits top-left, next to the
+   Itinerari/Pianifica CTA pills — weather stuff lives on the right, "what
+   outdoor activity do you want" lives on the left. Dropdown opens downward
+   (not sideways like .mapsubmenu) since it's hugging the left edge. */
+.mapctl-left{position:absolute;top:16px;left:16px;z-index:1001}
+.mapsubmenu-down{position:absolute;top:calc(100% + 8px);left:0;z-index:1000;
+  display:flex;flex-direction:column;gap:8px;align-items:flex-start;white-space:nowrap}
 .legendnote{font-size:10.5px;font-weight:600;opacity:.7;text-align:right;
   max-width:220px;margin-top:-2px}
 
@@ -174,7 +182,7 @@ footer.wrap{color:var(--faint);font-size:12px;padding-top:10px;padding-bottom:26
 @keyframes boltflash{0%{opacity:0;transform:scale(.4)}12%{opacity:1;transform:scale(1.15)}
   25%{transform:scale(1)}100%{opacity:0}}
 
-.mapcta{position:absolute;top:16px;left:60px;right:70px;z-index:1000;
+.mapcta{position:absolute;top:16px;left:150px;right:70px;z-index:1000;
   display:flex;gap:8px;align-items:center;flex-wrap:wrap;pointer-events:none}
 .mapcta>*{pointer-events:auto}
 .mapcta a{background:var(--glass-l);border:1px solid var(--line-on-l);
@@ -253,3 +261,13 @@ footer.wrap{color:var(--faint);font-size:12px;padding-top:10px;padding-bottom:26
   color:#04121f;font-weight:800;font-size:13.5px;border:3px solid #fff;
   box-shadow:0 2px 10px rgba(11,23,34,.4);transition:transform .15s}
 .rt-cluster:hover{transform:scale(1.08)}
+
+/* ── crag (falesia) markers — amber, distinct from route blue ─── */
+.crag-dot{display:block;width:16px;height:16px;border-radius:4px;
+  background:#f5a524;border:2px solid #fff;transform:rotate(45deg);
+  box-shadow:0 1px 6px rgba(11,23,34,.35)}
+.crag-cluster{display:flex;align-items:center;justify-content:center;
+  width:34px;height:34px;border-radius:8px;background:#f5a524;
+  color:#04121f;font-weight:800;font-size:12.5px;border:3px solid #fff;
+  box-shadow:0 2px 10px rgba(11,23,34,.4);transition:transform .15s}
+.crag-cluster:hover{transform:scale(1.08)}

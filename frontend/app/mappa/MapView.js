@@ -320,6 +320,38 @@ function popupHtml(area, route) {
   </div>`;
 }
 
+function popupHtmlCrag(c) {
+  const sun =
+    c.in_sole_adesso === true
+      ? `<span style="color:#f5d547;font-weight:700">☀️ Al sole ora</span>`
+      : c.in_sole_adesso === false
+      ? `<span style="opacity:.75">🌑 In ombra ora</span>`
+      : `<em style="font-size:12px;opacity:.75">${c.nota || "esposizione non censita"}</em>`;
+  return `<div style="min-width:200px;line-height:1.55">
+    <b style="font-size:14px">${c.name}</b><br/><span style="font-size:12px;opacity:.7">Falesia${c.ele_m ? ` · ${c.ele_m} m` : ""}</span>
+    <div style="margin:7px 0">${sun}</div>
+    <a href="/falesie" style="display:inline-block;margin-top:4px;font-size:13px;font-weight:600">Tutte le falesie →</a>
+  </div>`;
+}
+
+// Small reusable hover/click flyout menu: open instantly, close after a
+// short delay so moving the pointer from button to submenu doesn't snap it
+// shut (shared by the Meteo and Livelli control menus).
+function useFlyoutMenu() {
+  const [open, setOpen] = useState(false);
+  const timer = useRef(null);
+  const openMenu = () => {
+    clearTimeout(timer.current);
+    setOpen(true);
+  };
+  const closeMenuDelayed = () => {
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => setOpen(false), 400);
+  };
+  useEffect(() => () => clearTimeout(timer.current), []);
+  return [open, openMenu, closeMenuDelayed, setOpen];
+}
+
 const BASES = ["chiaro", "terreno", "scuro"];
 
 export default function MapView({ fullscreen = false, focusRoute = null, children }) {
@@ -340,8 +372,7 @@ export default function MapView({ fullscreen = false, focusRoute = null, childre
   const [hasSlope, setHasSlope] = useState(false); // tile generati? (area pilota)
   const [gridVersion, setGridVersion] = useState(0); // bump → ridisegna temp/vento sulla griglia corrente
   const [viewVersion, setViewVersion] = useState(0); // bump → ridisegna layer client-only (giorno/notte), SUBITO su ogni moveend, senza aspettare il fetch meteo
-  const [meteoOpen, setMeteoOpen] = useState(false);
-  const meteoCloseTimer = useRef(null);
+  const [meteoOpen, openMeteoMenu, closeMeteoMenuDelayed, setMeteoOpen] = useFlyoutMenu();
   const [uv, setUv] = useState(false);
   const [clouds, setClouds] = useState(false);
   const [sun, setSun] = useState(false);
@@ -351,21 +382,15 @@ export default function MapView({ fullscreen = false, focusRoute = null, childre
   const [auroraReady, setAuroraReady] = useState(false);
   const [lightning, setLightning] = useState(false);
 
+  const [layersOpen, openLayersMenu, closeLayersMenuDelayed, setLayersOpen] = useFlyoutMenu();
+  const [showRoutes, setShowRoutes] = useState(true); // preserva il comportamento attuale (sempre visibili)
+  const [showCrags, setShowCrags] = useState(false);
+
   useEffect(() => {
     if (!sun) return;
     const id = setInterval(() => setSunTick((t) => t + 1), 5 * 60 * 1000);
     return () => clearInterval(id);
   }, [sun]);
-
-  const openMeteoMenu = () => {
-    clearTimeout(meteoCloseTimer.current);
-    setMeteoOpen(true);
-  };
-  const closeMeteoMenuDelayed = () => {
-    clearTimeout(meteoCloseTimer.current);
-    meteoCloseTimer.current = setTimeout(() => setMeteoOpen(false), 400);
-  };
-  useEffect(() => () => clearTimeout(meteoCloseTimer.current), []);
 
   useEffect(() => {
     let dead = false;
@@ -479,6 +504,11 @@ export default function MapView({ fullscreen = false, focusRoute = null, childre
           },
         });
         S.current.clusters = clusters;
+        // Track polylines live in their own group (not directly on the map)
+        // so the whole "Itinerari" layer — pins and tracks together — can be
+        // hidden via the Livelli menu, same as any other layer.
+        const routeTracks = L.layerGroup();
+        S.current.routeTracks = routeTracks;
         let focusTarget = null; // { marker, pts } of the route to open on load
         for (const r of routes) {
           if (r.start_lat == null) continue;
@@ -490,8 +520,8 @@ export default function MapView({ fullscreen = false, focusRoute = null, childre
             .then((x) => (x.ok ? x.json() : null)).catch(() => null);
           const pts = (detail?.track_points || []).map((p) => [p.lat, p.lon]);
           if (pts.length > 1) {
-            L.polyline(pts, { color: "#0b1722", weight: 5, opacity: 0.25 }).addTo(map);
-            L.polyline(pts, { color: "#1272d3", weight: 2.5, opacity: 0.95 }).addTo(map);
+            L.polyline(pts, { color: "#0b1722", weight: 5, opacity: 0.25 }).addTo(routeTracks);
+            L.polyline(pts, { color: "#1272d3", weight: 2.5, opacity: 0.95 }).addTo(routeTracks);
           }
           const m = L.marker([r.start_lat, r.start_lon], {
             dangerLevel,
@@ -506,7 +536,12 @@ export default function MapView({ fullscreen = false, focusRoute = null, childre
           clusters.addLayer(m);
           if (focusRoute && r.slug === focusRoute) focusTarget = { marker: m, pts };
         }
-        map.addLayer(clusters);
+        // Initial add matches showRoutes' default (true); the dedicated
+        // effect below (keyed on showRoutes) handles it from here on.
+        if (showRoutes) {
+          map.addLayer(clusters);
+          map.addLayer(routeTracks);
+        }
 
         // Deep link: /?route=<slug> → zoom to that track and open its popup
         // (zoomToShowLayer breaks the marker out of its cluster first).
@@ -556,6 +591,58 @@ export default function MapView({ fullscreen = false, focusRoute = null, childre
     if (!map) return;
     BASES.forEach((k) => (k === base ? bases[k].addTo(map) : map.removeLayer(bases[k])));
   }, [base, ready]);
+
+  // Itinerari: pins + tracks together, one "Livelli" toggle.
+  useEffect(() => {
+    const { map, clusters, routeTracks } = S.current;
+    if (!map || !clusters || !routeTracks) return;
+    [clusters, routeTracks].forEach((layer) => {
+      if (showRoutes) map.addLayer(layer);
+      else map.removeLayer(layer);
+    });
+  }, [showRoutes, ready]);
+
+  // Falesie: fetched lazily on first toggle-on (small dataset, but no point
+  // paying for it if the layer is never opened), then just shown/hidden.
+  useEffect(() => {
+    const { L, map } = S.current;
+    if (!map) return;
+    if (!showCrags) {
+      if (S.current.cragsLayer) map.removeLayer(S.current.cragsLayer);
+      return;
+    }
+    let dead = false;
+    (async () => {
+      if (!S.current.cragsLayer) {
+        const crags = await fetch(`${API_BASE}/falesie`)
+          .then((r) => (r.ok ? r.json() : []))
+          .catch(() => []);
+        if (dead) return;
+        const group = L.markerClusterGroup({
+          maxClusterRadius: 50, disableClusteringAtZoom: 15, showCoverageOnHover: false,
+          iconCreateFunction: (cluster) => L.divIcon({
+            className: "", html: `<span class="crag-cluster">${cluster.getChildCount()}</span>`,
+            iconSize: [34, 34], iconAnchor: [17, 17],
+          }),
+        });
+        for (const c of crags) {
+          if (c.lat == null || c.lon == null) continue;
+          const m = L.marker([c.lat, c.lon], {
+            icon: L.divIcon({
+              className: "", html: `<span class="crag-dot"></span>`,
+              iconSize: [16, 16], iconAnchor: [8, 8], popupAnchor: [0, -8],
+            }),
+          });
+          m.bindTooltip(c.name, { direction: "top", offset: [0, -8] });
+          m.bindPopup(popupHtmlCrag(c));
+          group.addLayer(m);
+        }
+        S.current.cragsLayer = group;
+      }
+      if (!dead) map.addLayer(S.current.cragsLayer);
+    })();
+    return () => { dead = true; };
+  }, [showCrags, ready]);
 
   // temperature color field
   useEffect(() => {
@@ -795,6 +882,32 @@ export default function MapView({ fullscreen = false, focusRoute = null, childre
     <div className={`mapshell ${fullscreen ? "full" : ""}`}>
       <div ref={mapEl} style={{ position: "absolute", inset: 0 }} />
       {children}
+
+      <div className="mapctl-left">
+        <div className="mapmenu" onMouseEnter={openLayersMenu} onMouseLeave={closeLayersMenuDelayed}>
+          <button
+            className={`mapbtn ${showRoutes || showCrags ? "on" : ""}`}
+            onClick={() => (layersOpen ? setLayersOpen(false) : openLayersMenu())}
+            aria-expanded={layersOpen}
+            disabled={!ready}
+          >
+            <span className="dot" />Livelli
+          </button>
+          {layersOpen && (
+            <div className="mapsubmenu-down" onMouseEnter={openLayersMenu} onMouseLeave={closeLayersMenuDelayed}>
+              <button className={`mapbtn ${showRoutes ? "on" : ""}`} onClick={() => setShowRoutes(!showRoutes)} disabled={!ready}>
+                <span className="dot" />Itinerari
+              </button>
+              <button className={`mapbtn ${showCrags ? "on" : ""}`} onClick={() => setShowCrags(!showCrags)} disabled={!ready}>
+                <span className="dot" />Falesie
+              </button>
+              <button className="mapbtn soon" disabled title="In arrivo: nessuna fonte dati ancora integrata">
+                <span className="dot" />Piste da sci <em className="soontag">in arrivo</em>
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
 
       <div className="mapctl">
         <div className="mapmenu" onMouseEnter={openMeteoMenu} onMouseLeave={closeMeteoMenuDelayed}>
