@@ -172,6 +172,7 @@ export default function MapView({ fullscreen = false, focusRoute = null, childre
         const L = (await import("leaflet")).default;
         if (typeof window !== "undefined") window.L = L;
         await import("leaflet-velocity");
+        await import("leaflet.markercluster");
         if (dead || S.current.map) return;
 
         const map = L.map(mapEl.current, {
@@ -225,15 +226,35 @@ export default function MapView({ fullscreen = false, focusRoute = null, childre
         const byArea = Object.fromEntries(conds.map((a) => [a.area_id, a]));
         const anyBulletin = conds.some((a) => a?.bulletin?.status === "in_vigore");
         if (!dead) setSeason(anyBulletin);
+
+        // Marker clustering: grouped pins show a count at wide zoom, colored
+        // by the worst avalanche danger among the routes they hold, and break
+        // apart into individual markers as you zoom in (state-of-the-art map UX).
+        const clusters = L.markerClusterGroup({
+          maxClusterRadius: 55,
+          disableClusteringAtZoom: 15,
+          spiderfyOnMaxZoom: true,
+          showCoverageOnHover: false,
+          iconCreateFunction: (cluster) => {
+            const children = cluster.getAllChildMarkers();
+            const maxDanger = Math.max(0, ...children.map((c) => c.options.dangerLevel || 0));
+            const color = maxDanger > 0 ? DANGER_COLORS[maxDanger] : "#38bdf8";
+            return L.divIcon({
+              className: "",
+              html: `<span class="rt-cluster" style="--c:${color}">${cluster.getChildCount()}</span>`,
+              iconSize: [38, 38],
+              iconAnchor: [19, 19],
+            });
+          },
+        });
+        S.current.clusters = clusters;
         let focusTarget = null; // { marker, pts } of the route to open on load
         for (const r of routes) {
           if (r.start_lat == null) continue;
           const area = byArea[r.area_id];
           // Danger color only when a bulletin is actually in force.
-          const color =
-            area?.bulletin?.status === "in_vigore"
-              ? DANGER_COLORS[area.bulletin.danger_level] || "#38bdf8"
-              : "#38bdf8";
+          const dangerLevel = area?.bulletin?.status === "in_vigore" ? area.bulletin.danger_level : 0;
+          const color = dangerLevel > 0 ? DANGER_COLORS[dangerLevel] || "#38bdf8" : "#38bdf8";
           const detail = await fetch(`${API_BASE}/routes/${encodeURIComponent(r.slug)}`)
             .then((x) => (x.ok ? x.json() : null)).catch(() => null);
           const pts = (detail?.track_points || []).map((p) => [p.lat, p.lon]);
@@ -242,25 +263,29 @@ export default function MapView({ fullscreen = false, focusRoute = null, childre
             L.polyline(pts, { color: "#1272d3", weight: 2.5, opacity: 0.95 }).addTo(map);
           }
           const m = L.marker([r.start_lat, r.start_lon], {
+            dangerLevel,
             icon: L.divIcon({
               className: "",
               html: `<span class="rt-dot" style="--c:${color}"></span>`,
               iconSize: [18, 18], iconAnchor: [9, 9], popupAnchor: [0, -10],
             }),
-          }).addTo(map);
+          });
           m.bindTooltip(r.name, { direction: "top", offset: [0, -10] });
           m.bindPopup(popupHtml(area, r));
+          clusters.addLayer(m);
           if (focusRoute && r.slug === focusRoute) focusTarget = { marker: m, pts };
         }
+        map.addLayer(clusters);
 
-        // Deep link: /?route=<slug> → zoom to that track and open its popup.
+        // Deep link: /?route=<slug> → zoom to that track and open its popup
+        // (zoomToShowLayer breaks the marker out of its cluster first).
         if (focusTarget) {
           if (focusTarget.pts.length > 1) {
             map.fitBounds(focusTarget.pts, { padding: [70, 70], maxZoom: 13 });
+            setTimeout(() => focusTarget.marker.openPopup(), 350);
           } else {
-            map.setView(focusTarget.marker.getLatLng(), 12);
+            clusters.zoomToShowLayer(focusTarget.marker, () => focusTarget.marker.openPopup());
           }
-          setTimeout(() => focusTarget.marker.openPopup(), 350);
         }
 
         try {
