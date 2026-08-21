@@ -61,6 +61,72 @@
    "avalanche_service": "AINEVA",
    "avalanche_zone": "IT-25",
    "avalanche_subzone": null
+  },
+  {
+   "id": "area-gran-sasso",
+   "name": "Gran Sasso e Monti della Laga",
+   "country": "IT",
+   "region": "Abruzzo",
+   "default_locale": "it",
+   "avalanche_service": "Meteomont",
+   "avalanche_zone": null,
+   "avalanche_subzone": null,
+   "_note": "Appennino: fuori copertura AINEVA. Connettore Meteomont non ancora integrato — solo escursionismo/via_ferrata importati (non soggetti al blocco valanghe)."
+  },
+  {
+   "id": "area-majella",
+   "name": "Majella",
+   "country": "IT",
+   "region": "Abruzzo",
+   "default_locale": "it",
+   "avalanche_service": "Meteomont",
+   "avalanche_zone": null,
+   "avalanche_subzone": null,
+   "_note": "Appennino: fuori copertura AINEVA. Connettore Meteomont non ancora integrato — solo escursionismo/via_ferrata importati (non soggetti al blocco valanghe)."
+  },
+  {
+   "id": "area-sibillini",
+   "name": "Monti Sibillini",
+   "country": "IT",
+   "region": "Marche/Umbria",
+   "default_locale": "it",
+   "avalanche_service": "Meteomont",
+   "avalanche_zone": null,
+   "avalanche_subzone": null,
+   "_note": "Appennino: fuori copertura AINEVA. Connettore Meteomont non ancora integrato — solo escursionismo/via_ferrata importati (non soggetti al blocco valanghe)."
+  },
+  {
+   "id": "area-ecrins",
+   "name": "Écrins",
+   "country": "FR",
+   "region": "Hautes-Alpes",
+   "default_locale": "fr",
+   "avalanche_service": "ANENA-TODO",
+   "avalanche_zone": null,
+   "avalanche_subzone": null,
+   "_note": "Alpi francesi: nessun connettore bollettino valanghe reale ancora integrato (placeholder onesto, mai inventa dati). Solo escursionismo/via_ferrata importati per ora."
+  },
+  {
+   "id": "area-vanoise",
+   "name": "Vanoise",
+   "country": "FR",
+   "region": "Savoie",
+   "default_locale": "fr",
+   "avalanche_service": "ANENA-TODO",
+   "avalanche_zone": null,
+   "avalanche_subzone": null,
+   "_note": "Alpi francesi: nessun connettore bollettino valanghe reale ancora integrato (placeholder onesto, mai inventa dati). Solo escursionismo/via_ferrata importati per ora."
+  },
+  {
+   "id": "area-mont-blanc-fr",
+   "name": "Massiccio del Monte Bianco (versante francese)",
+   "country": "FR",
+   "region": "Haute-Savoie",
+   "default_locale": "fr",
+   "avalanche_service": "ANENA-TODO",
+   "avalanche_zone": null,
+   "avalanche_subzone": null,
+   "_note": "Alpi francesi: nessun connettore bollettino valanghe reale ancora integrato (placeholder onesto, mai inventa dati). Solo escursionismo/via_ferrata importati per ora."
   }
  ],
  "refuges": [
@@ -18495,6 +18561,3507 @@
    "refuges": [],
    "source": "Camptocamp.org route 269450 (CC BY-SA)",
    "source_url": "https://www.camptocamp.org/routes/269450",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-sentiero-267-via-ferrata-umberto-bozzetto",
+   "name": "Sentiero 267 — Via ferrata \"Umberto Bozzetto\"",
+   "area_id": "area-ortles-cevedale",
+   "activity": "escursionismo",
+   "diff_scale": "cai",
+   "diff_grade": "EEA:F",
+   "diff_index": null,
+   "start_altitude_m": 2126,
+   "max_altitude_m": 2400,
+   "vertical_gain_m": 374,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "season_months": null,
+   "source": "Rete Escursionistica CAI via OpenStreetMap (ODbL) — relation 5684522",
+   "source_url": "https://www.openstreetmap.org/relation/5684522",
+   "verified_at": null,
+   "start_lat": 46.2477484,
+   "start_lon": 10.8118733,
+   "track_points": [
+    {
+     "lat": 46.2477484,
+     "lon": 10.8118733,
+     "ele": 2126.0
+    },
+    {
+     "lat": 46.2479485,
+     "lon": 10.8106568,
+     "ele": 2184.0
+    },
+    {
+     "lat": 46.2480199,
+     "lon": 10.809299,
+     "ele": 2207.0
+    },
+    {
+     "lat": 46.2482467,
+     "lon": 10.8080846,
+     "ele": 2249.0
+    },
+    {
+     "lat": 46.2485606,
+     "lon": 10.8069453,
+     "ele": 2259.0
+    },
+    {
+     "lat": 46.2489121,
+     "lon": 10.8058973,
+     "ele": 2305.0
+    },
+    {
+     "lat": 46.2492413,
+     "lon": 10.8048365,
+     "ele": 2353.0
+    },
+    {
+     "lat": 46.2497194,
+     "lon": 10.804249,
+     "ele": 2353.0
+    },
+    {
+     "lat": 46.2501098,
+     "lon": 10.8033746,
+     "ele": 2388.0
+    },
+    {
+     "lat": 46.2506704,
+     "lon": 10.8027859,
+     "ele": 2400.0
+    },
+    {
+     "lat": 46.2508007,
+     "lon": 10.8015514,
+     "ele": 2373.0
+    },
+    {
+     "lat": 46.2508712,
+     "lon": 10.8005241,
+     "ele": 2317.0
+    },
+    {
+     "lat": 46.2507159,
+     "lon": 10.7994191,
+     "ele": 2383.0
+    },
+    {
+     "lat": 46.2504006,
+     "lon": 10.7982798,
+     "ele": 2343.0
+    },
+    {
+     "lat": 46.2502934,
+     "lon": 10.7970782,
+     "ele": 2348.0
+    },
+    {
+     "lat": 46.2503871,
+     "lon": 10.7957438,
+     "ele": 2377.0
+    },
+    {
+     "lat": 46.2506361,
+     "lon": 10.7945804,
+     "ele": 2367.0
+    },
+    {
+     "lat": 46.2508809,
+     "lon": 10.7944141,
+     "ele": 2342.0
+    }
+   ],
+   "track_source": "Rete Escursionistica CAI via OpenStreetMap (ODbL) — relation 5684522"
+  },
+  {
+   "slug": "escursionismo-sentiero-109b-sentiero-degli-alpinisti",
+   "name": "Sentiero 109B — Sentiero degli Alpinisti",
+   "area_id": "area-ortles-cevedale",
+   "activity": "escursionismo",
+   "diff_scale": "cai",
+   "diff_grade": "E",
+   "diff_index": null,
+   "start_altitude_m": 1171,
+   "max_altitude_m": 1469,
+   "vertical_gain_m": 298,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "season_months": null,
+   "source": "Rete Escursionistica CAI via OpenStreetMap (ODbL) — relation 6305378",
+   "source_url": "https://www.openstreetmap.org/relation/6305378",
+   "verified_at": null,
+   "start_lat": 46.3517849,
+   "start_lon": 10.6931497,
+   "track_points": [
+    {
+     "lat": 46.3517849,
+     "lon": 10.6931497,
+     "ele": 1171.0
+    },
+    {
+     "lat": 46.352738,
+     "lon": 10.6940824,
+     "ele": 1190.0
+    },
+    {
+     "lat": 46.3535552,
+     "lon": 10.6940253,
+     "ele": 1207.0
+    },
+    {
+     "lat": 46.3544018,
+     "lon": 10.6933436,
+     "ele": 1217.0
+    },
+    {
+     "lat": 46.355298,
+     "lon": 10.693466,
+     "ele": 1222.0
+    },
+    {
+     "lat": 46.3555281,
+     "lon": 10.6946572,
+     "ele": 1242.0
+    },
+    {
+     "lat": 46.355318,
+     "lon": 10.6956357,
+     "ele": 1265.0
+    },
+    {
+     "lat": 46.3557218,
+     "lon": 10.6968186,
+     "ele": 1315.0
+    },
+    {
+     "lat": 46.3564831,
+     "lon": 10.6976997,
+     "ele": 1360.0
+    },
+    {
+     "lat": 46.3561161,
+     "lon": 10.6985043,
+     "ele": 1373.0
+    },
+    {
+     "lat": 46.3568132,
+     "lon": 10.6992838,
+     "ele": 1428.0
+    },
+    {
+     "lat": 46.3575828,
+     "lon": 10.6998023,
+     "ele": 1469.0
+    }
+   ],
+   "track_source": "Rete Escursionistica CAI via OpenStreetMap (ODbL) — relation 6305378"
+  },
+  {
+   "slug": "escursionismo-sentiero-110b-sentiero-delle-carbonaie",
+   "name": "Sentiero 110B — Sentiero delle carbonaie",
+   "area_id": "area-ortles-cevedale",
+   "activity": "escursionismo",
+   "diff_scale": "cai",
+   "diff_grade": "E",
+   "diff_index": null,
+   "start_altitude_m": 1723,
+   "max_altitude_m": 2116,
+   "vertical_gain_m": 730,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "season_months": null,
+   "source": "Rete Escursionistica CAI via OpenStreetMap (ODbL) — relation 6305410",
+   "source_url": "https://www.openstreetmap.org/relation/6305410",
+   "verified_at": null,
+   "start_lat": 46.3393221,
+   "start_lon": 10.6181304,
+   "track_points": [
+    {
+     "lat": 46.3393221,
+     "lon": 10.6181304,
+     "ele": 1723.0
+    },
+    {
+     "lat": 46.3401549,
+     "lon": 10.6186858,
+     "ele": 1740.0
+    },
+    {
+     "lat": 46.3409377,
+     "lon": 10.6193577,
+     "ele": 1754.0
+    },
+    {
+     "lat": 46.3418366,
+     "lon": 10.619894,
+     "ele": 1782.0
+    },
+    {
+     "lat": 46.3417977,
+     "lon": 10.6195003,
+     "ele": 1782.0
+    },
+    {
+     "lat": 46.341138,
+     "lon": 10.6185823,
+     "ele": 1773.0
+    },
+    {
+     "lat": 46.3412883,
+     "lon": 10.617366,
+     "ele": 1832.0
+    },
+    {
+     "lat": 46.3402451,
+     "lon": 10.6162522,
+     "ele": 1851.0
+    },
+    {
+     "lat": 46.3395022,
+     "lon": 10.6151491,
+     "ele": 1848.0
+    },
+    {
+     "lat": 46.338893,
+     "lon": 10.614177,
+     "ele": 1833.0
+    },
+    {
+     "lat": 46.3379994,
+     "lon": 10.6130592,
+     "ele": 1858.0
+    },
+    {
+     "lat": 46.3373713,
+     "lon": 10.6120425,
+     "ele": 1832.0
+    },
+    {
+     "lat": 46.3370132,
+     "lon": 10.6107758,
+     "ele": 1856.0
+    },
+    {
+     "lat": 46.3371427,
+     "lon": 10.6100119,
+     "ele": 1856.0
+    },
+    {
+     "lat": 46.3375543,
+     "lon": 10.6101742,
+     "ele": 1904.0
+    },
+    {
+     "lat": 46.3372538,
+     "lon": 10.6090848,
+     "ele": 1912.0
+    },
+    {
+     "lat": 46.3366955,
+     "lon": 10.6072723,
+     "ele": 1960.0
+    },
+    {
+     "lat": 46.3363558,
+     "lon": 10.6059991,
+     "ele": 1924.0
+    },
+    {
+     "lat": 46.3362013,
+     "lon": 10.6046871,
+     "ele": 1954.0
+    },
+    {
+     "lat": 46.3355078,
+     "lon": 10.6037723,
+     "ele": 1930.0
+    },
+    {
+     "lat": 46.3351339,
+     "lon": 10.6024774,
+     "ele": 1963.0
+    },
+    {
+     "lat": 46.3345793,
+     "lon": 10.6013668,
+     "ele": 1939.0
+    },
+    {
+     "lat": 46.3339863,
+     "lon": 10.6001382,
+     "ele": 1909.0
+    },
+    {
+     "lat": 46.3334233,
+     "lon": 10.5990945,
+     "ele": 1924.0
+    },
+    {
+     "lat": 46.3331005,
+     "lon": 10.5979421,
+     "ele": 1873.0
+    },
+    {
+     "lat": 46.3329879,
+     "lon": 10.5965505,
+     "ele": 1859.0
+    },
+    {
+     "lat": 46.3330415,
+     "lon": 10.5944874,
+     "ele": 1829.0
+    },
+    {
+     "lat": 46.333359,
+     "lon": 10.5931947,
+     "ele": 1851.0
+    },
+    {
+     "lat": 46.3338927,
+     "lon": 10.5917913,
+     "ele": 1831.0
+    },
+    {
+     "lat": 46.33431,
+     "lon": 10.5903056,
+     "ele": 1853.0
+    },
+    {
+     "lat": 46.3349478,
+     "lon": 10.5893265,
+     "ele": 1849.0
+    },
+    {
+     "lat": 46.3352585,
+     "lon": 10.5877387,
+     "ele": 1894.0
+    },
+    {
+     "lat": 46.3357034,
+     "lon": 10.5865937,
+     "ele": 1872.0
+    },
+    {
+     "lat": 46.3362258,
+     "lon": 10.5855566,
+     "ele": 1903.0
+    },
+    {
+     "lat": 46.3368179,
+     "lon": 10.5842576,
+     "ele": 1944.0
+    },
+    {
+     "lat": 46.3370135,
+     "lon": 10.5830042,
+     "ele": 1915.0
+    },
+    {
+     "lat": 46.3377276,
+     "lon": 10.581973,
+     "ele": 1955.0
+    },
+    {
+     "lat": 46.3383535,
+     "lon": 10.5812724,
+     "ele": 1993.0
+    },
+    {
+     "lat": 46.3390571,
+     "lon": 10.581116,
+     "ele": 1993.0
+    },
+    {
+     "lat": 46.3396309,
+     "lon": 10.5804083,
+     "ele": 2015.0
+    },
+    {
+     "lat": 46.3403601,
+     "lon": 10.5797603,
+     "ele": 2039.0
+    },
+    {
+     "lat": 46.340255,
+     "lon": 10.5814528,
+     "ele": 2074.0
+    },
+    {
+     "lat": 46.3400776,
+     "lon": 10.582834,
+     "ele": 2106.0
+    },
+    {
+     "lat": 46.3405692,
+     "lon": 10.5835891,
+     "ele": 2116.0
+    }
+   ],
+   "track_source": "Rete Escursionistica CAI via OpenStreetMap (ODbL) — relation 6305410"
+  },
+  {
+   "slug": "escursionismo-sentiero-607-sentiero-de-le-cirele",
+   "name": "Sentiero 607 — Sentiero de le Cirele",
+   "area_id": "area-dolomiti-fassa",
+   "activity": "escursionismo",
+   "diff_scale": "cai",
+   "diff_grade": "E",
+   "diff_index": null,
+   "start_altitude_m": 2019,
+   "max_altitude_m": 2725,
+   "vertical_gain_m": 933,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "season_months": null,
+   "source": "Rete Escursionistica CAI via OpenStreetMap (ODbL) — relation 7260985",
+   "source_url": "https://www.openstreetmap.org/relation/7260985",
+   "verified_at": null,
+   "start_lat": 46.4295365,
+   "start_lon": 11.815866,
+   "track_points": [
+    {
+     "lat": 46.4295365,
+     "lon": 11.815866,
+     "ele": 2019.0
+    },
+    {
+     "lat": 46.4301034,
+     "lon": 11.8169568,
+     "ele": 2046.0
+    },
+    {
+     "lat": 46.4300316,
+     "lon": 11.8182358,
+     "ele": 2052.0
+    },
+    {
+     "lat": 46.4292566,
+     "lon": 11.8187618,
+     "ele": 2031.0
+    },
+    {
+     "lat": 46.429168,
+     "lon": 11.8202123,
+     "ele": 2051.0
+    },
+    {
+     "lat": 46.4284254,
+     "lon": 11.821171,
+     "ele": 2042.0
+    },
+    {
+     "lat": 46.4277932,
+     "lon": 11.8211201,
+     "ele": 2047.0
+    },
+    {
+     "lat": 46.4268327,
+     "lon": 11.8203078,
+     "ele": 2050.0
+    },
+    {
+     "lat": 46.4262494,
+     "lon": 11.8199855,
+     "ele": 2065.0
+    },
+    {
+     "lat": 46.426011,
+     "lon": 11.8211249,
+     "ele": 2104.0
+    },
+    {
+     "lat": 46.4253213,
+     "lon": 11.8220213,
+     "ele": 2133.0
+    },
+    {
+     "lat": 46.4245799,
+     "lon": 11.8222144,
+     "ele": 2133.0
+    },
+    {
+     "lat": 46.424163,
+     "lon": 11.8234179,
+     "ele": 2155.0
+    },
+    {
+     "lat": 46.4237276,
+     "lon": 11.8245345,
+     "ele": 2182.0
+    },
+    {
+     "lat": 46.4228867,
+     "lon": 11.8253318,
+     "ele": 2210.0
+    },
+    {
+     "lat": 46.4223428,
+     "lon": 11.8262553,
+     "ele": 2263.0
+    },
+    {
+     "lat": 46.4214849,
+     "lon": 11.8266683,
+     "ele": 2284.0
+    },
+    {
+     "lat": 46.4206608,
+     "lon": 11.8271121,
+     "ele": 2301.0
+    },
+    {
+     "lat": 46.4200254,
+     "lon": 11.8281326,
+     "ele": 2327.0
+    },
+    {
+     "lat": 46.4193687,
+     "lon": 11.8290307,
+     "ele": 2363.0
+    },
+    {
+     "lat": 46.4185819,
+     "lon": 11.8298158,
+     "ele": 2393.0
+    },
+    {
+     "lat": 46.4180123,
+     "lon": 11.8306205,
+     "ele": 2424.0
+    },
+    {
+     "lat": 46.417136,
+     "lon": 11.8299827,
+     "ele": 2445.0
+    },
+    {
+     "lat": 46.4164421,
+     "lon": 11.8292916,
+     "ele": 2478.0
+    },
+    {
+     "lat": 46.4156684,
+     "lon": 11.8293289,
+     "ele": 2508.0
+    },
+    {
+     "lat": 46.4147177,
+     "lon": 11.8291984,
+     "ele": 2533.0
+    },
+    {
+     "lat": 46.4142188,
+     "lon": 11.828185,
+     "ele": 2566.0
+    },
+    {
+     "lat": 46.4130959,
+     "lon": 11.8269988,
+     "ele": 2577.0
+    },
+    {
+     "lat": 46.4127625,
+     "lon": 11.8261868,
+     "ele": 2607.0
+    },
+    {
+     "lat": 46.4117214,
+     "lon": 11.8260902,
+     "ele": 2596.0
+    },
+    {
+     "lat": 46.4108411,
+     "lon": 11.8258582,
+     "ele": 2619.0
+    },
+    {
+     "lat": 46.4102511,
+     "lon": 11.8251099,
+     "ele": 2669.0
+    },
+    {
+     "lat": 46.4099996,
+     "lon": 11.8238734,
+     "ele": 2725.0
+    },
+    {
+     "lat": 46.4099306,
+     "lon": 11.8228916,
+     "ele": 2672.0
+    },
+    {
+     "lat": 46.4095514,
+     "lon": 11.8221853,
+     "ele": 2687.0
+    },
+    {
+     "lat": 46.4092062,
+     "lon": 11.8220086,
+     "ele": 2687.0
+    },
+    {
+     "lat": 46.4088026,
+     "lon": 11.8222006,
+     "ele": 2615.0
+    },
+    {
+     "lat": 46.408288,
+     "lon": 11.8222225,
+     "ele": 2559.0
+    },
+    {
+     "lat": 46.4076517,
+     "lon": 11.8212438,
+     "ele": 2561.0
+    },
+    {
+     "lat": 46.4076065,
+     "lon": 11.8199225,
+     "ele": 2568.0
+    },
+    {
+     "lat": 46.4070776,
+     "lon": 11.8195322,
+     "ele": 2503.0
+    },
+    {
+     "lat": 46.4062556,
+     "lon": 11.8194988,
+     "ele": 2466.0
+    },
+    {
+     "lat": 46.4063853,
+     "lon": 11.8198881,
+     "ele": 2466.0
+    },
+    {
+     "lat": 46.4061278,
+     "lon": 11.8203612,
+     "ele": 2441.0
+    },
+    {
+     "lat": 46.4064561,
+     "lon": 11.8215707,
+     "ele": 2426.0
+    },
+    {
+     "lat": 46.4064118,
+     "lon": 11.8230405,
+     "ele": 2423.0
+    },
+    {
+     "lat": 46.4060049,
+     "lon": 11.8221715,
+     "ele": 2418.0
+    },
+    {
+     "lat": 46.4058624,
+     "lon": 11.8231009,
+     "ele": 2423.0
+    },
+    {
+     "lat": 46.4052583,
+     "lon": 11.8238303,
+     "ele": 2349.0
+    },
+    {
+     "lat": 46.4043468,
+     "lon": 11.8243587,
+     "ele": 2331.0
+    },
+    {
+     "lat": 46.4041018,
+     "lon": 11.8244574,
+     "ele": 2324.0
+    },
+    {
+     "lat": 46.4034937,
+     "lon": 11.8239493,
+     "ele": 2333.0
+    },
+    {
+     "lat": 46.4037795,
+     "lon": 11.8248458,
+     "ele": 2324.0
+    },
+    {
+     "lat": 46.4034036,
+     "lon": 11.8249912,
+     "ele": 2315.0
+    },
+    {
+     "lat": 46.4034524,
+     "lon": 11.8255239,
+     "ele": 2315.0
+    },
+    {
+     "lat": 46.4037471,
+     "lon": 11.82638,
+     "ele": 2293.0
+    },
+    {
+     "lat": 46.4037,
+     "lon": 11.82776,
+     "ele": 2236.0
+    },
+    {
+     "lat": 46.4029564,
+     "lon": 11.8267796,
+     "ele": 2204.0
+    },
+    {
+     "lat": 46.4020067,
+     "lon": 11.8265986,
+     "ele": 2193.0
+    },
+    {
+     "lat": 46.4010171,
+     "lon": 11.8264832,
+     "ele": 2173.0
+    },
+    {
+     "lat": 46.4001583,
+     "lon": 11.8265219,
+     "ele": 2152.0
+    },
+    {
+     "lat": 46.39979,
+     "lon": 11.827688,
+     "ele": 2135.0
+    },
+    {
+     "lat": 46.3995051,
+     "lon": 11.8288749,
+     "ele": 2139.0
+    },
+    {
+     "lat": 46.398682,
+     "lon": 11.8293268,
+     "ele": 2103.0
+    },
+    {
+     "lat": 46.3978683,
+     "lon": 11.8298091,
+     "ele": 2083.0
+    },
+    {
+     "lat": 46.3969857,
+     "lon": 11.8301261,
+     "ele": 2060.0
+    },
+    {
+     "lat": 46.3962486,
+     "lon": 11.8293791,
+     "ele": 2034.0
+    },
+    {
+     "lat": 46.3953717,
+     "lon": 11.8292169,
+     "ele": 2023.0
+    },
+    {
+     "lat": 46.394408,
+     "lon": 11.8292457,
+     "ele": 2009.0
+    },
+    {
+     "lat": 46.3934965,
+     "lon": 11.829394,
+     "ele": 1994.0
+    },
+    {
+     "lat": 46.3932052,
+     "lon": 11.8282159,
+     "ele": 1984.0
+    },
+    {
+     "lat": 46.3923626,
+     "lon": 11.827478,
+     "ele": 1979.0
+    },
+    {
+     "lat": 46.3919392,
+     "lon": 11.826476,
+     "ele": 1985.0
+    },
+    {
+     "lat": 46.3911971,
+     "lon": 11.8256542,
+     "ele": 1983.0
+    },
+    {
+     "lat": 46.3903269,
+     "lon": 11.825348,
+     "ele": 1974.0
+    },
+    {
+     "lat": 46.3894014,
+     "lon": 11.824567,
+     "ele": 1985.0
+    },
+    {
+     "lat": 46.3889413,
+     "lon": 11.8232637,
+     "ele": 1986.0
+    },
+    {
+     "lat": 46.38829,
+     "lon": 11.8221946,
+     "ele": 1971.0
+    },
+    {
+     "lat": 46.3875015,
+     "lon": 11.8211255,
+     "ele": 1984.0
+    },
+    {
+     "lat": 46.3871128,
+     "lon": 11.8200029,
+     "ele": 1965.0
+    },
+    {
+     "lat": 46.3865331,
+     "lon": 11.8193476,
+     "ele": 1968.0
+    },
+    {
+     "lat": 46.385926,
+     "lon": 11.8185295,
+     "ele": 1980.0
+    },
+    {
+     "lat": 46.3851393,
+     "lon": 11.8179458,
+     "ele": 1981.0
+    },
+    {
+     "lat": 46.3842997,
+     "lon": 11.8172772,
+     "ele": 1978.0
+    },
+    {
+     "lat": 46.3837305,
+     "lon": 11.81621,
+     "ele": 1967.0
+    },
+    {
+     "lat": 46.3835399,
+     "lon": 11.8147045,
+     "ele": 1947.0
+    },
+    {
+     "lat": 46.3831287,
+     "lon": 11.8138002,
+     "ele": 1944.0
+    },
+    {
+     "lat": 46.3827301,
+     "lon": 11.8126063,
+     "ele": 1954.0
+    },
+    {
+     "lat": 46.3831085,
+     "lon": 11.8110935,
+     "ele": 1931.0
+    },
+    {
+     "lat": 46.3827258,
+     "lon": 11.8099014,
+     "ele": 1952.0
+    },
+    {
+     "lat": 46.3819692,
+     "lon": 11.8103757,
+     "ele": 1916.0
+    },
+    {
+     "lat": 46.3813369,
+     "lon": 11.8095561,
+     "ele": 1925.0
+    },
+    {
+     "lat": 46.3814347,
+     "lon": 11.8082959,
+     "ele": 1901.0
+    },
+    {
+     "lat": 46.3818276,
+     "lon": 11.8071163,
+     "ele": 1930.0
+    },
+    {
+     "lat": 46.3810723,
+     "lon": 11.8066414,
+     "ele": 1934.0
+    },
+    {
+     "lat": 46.3806795,
+     "lon": 11.8056284,
+     "ele": 1913.0
+    },
+    {
+     "lat": 46.3804789,
+     "lon": 11.8042269,
+     "ele": 1914.0
+    },
+    {
+     "lat": 46.3801069,
+     "lon": 11.8026908,
+     "ele": 1921.0
+    },
+    {
+     "lat": 46.3796828,
+     "lon": 11.8014977,
+     "ele": 1919.0
+    },
+    {
+     "lat": 46.3793679,
+     "lon": 11.8002425,
+     "ele": 1926.0
+    },
+    {
+     "lat": 46.3789909,
+     "lon": 11.7989182,
+     "ele": 1916.0
+    },
+    {
+     "lat": 46.3785324,
+     "lon": 11.7968087,
+     "ele": 1917.0
+    },
+    {
+     "lat": 46.3784351,
+     "lon": 11.7951876,
+     "ele": 1914.0
+    },
+    {
+     "lat": 46.3783446,
+     "lon": 11.7941324,
+     "ele": 1922.0
+    }
+   ],
+   "track_source": "Rete Escursionistica CAI via OpenStreetMap (ODbL) — relation 7260985"
+  },
+  {
+   "slug": "escursionismo-sentiero-650-via-ferrata-de-ombreta-vernale",
+   "name": "Sentiero 650 — Via ferrata de Ombreta - Vernale",
+   "area_id": "area-dolomiti-fassa",
+   "activity": "escursionismo",
+   "diff_scale": "cai",
+   "diff_grade": "EEA:D",
+   "diff_index": null,
+   "start_altitude_m": 2616,
+   "max_altitude_m": 2941,
+   "vertical_gain_m": 380,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "season_months": null,
+   "source": "Rete Escursionistica CAI via OpenStreetMap (ODbL) — relation 7261080",
+   "source_url": "https://www.openstreetmap.org/relation/7261080",
+   "verified_at": null,
+   "start_lat": 46.4186013,
+   "start_lon": 11.8327381,
+   "track_points": [
+    {
+     "lat": 46.4186013,
+     "lon": 11.8327381,
+     "ele": 2616.0
+    },
+    {
+     "lat": 46.4191769,
+     "lon": 11.8326824,
+     "ele": 2622.0
+    },
+    {
+     "lat": 46.4196651,
+     "lon": 11.8334619,
+     "ele": 2659.0
+    },
+    {
+     "lat": 46.4204403,
+     "lon": 11.8342692,
+     "ele": 2669.0
+    },
+    {
+     "lat": 46.4213567,
+     "lon": 11.835149,
+     "ele": 2687.0
+    },
+    {
+     "lat": 46.4222224,
+     "lon": 11.8355482,
+     "ele": 2689.0
+    },
+    {
+     "lat": 46.4228136,
+     "lon": 11.8364193,
+     "ele": 2698.0
+    },
+    {
+     "lat": 46.4232136,
+     "lon": 11.8378685,
+     "ele": 2749.0
+    },
+    {
+     "lat": 46.4232593,
+     "lon": 11.8392242,
+     "ele": 2783.0
+    },
+    {
+     "lat": 46.4234227,
+     "lon": 11.8404839,
+     "ele": 2801.0
+    },
+    {
+     "lat": 46.4240106,
+     "lon": 11.8414232,
+     "ele": 2830.0
+    },
+    {
+     "lat": 46.4243706,
+     "lon": 11.8429857,
+     "ele": 2912.0
+    },
+    {
+     "lat": 46.424615,
+     "lon": 11.8443973,
+     "ele": 2941.0
+    },
+    {
+     "lat": 46.4250847,
+     "lon": 11.8444593,
+     "ele": 2895.0
+    },
+    {
+     "lat": 46.4252899,
+     "lon": 11.8429586,
+     "ele": 2927.0
+    },
+    {
+     "lat": 46.4259656,
+     "lon": 11.8428259,
+     "ele": 2924.0
+    },
+    {
+     "lat": 46.4265406,
+     "lon": 11.8433931,
+     "ele": 2897.0
+    },
+    {
+     "lat": 46.4271757,
+     "lon": 11.844804,
+     "ele": 2828.0
+    },
+    {
+     "lat": 46.4279217,
+     "lon": 11.8453726,
+     "ele": 2765.0
+    },
+    {
+     "lat": 46.4286493,
+     "lon": 11.8450009,
+     "ele": 2718.0
+    },
+    {
+     "lat": 46.4294617,
+     "lon": 11.8456489,
+     "ele": 2670.0
+    },
+    {
+     "lat": 46.4302085,
+     "lon": 11.8461142,
+     "ele": 2693.0
+    },
+    {
+     "lat": 46.430449,
+     "lon": 11.8464197,
+     "ele": 2693.0
+    }
+   ],
+   "track_source": "Rete Escursionistica CAI via OpenStreetMap (ODbL) — relation 7261080"
+  },
+  {
+   "slug": "escursionismo-sentiero-616a-via-ferrata-bruno-federspiel",
+   "name": "Sentiero 616A — Via ferrata \"Bruno Federspiel\"",
+   "area_id": "area-dolomiti-fassa",
+   "activity": "escursionismo",
+   "diff_scale": "cai",
+   "diff_grade": "EEA:PD",
+   "diff_index": null,
+   "start_altitude_m": 2536,
+   "max_altitude_m": 2604,
+   "vertical_gain_m": 701,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "season_months": null,
+   "source": "Rete Escursionistica CAI via OpenStreetMap (ODbL) — relation 7263593",
+   "source_url": "https://www.openstreetmap.org/relation/7263593",
+   "verified_at": null,
+   "start_lat": 46.3970239,
+   "start_lon": 11.7626566,
+   "track_points": [
+    {
+     "lat": 46.3970239,
+     "lon": 11.7626566,
+     "ele": 2536.0
+    },
+    {
+     "lat": 46.396224,
+     "lon": 11.762056,
+     "ele": 2514.0
+    },
+    {
+     "lat": 46.3957266,
+     "lon": 11.760965,
+     "ele": 2535.0
+    },
+    {
+     "lat": 46.3953309,
+     "lon": 11.7597843,
+     "ele": 2529.0
+    },
+    {
+     "lat": 46.3949386,
+     "lon": 11.7585901,
+     "ele": 2563.0
+    },
+    {
+     "lat": 46.394137,
+     "lon": 11.7581724,
+     "ele": 2533.0
+    },
+    {
+     "lat": 46.3934448,
+     "lon": 11.7574353,
+     "ele": 2491.0
+    },
+    {
+     "lat": 46.3927135,
+     "lon": 11.7568787,
+     "ele": 2526.0
+    },
+    {
+     "lat": 46.391939,
+     "lon": 11.7562558,
+     "ele": 2541.0
+    },
+    {
+     "lat": 46.3912568,
+     "lon": 11.7552336,
+     "ele": 2559.0
+    },
+    {
+     "lat": 46.390512,
+     "lon": 11.7543454,
+     "ele": 2550.0
+    },
+    {
+     "lat": 46.3902552,
+     "lon": 11.7532986,
+     "ele": 2515.0
+    },
+    {
+     "lat": 46.3903781,
+     "lon": 11.7520614,
+     "ele": 2535.0
+    },
+    {
+     "lat": 46.390245,
+     "lon": 11.7511732,
+     "ele": 2544.0
+    },
+    {
+     "lat": 46.3896586,
+     "lon": 11.7502149,
+     "ele": 2537.0
+    },
+    {
+     "lat": 46.3889764,
+     "lon": 11.7495723,
+     "ele": 2535.0
+    },
+    {
+     "lat": 46.3883578,
+     "lon": 11.7489113,
+     "ele": 2504.0
+    },
+    {
+     "lat": 46.3879561,
+     "lon": 11.7479579,
+     "ele": 2541.0
+    },
+    {
+     "lat": 46.3874265,
+     "lon": 11.7469014,
+     "ele": 2577.0
+    },
+    {
+     "lat": 46.3871409,
+     "lon": 11.7458294,
+     "ele": 2555.0
+    },
+    {
+     "lat": 46.3870358,
+     "lon": 11.7447255,
+     "ele": 2496.0
+    },
+    {
+     "lat": 46.3865112,
+     "lon": 11.7432795,
+     "ele": 2548.0
+    },
+    {
+     "lat": 46.3861383,
+     "lon": 11.7421406,
+     "ele": 2545.0
+    },
+    {
+     "lat": 46.3857849,
+     "lon": 11.7411381,
+     "ele": 2604.0
+    },
+    {
+     "lat": 46.3858468,
+     "lon": 11.7399414,
+     "ele": 2579.0
+    },
+    {
+     "lat": 46.3864121,
+     "lon": 11.7391023,
+     "ele": 2561.0
+    },
+    {
+     "lat": 46.3868053,
+     "lon": 11.7381796,
+     "ele": 2479.0
+    },
+    {
+     "lat": 46.3870128,
+     "lon": 11.7373413,
+     "ele": 2455.0
+    },
+    {
+     "lat": 46.3869413,
+     "lon": 11.7360951,
+     "ele": 2446.0
+    },
+    {
+     "lat": 46.387118,
+     "lon": 11.7350926,
+     "ele": 2435.0
+    },
+    {
+     "lat": 46.3870879,
+     "lon": 11.7339584,
+     "ele": 2413.0
+    },
+    {
+     "lat": 46.3871623,
+     "lon": 11.732825,
+     "ele": 2435.0
+    },
+    {
+     "lat": 46.3869144,
+     "lon": 11.7315832,
+     "ele": 2414.0
+    },
+    {
+     "lat": 46.3865375,
+     "lon": 11.7303928,
+     "ele": 2486.0
+    },
+    {
+     "lat": 46.3867282,
+     "lon": 11.7294247,
+     "ele": 2471.0
+    },
+    {
+     "lat": 46.3871809,
+     "lon": 11.7282412,
+     "ele": 2568.0
+    },
+    {
+     "lat": 46.3874044,
+     "lon": 11.7270879,
+     "ele": 2584.0
+    },
+    {
+     "lat": 46.3872595,
+     "lon": 11.7257758,
+     "ele": 2583.0
+    },
+    {
+     "lat": 46.3873996,
+     "lon": 11.7246711,
+     "ele": 2566.0
+    },
+    {
+     "lat": 46.3880019,
+     "lon": 11.7241688,
+     "ele": 2538.0
+    },
+    {
+     "lat": 46.3886755,
+     "lon": 11.7236394,
+     "ele": 2504.0
+    },
+    {
+     "lat": 46.3891424,
+     "lon": 11.7226241,
+     "ele": 2500.0
+    },
+    {
+     "lat": 46.3895932,
+     "lon": 11.7215244,
+     "ele": 2508.0
+    },
+    {
+     "lat": 46.3900615,
+     "lon": 11.7204717,
+     "ele": 2470.0
+    },
+    {
+     "lat": 46.390413,
+     "lon": 11.7198276,
+     "ele": 2474.0
+    },
+    {
+     "lat": 46.3902641,
+     "lon": 11.7185712,
+     "ele": 2485.0
+    },
+    {
+     "lat": 46.3906374,
+     "lon": 11.7174693,
+     "ele": 2500.0
+    },
+    {
+     "lat": 46.3909077,
+     "lon": 11.7162592,
+     "ele": 2456.0
+    },
+    {
+     "lat": 46.3910314,
+     "lon": 11.7151989,
+     "ele": 2490.0
+    },
+    {
+     "lat": 46.3913365,
+     "lon": 11.7140109,
+     "ele": 2517.0
+    },
+    {
+     "lat": 46.391861,
+     "lon": 11.7129629,
+     "ele": 2470.0
+    },
+    {
+     "lat": 46.3920483,
+     "lon": 11.7117527,
+     "ele": 2472.0
+    },
+    {
+     "lat": 46.3924059,
+     "lon": 11.7105229,
+     "ele": 2511.0
+    },
+    {
+     "lat": 46.3928089,
+     "lon": 11.7095858,
+     "ele": 2529.0
+    }
+   ],
+   "track_source": "Rete Escursionistica CAI via OpenStreetMap (ODbL) — relation 7263593"
+  },
+  {
+   "slug": "escursionismo-sentiero-4-promenade-gimillan-270",
+   "name": "Sentiero 4 — Promenade Gimillan 270°",
+   "area_id": "area-gran-paradiso",
+   "activity": "escursionismo",
+   "diff_scale": "cai",
+   "diff_grade": "T",
+   "diff_index": null,
+   "start_altitude_m": 1819,
+   "max_altitude_m": 1837,
+   "vertical_gain_m": 99,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "season_months": null,
+   "source": "Rete Escursionistica CAI via OpenStreetMap (ODbL) — relation 5447537",
+   "source_url": "https://www.openstreetmap.org/relation/5447537",
+   "verified_at": null,
+   "start_lat": 45.6173557,
+   "start_lon": 7.3620457,
+   "track_points": [
+    {
+     "lat": 45.6173557,
+     "lon": 7.3620457,
+     "ele": 1819.0
+    },
+    {
+     "lat": 45.6171243,
+     "lon": 7.362582,
+     "ele": 1837.0
+    },
+    {
+     "lat": 45.6162649,
+     "lon": 7.3618527,
+     "ele": 1817.0
+    },
+    {
+     "lat": 45.6162463,
+     "lon": 7.3609325,
+     "ele": 1802.0
+    },
+    {
+     "lat": 45.6162061,
+     "lon": 7.3595925,
+     "ele": 1783.0
+    },
+    {
+     "lat": 45.6161157,
+     "lon": 7.3584075,
+     "ele": 1787.0
+    },
+    {
+     "lat": 45.6164315,
+     "lon": 7.3574822,
+     "ele": 1790.0
+    },
+    {
+     "lat": 45.6169198,
+     "lon": 7.356886,
+     "ele": 1799.0
+    },
+    {
+     "lat": 45.6166228,
+     "lon": 7.3558455,
+     "ele": 1797.0
+    },
+    {
+     "lat": 45.617165,
+     "lon": 7.3549228,
+     "ele": 1807.0
+    },
+    {
+     "lat": 45.617606,
+     "lon": 7.3547302,
+     "ele": 1818.0
+    },
+    {
+     "lat": 45.6179193,
+     "lon": 7.3559667,
+     "ele": 1810.0
+    },
+    {
+     "lat": 45.6180472,
+     "lon": 7.3572605,
+     "ele": 1812.0
+    },
+    {
+     "lat": 45.618548,
+     "lon": 7.3584199,
+     "ele": 1812.0
+    },
+    {
+     "lat": 45.6187473,
+     "lon": 7.3595886,
+     "ele": 1812.0
+    },
+    {
+     "lat": 45.6181142,
+     "lon": 7.3604228,
+     "ele": 1808.0
+    },
+    {
+     "lat": 45.6177137,
+     "lon": 7.3615131,
+     "ele": 1832.0
+    },
+    {
+     "lat": 45.6170073,
+     "lon": 7.3621984,
+     "ele": 1819.0
+    },
+    {
+     "lat": 45.6173103,
+     "lon": 7.3625733,
+     "ele": 1837.0
+    }
+   ],
+   "track_source": "Rete Escursionistica CAI via OpenStreetMap (ODbL) — relation 5447537"
+  },
+  {
+   "slug": "escursionismo-monte-braulio-dalla-terza-cantoniera",
+   "name": "Monte Braulio - dalla Terza Cantoniera",
+   "area_id": "area-ortles-cevedale",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T3",
+   "diff_index": null,
+   "start_altitude_m": 2325,
+   "max_altitude_m": 2982,
+   "vertical_gain_m": 800,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "E",
+    "N",
+    "SE"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1142339 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1142339",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-i-fortini-alti-anello-crap-de-l-aquila-fortini",
+   "name": "I Fortini Alti - Anello Crap de l'Aquila - Fortini",
+   "area_id": "area-ortles-cevedale",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T3",
+   "diff_index": null,
+   "start_altitude_m": 1541,
+   "max_altitude_m": 2269,
+   "vertical_gain_m": 850,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "NW"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1139537 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1139537",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-bocchetta-di-pedenoletto-dalla-iii-cantoniera",
+   "name": "Bocchetta di Pedenoletto - dalla III Cantoniera",
+   "area_id": "area-ortles-cevedale",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T2",
+   "diff_index": null,
+   "start_altitude_m": 2312,
+   "max_altitude_m": 2792,
+   "vertical_gain_m": 830,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "SE",
+    "NE",
+    "N"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1138203 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1138203",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-rifugio-pizzini-frattola-depuis-forni",
+   "name": "Rifugio Pizzini - Frattola - depuis Forni",
+   "area_id": "area-ortles-cevedale",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "1.1",
+   "diff_index": null,
+   "start_altitude_m": 2160,
+   "max_altitude_m": 2706,
+   "vertical_gain_m": 570,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "S"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1104292 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1104292",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-piz-umbrail-traversata-per-cresta-alla-punta-di-rims-e-ritorno-per-la-valle-del-braulio",
+   "name": "Piz Umbrail - Traversata per cresta alla Punta di Rims e ritorno per la Valle del Braulio",
+   "area_id": "area-ortles-cevedale",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T4",
+   "diff_index": null,
+   "start_altitude_m": 2490,
+   "max_altitude_m": 3033,
+   "vertical_gain_m": 660,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1021426 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1021426",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-bocca-di-profa-da-san-bartolomeo-per-la-valle-delle-presure",
+   "name": "Bocca di Profa - da San Bartolomeo per la Valle delle Presure",
+   "area_id": "area-ortles-cevedale",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T3",
+   "diff_index": null,
+   "start_altitude_m": 1300,
+   "max_altitude_m": 2672,
+   "vertical_gain_m": 1370,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "W"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1016429 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1016429",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-rifugio-casati-guasti-dal-rifugio-pizzini",
+   "name": "Rifugio Casati - Guasti - dal Rifugio Pizzini",
+   "area_id": "area-ortles-cevedale",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T3",
+   "diff_index": null,
+   "start_altitude_m": 2790,
+   "max_altitude_m": 3270,
+   "vertical_gain_m": 500,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "SW"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 839487 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/839487",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-monte-scorluzzo-in-traversata-dal-filone-del-mot-allo-stelvio",
+   "name": "Monte Scorluzzo - In traversata, dal Filone del Mot allo Stelvio",
+   "area_id": "area-ortles-cevedale",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T4",
+   "diff_index": null,
+   "start_altitude_m": 2212,
+   "max_altitude_m": 3094,
+   "vertical_gain_m": 1000,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 792117 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/792117",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-cimino-da-bormio-2000",
+   "name": "Cimino - da Bormio 2000",
+   "area_id": "area-ortles-cevedale",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T1",
+   "diff_index": null,
+   "start_altitude_m": 1950,
+   "max_altitude_m": 2650,
+   "vertical_gain_m": 700,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "NW"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 787096 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/787096",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-monte-radisca-dalla-3a-cantoniera-dello-stelvio",
+   "name": "Monte Radisca - dalla 3a cantoniera dello Stelvio",
+   "area_id": "area-ortles-cevedale",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "2.2",
+   "diff_index": null,
+   "start_altitude_m": 2320,
+   "max_altitude_m": 2967,
+   "vertical_gain_m": 647,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "E"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 760042 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/760042",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-piz-pisciadu-cima-pissadu-depuis-le-refuge-pisciadu",
+   "name": "Piz Pisciadù / Cima Pissadu - Depuis le refuge Pisciadù",
+   "area_id": "area-dolomiti-fassa",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T5",
+   "diff_index": null,
+   "start_altitude_m": 2585,
+   "max_altitude_m": 2985,
+   "vertical_gain_m": 400,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "S"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 671624 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/671624",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-piz-boe-via-ferrata-cesare-piazzetta",
+   "name": "Piz Boè - Via ferrata Cesare Piazzetta",
+   "area_id": "area-dolomiti-fassa",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "K5",
+   "diff_index": null,
+   "start_altitude_m": 2239,
+   "max_altitude_m": 3152,
+   "vertical_gain_m": 900,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "S"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 466803 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/466803",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-haute-route-des-dolomites-alta-via-delle-leggende-no-2-bressanone-feltre",
+   "name": "Haute Route des Dolomites - Alta Via delle Leggende (nº 2) - Bressanone → Feltre",
+   "area_id": "area-dolomiti-fassa",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T5",
+   "diff_index": null,
+   "start_altitude_m": 256,
+   "max_altitude_m": 2907,
+   "vertical_gain_m": 11100,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 250339 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/250339",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-forcella-della-marmolada-refuge-castiglioni-passo-di-san-pellegrino",
+   "name": "Forcella della Marmolada - Refuge Castiglioni >> Passo di San Pellegrino",
+   "area_id": "area-dolomiti-fassa",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T5",
+   "diff_index": null,
+   "start_altitude_m": 1907,
+   "max_altitude_m": 2896,
+   "vertical_gain_m": 1700,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 250335 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/250335",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-l-antersass-zwischenkofel-refuge-pisciadu-refuge-castiglioni",
+   "name": "L'Antersass (Zwischenkofel) - Refuge Pisciadù >> Refuge Castiglioni",
+   "area_id": "area-dolomiti-fassa",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T3",
+   "diff_index": null,
+   "start_altitude_m": 2044,
+   "max_altitude_m": 2907,
+   "vertical_gain_m": 600,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 250098 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/250098",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-cabane-fassa-boucle-forcella-del-pordoi-piz-boe-l-antersass-plan-de-roces-forcella-del-pordoi",
+   "name": "Cabane Fassa - Boucle Forcella del Pordoi → Piz Boè → L'Antersass → Plan de Roces → Forcella del Pordoi",
+   "area_id": "area-dolomiti-fassa",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T3",
+   "diff_index": null,
+   "start_altitude_m": 2239,
+   "max_altitude_m": 3152,
+   "vertical_gain_m": 1410,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "N"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 238052 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/238052",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-mesola-via-ferrata-delle-trincee",
+   "name": "Mesola - Via Ferrata delle Trincee",
+   "area_id": "area-dolomiti-fassa",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "n.d.",
+   "diff_index": null,
+   "start_altitude_m": 2727,
+   "max_altitude_m": 2642,
+   "vertical_gain_m": 650,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 184273 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/184273",
+   "verified_at": null
+  },
+  {
+   "slug": "via_ferrata-piz-boe-via-ferrata-cesare-piazzetta",
+   "name": "Piz Boè - Via ferrata Cesare Piazzetta",
+   "area_id": "area-dolomiti-fassa",
+   "activity": "via_ferrata",
+   "diff_scale": "c2c",
+   "diff_grade": "K5",
+   "diff_index": null,
+   "start_altitude_m": 2239,
+   "max_altitude_m": 3152,
+   "vertical_gain_m": 900,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "S"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 466803 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/466803",
+   "verified_at": null
+  },
+  {
+   "slug": "via_ferrata-rifugio-franco-cavazza-al-pisciadu-via-ferrata-brigata-tridentina",
+   "name": "Rifugio  Franco Cavazza al Pisciadù - Via Ferrata Brigata Tridentina",
+   "area_id": "area-dolomiti-fassa",
+   "activity": "via_ferrata",
+   "diff_scale": "c2c",
+   "diff_grade": "K2",
+   "diff_index": null,
+   "start_altitude_m": 1956,
+   "max_altitude_m": 2585,
+   "vertical_gain_m": 600,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "N"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 184534 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/184534",
+   "verified_at": null
+  },
+  {
+   "slug": "via_ferrata-mesola-via-ferrata-delle-trincee",
+   "name": "Mesola - Via Ferrata delle Trincee",
+   "area_id": "area-dolomiti-fassa",
+   "activity": "via_ferrata",
+   "diff_scale": "c2c",
+   "diff_grade": "n.d.",
+   "diff_index": null,
+   "start_altitude_m": 2727,
+   "max_altitude_m": 2642,
+   "vertical_gain_m": 650,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 184273 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/184273",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-ouille-de-gontiere-arete-n",
+   "name": "Ouille de Gontière - Arête N",
+   "area_id": "area-gran-paradiso",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "PD-",
+   "diff_index": null,
+   "start_altitude_m": 2020,
+   "max_altitude_m": 3181,
+   "vertical_gain_m": 1160,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "N"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1647982 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1647982",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-refuge-vittorio-emanuele-ii-traversee-refuge-vittorio-emanuele-ii-refuge-federico-chabod-en-a-r",
+   "name": "Refuge Vittorio Emanuele II - Traversée refuge Vittorio Emanuele II - refuge Federico Chabod en A/R",
+   "area_id": "area-gran-paradiso",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T2",
+   "diff_index": null,
+   "start_altitude_m": 2490,
+   "max_altitude_m": 2732,
+   "vertical_gain_m": 560,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1556516 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1556516",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-bivouac-malvezzi-antoldi-par-le-vallon-de-valeille",
+   "name": "Bivouac Malvezzi - Antoldi - Par le vallon de Valeille",
+   "area_id": "area-gran-paradiso",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T4",
+   "diff_index": null,
+   "start_altitude_m": 1617,
+   "max_altitude_m": 2920,
+   "vertical_gain_m": 1303,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "S"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1457786 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1457786",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-truc-blanc-versant-s-par-le-lac-et-le-col-de-truc-blanc",
+   "name": "Truc Blanc - Versant S par le lac et le col de Truc Blanc",
+   "area_id": "area-gran-paradiso",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T3",
+   "diff_index": null,
+   "start_altitude_m": 1890,
+   "max_altitude_m": 3405,
+   "vertical_gain_m": 1990,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1441903 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1441903",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-bivouac-money-acces-estival",
+   "name": "Bivouac Money - Accès Estival",
+   "area_id": "area-gran-paradiso",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T4",
+   "diff_index": null,
+   "start_altitude_m": 1670,
+   "max_altitude_m": 2872,
+   "vertical_gain_m": 1150,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "S",
+    "SE"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1441770 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1441770",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-col-fenetre-de-torrent-versant-nw",
+   "name": "Col Fenêtre de Torrent - Versant NW",
+   "area_id": "area-gran-paradiso",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "2.2",
+   "diff_index": null,
+   "start_altitude_m": 1650,
+   "max_altitude_m": 2840,
+   "vertical_gain_m": 1200,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "NW",
+    "N",
+    "W"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1408714 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1408714",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-colle-di-ciardonei-traversee-valsoera-valetta",
+   "name": "Colle di Ciardonei - Traversée Valsoera → Valetta",
+   "area_id": "area-gran-paradiso",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T4",
+   "diff_index": null,
+   "start_altitude_m": 2410,
+   "max_altitude_m": 3152,
+   "vertical_gain_m": 750,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1344895 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1344895",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-passage-du-grand-neyron-traversee-ete-refuge-v-sella-refuge-chabod",
+   "name": "Passage du Grand Neyron - Traversée été Refuge V. Sella → Refuge Chabod",
+   "area_id": "area-gran-paradiso",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T5",
+   "diff_index": null,
+   "start_altitude_m": 2570,
+   "max_altitude_m": 3299,
+   "vertical_gain_m": 1440,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1344744 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1344744",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-tour-anti-orario-del-gran-paradiso-pont-nivolet-bardoney-cogne-lauzon",
+   "name": "Tour anti-orario del Gran Paradiso - Pont -> Nivolet -> Bardoney -> Cogne -> Lauzon",
+   "area_id": "area-gran-paradiso",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T5",
+   "diff_index": null,
+   "start_altitude_m": 1617,
+   "max_altitude_m": 3000,
+   "vertical_gain_m": 8000,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "N",
+    "S",
+    "W",
+    "E"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1313752 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1313752",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-pointe-du-trayo-depuis-epinel-par-le-vallon-du-trayo",
+   "name": "Pointe du Trayo - Depuis Epinel, par le vallon du Trayo",
+   "area_id": "area-gran-paradiso",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T5",
+   "diff_index": null,
+   "start_altitude_m": 1415,
+   "max_altitude_m": 3127,
+   "vertical_gain_m": 1741,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "SE"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1242815 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1242815",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-im-gemark-passo-cimabanche-traversee-toblach-cortina",
+   "name": "Im Gemärk / Passo Cimabanche - Traversée Toblach-Cortina",
+   "area_id": "area-dolomiti-ampezzo",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T1",
+   "diff_index": null,
+   "start_altitude_m": 1200,
+   "max_altitude_m": 1530,
+   "vertical_gain_m": 350,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1355906 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1355906",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-passo-tre-croci-lago-de-sorapis",
+   "name": "Passo Tre Croci - Lago de Sorapis",
+   "area_id": "area-dolomiti-ampezzo",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T3",
+   "diff_index": null,
+   "start_altitude_m": 1780,
+   "max_altitude_m": 1950,
+   "vertical_gain_m": 550,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "E"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1225028 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1225028",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-cinque-torri-tour-des-cinque-torri-puis-refuge-nuvolau",
+   "name": "Cinque Torri - Tour des Cinque Torri puis refuge Nuvolau",
+   "area_id": "area-dolomiti-ampezzo",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T2",
+   "diff_index": null,
+   "start_altitude_m": 2137,
+   "max_altitude_m": 2575,
+   "vertical_gain_m": 500,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1225010 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1225010",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-mont-averau-voie-normale-en-circuit-par-le-nuvolau",
+   "name": "Mont Averau - Voie normale, en circuit par le Nuvolau",
+   "area_id": "area-dolomiti-ampezzo",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "K2",
+   "diff_index": null,
+   "start_altitude_m": 2235,
+   "max_altitude_m": 2648,
+   "vertical_gain_m": 800,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1049549 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1049549",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-punta-fanes-n-dalla-capanna-alpina-per-la-cengia-veronesi",
+   "name": "Punta Fanes N - Dalla Capanna Alpina per la Cengia Veronesi",
+   "area_id": "area-dolomiti-ampezzo",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "PD-",
+   "diff_index": null,
+   "start_altitude_m": 1730,
+   "max_altitude_m": 2969,
+   "vertical_gain_m": 1500,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1020182 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1020182",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-croda-del-vallon-bianco-dalla-capanna-alpina",
+   "name": "Croda del Vallòn Bianco - dalla Capanna Alpina",
+   "area_id": "area-dolomiti-ampezzo",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T4",
+   "diff_index": null,
+   "start_altitude_m": 1720,
+   "max_altitude_m": 2689,
+   "vertical_gain_m": 1100,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1017928 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1017928",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-sorapiss-tour",
+   "name": "Sorapiss - Tour",
+   "area_id": "area-dolomiti-ampezzo",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T5",
+   "diff_index": null,
+   "start_altitude_m": 1928,
+   "max_altitude_m": 2670,
+   "vertical_gain_m": 1700,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 364670 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/364670",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-lagazuoi-n-tour-anti-horaire",
+   "name": "Lagazuoi  N - Tour anti-horaire",
+   "area_id": "area-dolomiti-ampezzo",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T3",
+   "diff_index": null,
+   "start_altitude_m": 2105,
+   "max_altitude_m": 2675,
+   "vertical_gain_m": null,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 238319 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/238319",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-punta-fanes-s-via-ferrata-tomaselli",
+   "name": "Punta Fanes S - Via Ferrata Tomaselli",
+   "area_id": "area-dolomiti-ampezzo",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "K4",
+   "diff_index": null,
+   "start_altitude_m": 2105,
+   "max_altitude_m": 2980,
+   "vertical_gain_m": 850,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "W"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 183012 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/183012",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-lagazuoi-piccolo-galerie-lagazuoi",
+   "name": "Lagazuoi Piccolo - Galerie Lagazuoi",
+   "area_id": "area-dolomiti-ampezzo",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T3",
+   "diff_index": null,
+   "start_altitude_m": 2105,
+   "max_altitude_m": 2752,
+   "vertical_gain_m": 550,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 182828 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/182828",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-monte-gleno-traversata-carona-p-tre-confini-m-gleno-frera",
+   "name": "Monte Gleno - Traversata Carona - P. Tre Confini - M. Gleno - Frera",
+   "area_id": "area-orobie",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "n.d.",
+   "diff_index": null,
+   "start_altitude_m": 1887,
+   "max_altitude_m": 2883,
+   "vertical_gain_m": 2670,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 464010 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/464010",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-monte-grabiasca-dalla-val-d-ambria-attraverso-il-passo-di-podavit",
+   "name": "Monte Grabiasca - dalla Val d'Ambria attraverso il Passo di Podavit",
+   "area_id": "area-orobie",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T4",
+   "diff_index": null,
+   "start_altitude_m": 1080,
+   "max_altitude_m": 2705,
+   "vertical_gain_m": 2000,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "N"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 379134 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/379134",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-benfit-da-valzurio-per-la-dorsale-s",
+   "name": "Benfit - da Valzurio per la dorsale S",
+   "area_id": "area-orobie",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "n.d.",
+   "diff_index": null,
+   "start_altitude_m": 813,
+   "max_altitude_m": 2099,
+   "vertical_gain_m": 1300,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "SE"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 152529 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/152529",
+   "verified_at": null
+  },
+  {
+   "slug": "via_ferrata-pizzo-strinato-via-ferrata-guerino-rossi",
+   "name": "Pizzo Strinato - Via ferrata Guerino Rossi",
+   "area_id": "area-orobie",
+   "activity": "via_ferrata",
+   "diff_scale": "c2c",
+   "diff_grade": "n.d.",
+   "diff_index": null,
+   "start_altitude_m": 2130,
+   "max_altitude_m": 2836,
+   "vertical_gain_m": 706,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "NW"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 240469 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/240469",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-dosso-cornin-via-supiani-carette",
+   "name": "Dosso Cornin - via Supiani-Carette",
+   "area_id": "area-alta-valcamonica",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T2",
+   "diff_index": null,
+   "start_altitude_m": 980,
+   "max_altitude_m": 2780,
+   "vertical_gain_m": 1800,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "N"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 189496 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/189496",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-corno-baitone-dal-ponte-del-guat",
+   "name": "Corno Baitone - dal Ponte del Guat",
+   "area_id": "area-alta-valcamonica",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T5",
+   "diff_index": null,
+   "start_altitude_m": 1528,
+   "max_altitude_m": 3331,
+   "vertical_gain_m": 1803,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "S"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 182862 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/182862",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-monte-pagano-per-la-valle-di-grom",
+   "name": "Monte Pagano - per la Valle di Grom",
+   "area_id": "area-alta-valcamonica",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "n.d.",
+   "diff_index": null,
+   "start_altitude_m": 1066,
+   "max_altitude_m": 2348,
+   "vertical_gain_m": 1282,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "NW"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 120108 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/120108",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-monte-cefalone-via-normale-da-campo-imperatore",
+   "name": "Monte Cefalone - Via Normale da Campo Imperatore",
+   "area_id": "area-gran-sasso",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T3",
+   "diff_index": null,
+   "start_altitude_m": 2130,
+   "max_altitude_m": 2533,
+   "vertical_gain_m": 500,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "S"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1125548 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1125548",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-monte-aquila-da-strada-per-campo-imperatore",
+   "name": "Monte Aquila - da Strada per Campo Imperatore",
+   "area_id": "area-gran-sasso",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T3",
+   "diff_index": null,
+   "start_altitude_m": 1944,
+   "max_altitude_m": 2498,
+   "vertical_gain_m": 554,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "SW"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 498552 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/498552",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-cretes-du-monte-vettore-cretes-de-la-cima-del-redentore-depuis-la-cima-della-prata-jusquau-palazzo-borghese",
+   "name": "Crêtes du Monte Vettore-Crêtes de la Cima del Redentore depuis la Cima della Prata jusqu’au Palazzo Borghese",
+   "area_id": "area-sibillini",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T3",
+   "diff_index": null,
+   "start_altitude_m": 950,
+   "max_altitude_m": 2476,
+   "vertical_gain_m": 2600,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1438934 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1438934",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-traversee-cretes-du-monte-vettore-cretes-de-la-cima-del-redentore",
+   "name": "Traversée Crêtes du Monte Vettore-Crêtes de la Cima del Redentore",
+   "area_id": "area-sibillini",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T3",
+   "diff_index": null,
+   "start_altitude_m": 950,
+   "max_altitude_m": 2476,
+   "vertical_gain_m": 2100,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1438932 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1438932",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-refuge-de-font-turbat-depuis-la-chapelle-en-valgaudemar-par-le-col-turbat",
+   "name": "Refuge de Font Turbat - Depuis La Chapelle en Valgaudemar par le col Turbat",
+   "area_id": "area-ecrins",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T4",
+   "diff_index": null,
+   "start_altitude_m": 1101,
+   "max_altitude_m": 2679,
+   "vertical_gain_m": 1578,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "N",
+    "S"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1787182 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1787182",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-petit-pelvoux-approche-de-l-arete-s",
+   "name": "Petit Pelvoux - Approche de l'Arête S",
+   "area_id": "area-ecrins",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T4",
+   "diff_index": null,
+   "start_altitude_m": 2704,
+   "max_altitude_m": 3453,
+   "vertical_gain_m": 750,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "S"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1735926 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1735926",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-cime-du-paillon-depuis-ailefroide",
+   "name": "Cime du Paillon - Depuis Ailefroide",
+   "area_id": "area-ecrins",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T3",
+   "diff_index": null,
+   "start_altitude_m": 1500,
+   "max_altitude_m": 2790,
+   "vertical_gain_m": 1290,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "S",
+    "SE"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1677098 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1677098",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-cime-de-la-condamine-par-cabane-de-coul-d-amont-et-cabane-de-chouvet-depuis-le-sarret",
+   "name": "Cime de la Condamine - Par cabane de Coul d'Amont et Cabane de Chouvet depuis Le Sarret",
+   "area_id": "area-ecrins",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T3",
+   "diff_index": null,
+   "start_altitude_m": 1250,
+   "max_altitude_m": 2940,
+   "vertical_gain_m": 1700,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "S",
+    "SW",
+    "W"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1657663 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1657663",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-pantalon-acces-pedestre",
+   "name": "Pantalon - accès pédestre",
+   "area_id": "area-ecrins",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T1",
+   "diff_index": null,
+   "start_altitude_m": 1450,
+   "max_altitude_m": 1530,
+   "vertical_gain_m": 85,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "S"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1587369 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1587369",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-crete-de-la-pendine-par-le-col-du-bal",
+   "name": "Crête de la Pendine - Par le Col du Bal",
+   "area_id": "area-ecrins",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T3",
+   "diff_index": null,
+   "start_altitude_m": 1840,
+   "max_altitude_m": 2749,
+   "vertical_gain_m": 900,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "N",
+    "NE",
+    "E"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1561140 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1561140",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-passage-de-l-ours-traversee-e-w",
+   "name": "Passage de l'Ours - traversée E -> W",
+   "area_id": "area-ecrins",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T4",
+   "diff_index": null,
+   "start_altitude_m": 1590,
+   "max_altitude_m": 3031,
+   "vertical_gain_m": 1500,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "W",
+    "E",
+    "SE",
+    "S",
+    "SW"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1454960 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1454960",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-pic-turbat-boucle-par-pas-de-lolan-et-la-chapelle-en-valgaudemar",
+   "name": "Pic Turbat - Boucle par Pas de l’Olan et la Chapelle-En-Valgaudemar",
+   "area_id": "area-ecrins",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T4",
+   "diff_index": null,
+   "start_altitude_m": 1101,
+   "max_altitude_m": 3028,
+   "vertical_gain_m": 2400,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "S"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1444572 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1444572",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-roc-noir-de-combeynot-arete-w",
+   "name": "Roc Noir de Combeynot - Arête W",
+   "area_id": "area-ecrins",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T3",
+   "diff_index": null,
+   "start_altitude_m": 2057,
+   "max_altitude_m": 3092,
+   "vertical_gain_m": 1035,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "W",
+    "NW",
+    "N"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1424246 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1424246",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-col-de-la-bosse-de-sialouze-depuis-le-refuge-du-pelvoux",
+   "name": "Col de la Bosse de Sialouze - depuis le refuge du Pelvoux",
+   "area_id": "area-ecrins",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "F+",
+   "diff_index": null,
+   "start_altitude_m": 2704,
+   "max_altitude_m": 3220,
+   "vertical_gain_m": 516,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "SE"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1373101 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1373101",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-sommet-de-bellecote-traversee-integrale-bellecote-picheres-par-friolin-et-retour-par-plan-richard",
+   "name": "Sommet de Bellecôte - Traversée intégrale Bellecôte - Pichères par Friolin et retour par Plan Richard",
+   "area_id": "area-vanoise",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "PD+",
+   "diff_index": null,
+   "start_altitude_m": 1431,
+   "max_altitude_m": 3417,
+   "vertical_gain_m": 2250,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "N",
+    "NE",
+    "E",
+    "SE",
+    "S",
+    "SW",
+    "W",
+    "NW"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1805176 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1805176",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-pointe-s-de-bezin-depuis-le-pont-de-la-neige",
+   "name": "Pointe S de Bézin - Depuis le Pont de la Neige",
+   "area_id": "area-vanoise",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "2.2",
+   "diff_index": null,
+   "start_altitude_m": 2528,
+   "max_altitude_m": 3061,
+   "vertical_gain_m": 616,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1788895 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1788895",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-pointe-du-fond-d-orset-arete-w",
+   "name": "Pointe du Fond d'Orset - Arête W",
+   "area_id": "area-vanoise",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T4",
+   "diff_index": null,
+   "start_altitude_m": 1740,
+   "max_altitude_m": 3415,
+   "vertical_gain_m": 1675,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "W"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1719275 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1719275",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-ouillon-des-arcellins-traversee-n-s-du-col-de-la-tomba",
+   "name": "Ouillon des Arcellins - Traversée N-S du col de la Tomba",
+   "area_id": "area-vanoise",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T2",
+   "diff_index": null,
+   "start_altitude_m": 2090,
+   "max_altitude_m": 2730,
+   "vertical_gain_m": 950,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "N",
+    "S",
+    "SW",
+    "NW",
+    "W"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1685774 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1685774",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-pointe-de-la-rechasse-versant-se",
+   "name": "Pointe de la Réchasse - Versant SE",
+   "area_id": "area-vanoise",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T3",
+   "diff_index": null,
+   "start_altitude_m": 1640,
+   "max_altitude_m": 3212,
+   "vertical_gain_m": 1600,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "SE",
+    "E",
+    "N",
+    "NE"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1676842 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1676842",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-refuge-de-plaisance-depuis-le-laisonnay-d-en-bas",
+   "name": "Refuge de Plaisance - Depuis Le Laisonnay d'en Bas",
+   "area_id": "area-vanoise",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T2",
+   "diff_index": null,
+   "start_altitude_m": 1571,
+   "max_altitude_m": 2171,
+   "vertical_gain_m": 611,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "S"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1662550 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1662550",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-pointe-des-chardes-face-s",
+   "name": "Pointe des Chardes - face S",
+   "area_id": "area-vanoise",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T5",
+   "diff_index": null,
+   "start_altitude_m": 1500,
+   "max_altitude_m": 2919,
+   "vertical_gain_m": 1400,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "S",
+    "SW",
+    "SE"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1615335 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1615335",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-lac-de-soliet-depuis-bessans",
+   "name": "Lac de Soliet - Depuis Bessans",
+   "area_id": "area-vanoise",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T2",
+   "diff_index": null,
+   "start_altitude_m": 1720,
+   "max_altitude_m": 2105,
+   "vertical_gain_m": 400,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "NE"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1603047 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1603047",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-rochers-des-barmes-de-l-ours-sommet-e-arete-se",
+   "name": "Rochers des Barmes de l'Ours, sommet E - Arête SE",
+   "area_id": "area-vanoise",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T2",
+   "diff_index": null,
+   "start_altitude_m": 1940,
+   "max_altitude_m": 3136,
+   "vertical_gain_m": 1196,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "SE"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1589518 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1589518",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-refuge-du-plan-du-lac-lacs-de-bellecombe-en-boucle",
+   "name": "Refuge du Plan du Lac - Lacs de Bellecombe en boucle",
+   "area_id": "area-vanoise",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T1",
+   "diff_index": null,
+   "start_altitude_m": 2050,
+   "max_altitude_m": 2425,
+   "vertical_gain_m": 620,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1579654 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1579654",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-bivouac-de-la-brenva-acces-au-bivouac-depuis-entreves",
+   "name": "Bivouac de la Brenva - Accès au bivouac depuis Entrèves",
+   "area_id": "area-mont-blanc-fr",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T5",
+   "diff_index": null,
+   "start_altitude_m": 1300,
+   "max_altitude_m": 3140,
+   "vertical_gain_m": 1840,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "S"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1934592 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1934592",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-mont-lachat-loop-from-bellevue",
+   "name": "Mont Lachat - Loop from Bellevue",
+   "area_id": "area-mont-blanc-fr",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T2",
+   "diff_index": null,
+   "start_altitude_m": 1800,
+   "max_altitude_m": 2112,
+   "vertical_gain_m": 312,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "W"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1920523 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1920523",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-frioland-depuis-chedde",
+   "name": "Frioland - Depuis Chedde",
+   "area_id": "area-mont-blanc-fr",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T2",
+   "diff_index": null,
+   "start_altitude_m": 608,
+   "max_altitude_m": 1750,
+   "vertical_gain_m": 1140,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "S",
+    "SE"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1892832 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1892832",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-refuge-de-leschaux-par-les-glaciers-de-la-mer-de-glace-et-de-leschaux",
+   "name": "Refuge de Leschaux - Par les glaciers de la Mer de Glace et de Leschaux",
+   "area_id": "area-mont-blanc-fr",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T5",
+   "diff_index": null,
+   "start_altitude_m": 1700,
+   "max_altitude_m": 2431,
+   "vertical_gain_m": 750,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1811790 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1811790",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-refuge-du-requin-acces-depuis-le-montenvers",
+   "name": "Refuge du Requin - Accès depuis le Montenvers",
+   "area_id": "area-mont-blanc-fr",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T5",
+   "diff_index": null,
+   "start_altitude_m": 1850,
+   "max_altitude_m": 2516,
+   "vertical_gain_m": 670,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1804152 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1804152",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-pointe-de-plate-pointe-du-derochoir-pointe-de-plate",
+   "name": "Pointe de Platé - Pointe du Dérochoir - Pointe de Platé",
+   "area_id": "area-mont-blanc-fr",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "PD-",
+   "diff_index": null,
+   "start_altitude_m": 866,
+   "max_altitude_m": 2544,
+   "vertical_gain_m": 2170,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "E",
+    "W"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1776321 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1776321",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-breche-du-derochoir-depuis-le-vallon-de-sales",
+   "name": "Brèche du Dérochoir - Depuis le vallon de Sales",
+   "area_id": "area-mont-blanc-fr",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T2",
+   "diff_index": null,
+   "start_altitude_m": 1180,
+   "max_altitude_m": 2171,
+   "vertical_gain_m": 990,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "N"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1767475 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1767475",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-plancert-deco-de-plancert-depuis-le-parking-du-mont-paccard",
+   "name": "Plancert - Déco de Plancert depuis le parking du Mont Paccard",
+   "area_id": "area-mont-blanc-fr",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T1",
+   "diff_index": null,
+   "start_altitude_m": 1100,
+   "max_altitude_m": 1630,
+   "vertical_gain_m": 530,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "W"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1556285 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1556285",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-plaine-joux-passy-depuis-chedde-parapente",
+   "name": "Plaine Joux (Passy) - depuis Chedde [Parapente]",
+   "area_id": "area-mont-blanc-fr",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T2",
+   "diff_index": null,
+   "start_altitude_m": 608,
+   "max_altitude_m": 1340,
+   "vertical_gain_m": null,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "S"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1490410 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1490410",
+   "verified_at": null
+  },
+  {
+   "slug": "escursionismo-aiguille-pourrie-traversee-flegere-planpraz",
+   "name": "Aiguille Pourrie - Traversée Flégère - Planpraz",
+   "area_id": "area-mont-blanc-fr",
+   "activity": "escursionismo",
+   "diff_scale": "c2c",
+   "diff_grade": "T4",
+   "diff_index": null,
+   "start_altitude_m": 1877,
+   "max_altitude_m": 2461,
+   "vertical_gain_m": 850,
+   "avg_ascent_min": null,
+   "avg_descent_min": null,
+   "primary_aspects": [
+    "W",
+    "SW",
+    "S",
+    "SE"
+   ],
+   "max_slope_deg": null,
+   "ideal_conditions": null,
+   "exposure_notes": null,
+   "refuges": [],
+   "source": "Camptocamp.org route 1453310 (CC BY-SA)",
+   "source_url": "https://www.camptocamp.org/routes/1453310",
    "verified_at": null
   }
  ]
