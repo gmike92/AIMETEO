@@ -22,6 +22,10 @@ import time
 import unicodedata
 from urllib.parse import quote
 
+if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 REPO = pathlib.Path(__file__).resolve().parents[2]
 CRAGS = REPO / "route-db" / "crags.json"
 

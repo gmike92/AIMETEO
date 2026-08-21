@@ -33,6 +33,10 @@ import sys
 import unicodedata
 from typing import Optional
 
+if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[2]
 SEED = REPO_ROOT / "route-db" / "seed_routes.json"
 
@@ -46,6 +50,7 @@ AREAS: dict[str, tuple[float, float, float, float]] = {
     "area-gran-paradiso": (45.40, 45.65, 7.05, 7.45),
     "area-dolomiti-ampezzo": (46.45, 46.65, 11.95, 12.25),
     "area-orobie": (45.90, 46.10, 9.75, 10.15),
+    "area-alta-valcamonica": (46.10, 46.32, 10.20, 10.55),
 }
 
 #: Camptocamp activity -> our activity. Anything else (rock_climbing, ...) is ignored.
