@@ -1,0 +1,13 @@
+# Cosa NON caricare su Cloud Build (upload piccolo e veloce)
+.git
+.gcloudignore
+.github
+frontend/
+docs/
+branding/
+backend/.venv/
+backend/tests/
+**/__pycache__/
+*.pdf
+*.command
+node_modules/

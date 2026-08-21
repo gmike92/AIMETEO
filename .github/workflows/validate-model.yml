@@ -1,0 +1,40 @@
+# Validazione modello schedulata: confronta Modello Zerotermico vs stazioni
+# reali in quota (open data Provincia BZ) e accumula docs/VALIDATION_LOG.md.
+# Due run a settimana: notte (inversioni — dove il profilo deve vincere)
+# e mezzogiorno (convettivo — dove vince la baseline 2m).
+name: Validazione modello
+
+on:
+  schedule:
+    - cron: "0 2 * * 1"   # lunedì 02:00 UTC ≈ 03/04 di notte in Italia
+    - cron: "0 11 * * 4"  # giovedì 11:00 UTC ≈ 12/13 a mezzogiorno
+  workflow_dispatch: {}    # eseguibile anche a mano dal tab Actions
+
+permissions:
+  contents: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - run: pip install -r backend/requirements.txt
+      - name: Run validazione (non blocca se le API sono giù)
+        working-directory: backend
+        run: python3 scripts/validate_model.py || echo "run saltata (API non raggiungibili)"
+      - name: Commit del log se aggiornato
+        run: |
+          if ! git diff --quiet docs/VALIDATION_LOG.md; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add docs/VALIDATION_LOG.md
+            git commit -m "validation: run automatica $(date -u +%F' '%H:%M)Z"
+            git push
+          else
+            echo "nessun aggiornamento al log"
+          fi
