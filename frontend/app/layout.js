@@ -3,6 +3,7 @@ import "leaflet-velocity/dist/leaflet-velocity.min.css";
 import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import "./globals.css";
+import Link from "next/link";
 import PwaRegister from "./components/PwaRegister";
 
 export const metadata = {
@@ -20,7 +21,7 @@ function Nav() {
     <header className="navbar">
       <div className="wrap">
         <nav className="nav">
-          <a href="/" className="logo" aria-label="Zerotermico">
+          <Link href="/" className="logo" aria-label="Zerotermico">
             <svg width="24" height="24" viewBox="0 0 32 32" aria-hidden>
               <ellipse cx="14" cy="17" rx="9" ry="12" fill="none"
                 stroke="var(--accent)" strokeWidth="3.4" />
@@ -30,13 +31,13 @@ function Nav() {
                 stroke="var(--accent)" strokeWidth="2.4" />
             </svg>
             zero<span>°termico</span>
-          </a>
+          </Link>
           <div>
-            <a href="/">Mappa</a>
-            <a href="/localita">Cerca</a>
-            <a href="/itinerari">Itinerari</a>
-            <a href="/falesie">Falesie</a>
-            <a href="/planner">Pianifica</a>
+            <Link href="/">Mappa</Link>
+            <Link href="/localita">Cerca</Link>
+            <Link href="/itinerari">Itinerari</Link>
+            <Link href="/falesie">Falesie</Link>
+            <Link href="/planner">Pianifica</Link>
           </div>
         </nav>
       </div>
