@@ -41,6 +41,14 @@ AREAS = {
     "area-orobie": (45.90, 9.75, 46.10, 10.15),
     # Alta Valle Camonica (Vezza d'Oglio) — bbox (s, w, n, e)
     "area-alta-valcamonica": (46.10, 10.20, 46.32, 10.55),
+    # Appennini (IT) — bbox (s, w, n, e)
+    "area-gran-sasso": (42.35, 13.45, 42.55, 13.75),
+    "area-majella": (41.95, 13.95, 42.20, 14.25),
+    "area-sibillini": (42.80, 13.05, 43.05, 13.35),
+    # Alpi francesi (FR) — bbox (s, w, n, e)
+    "area-ecrins": (44.80, 6.15, 45.05, 6.55),
+    "area-vanoise": (45.25, 6.75, 45.50, 7.15),
+    "area-mont-blanc-fr": (45.80, 6.70, 45.98, 7.00),
 }
 
 VALID_ASPECTS = {"N", "NE", "E", "SE", "S", "SW", "W", "NW"}
