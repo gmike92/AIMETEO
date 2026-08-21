@@ -74,6 +74,10 @@ AREAS: dict[str, tuple[float, float, float, float]] = {
     # Alta Valle Camonica, centrata su Vezza d'Oglio: Val Grande, Aviolo,
     # Mortirolo, Case di Viso / Gavia sud, Adamello nord.
     "area-alta-valcamonica": (46.10, 46.32, 10.20, 10.55),
+    # Appennini — stessa rete escursionistica CAI, fuori copertura AINEVA.
+    "area-gran-sasso": (42.35, 42.55, 13.45, 13.75),
+    "area-majella": (41.95, 42.20, 13.95, 14.25),
+    "area-sibillini": (42.80, 43.05, 13.05, 13.35),
 }
 
 PHASE_A_LIMIT = 30       #: max relazioni per area in fase A (--phase-a-limit)

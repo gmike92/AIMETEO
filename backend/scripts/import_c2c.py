@@ -51,6 +51,14 @@ AREAS: dict[str, tuple[float, float, float, float]] = {
     "area-dolomiti-ampezzo": (46.45, 46.65, 11.95, 12.25),
     "area-orobie": (45.90, 46.10, 9.75, 10.15),
     "area-alta-valcamonica": (46.10, 46.32, 10.20, 10.55),
+    # Appennini (IT) — fuori copertura AINEVA, vedi area._note in seed_routes.json.
+    "area-gran-sasso": (42.35, 42.55, 13.45, 13.75),
+    "area-majella": (41.95, 42.20, 13.95, 14.25),
+    "area-sibillini": (42.80, 43.05, 13.05, 13.35),
+    # Alpi francesi (FR) — connettore bollettino non ancora integrato (placeholder).
+    "area-ecrins": (44.80, 45.05, 6.15, 6.55),
+    "area-vanoise": (45.25, 45.50, 6.75, 7.15),
+    "area-mont-blanc-fr": (45.80, 45.98, 6.70, 7.00),
 }
 
 #: Camptocamp activity -> our activity. Anything else (rock_climbing, ...) is ignored.

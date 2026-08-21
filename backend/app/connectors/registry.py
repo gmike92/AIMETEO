@@ -8,6 +8,7 @@ Expansion = add one line here:
 from __future__ import annotations
 from .base import AvalancheConnector
 from .aineva import AinevaConnector
+from .unavailable import UnavailableConnector
 
 _BY_SERVICE: dict[str, AvalancheConnector] = {}
 _DEFAULT_BY_COUNTRY: dict[str, str] = {}
@@ -38,8 +39,13 @@ def registered_services() -> list[str]:
 
 # ── Register connectors at import (Italy live; others to come) ──────
 register(AinevaConnector())
+# France: area+route data now exists (escursionismo/via_ferrata), but no real
+# Météo-France/ANENA connector yet. Registering an honest "unavailable"
+# placeholder (never invents a danger rating) instead of leaving the country
+# unregistered — an unregistered country would 503 the WHOLE planner request
+# for any activity, not just fail-closed-block the affected snow routes.
+register(UnavailableConnector(service="ANENA-TODO", country="FR"))
 # register(MeteomontConnector())   # IT alternative
 # register(LwdConnector())         # AT
 # register(SlfConnector())         # CH
-# register(AnenaConnector())       # FR
 # register(ArsoConnector())        # SI
