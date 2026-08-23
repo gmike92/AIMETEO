@@ -2,7 +2,8 @@
 // Punteggio 0-100 per giorno alla quota della vetta + finestra oraria
 // consigliata. Fail-safe: endpoint giù → la card semplicemente non appare.
 import { serverFetch } from "@/lib/api";
-import { wxIcon, scoreColor } from "@/lib/wx";
+import { scoreColor } from "@/lib/wx";
+import { WxIcon } from "@/app/components/WxIcon";
 
 function dayLabel(iso) {
   return new Date(`${iso}T12:00:00`).toLocaleDateString("it-IT", {
@@ -35,17 +36,17 @@ export default async function BestWindowCard({ slug }) {
       </div>
       <p className="note">{fw.motivi.join(" · ")}</p>
 
-      <div className="stats" style={{ marginBottom: 0 }}>
+      <div className="stats tnum" style={{ marginBottom: 0 }}>
         {fw.giorni.map((g) => {
           const best = g.data === fw.giorno;
           return (
             <div className="stat" key={g.data}
               style={best ? { outline: "1px solid var(--accent)", outlineOffset: -1 } : undefined}>
               <div className="k">{dayLabel(g.data)}</div>
-              <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-                <span style={{ fontSize: 22 }} aria-hidden>
-                  {wxIcon({ precip_mm: g.precip_mm, nuvole_pct: g.nuvole_pct,
-                            neve: g.zero_termico_sotto_vetta })}
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ color: "var(--muted)" }}>
+                  <WxIcon precip_mm={g.precip_mm} nuvole_pct={g.nuvole_pct}
+                    neve={g.zero_termico_sotto_vetta} size={20} />
                 </span>
                 <span className="v" style={{ color: scoreColor(g.punteggio) }}>
                   {g.punteggio}

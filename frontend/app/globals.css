@@ -143,41 +143,14 @@ footer.wrap{color:var(--faint);font-size:12px;padding-top:10px;padding-bottom:26
   border:1px solid var(--line);border-radius:8px;padding:3px 9px;font-size:11px;
   backdrop-filter:var(--blur)}
 
-.mapctl{position:absolute;top:16px;right:16px;z-index:1000;display:flex;
-  flex-direction:column;gap:8px;align-items:flex-end}
-.mapbtn{display:flex;align-items:center;gap:9px;border:1px solid var(--line-on-l);
-  cursor:pointer;padding:10px 18px;border-radius:999px;font-size:13px;font-weight:700;
-  font-family:inherit;letter-spacing:.2px;background:var(--glass-l);color:var(--ink-on-l);
-  backdrop-filter:var(--blur);box-shadow:0 3px 14px rgba(11,23,34,.18);
-  transition:border-color .2s,background .2s,transform .14s,color .2s}
-.mapbtn:hover{border-color:var(--accent);transform:translateY(-1px)}
-.mapbtn:disabled{opacity:.4;cursor:default;transform:none}
-.mapbtn.on{background:var(--accent);color:#04121f;border-color:var(--accent);
-  box-shadow:0 4px 18px rgba(56,189,248,.4)}
-.mapbtn .dot{width:7px;height:7px;border-radius:50%;background:currentColor;opacity:.6}
-.mapbtn.on .dot{opacity:1}
-.mapbtn.soon{opacity:.4;cursor:default}
-.mapbtn.soon:hover{transform:none;border-color:var(--line-on-l)}
-.mapmenu{position:relative}
-/* Anchored to .mapctl (its actual positioned ancestor here), not just the
-   Meteo button, so it always clears every other button in the stack
-   (Pendenze, base toggle) regardless of their width. */
-.mapsubmenu{position:absolute;top:0;right:calc(100% + 10px);z-index:1000;
-  display:flex;flex-direction:column;gap:8px;align-items:flex-end;white-space:nowrap}
-.soontag{font-size:9px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;
-  opacity:.65;font-style:normal;margin-left:2px}
+/* .mapctl / .mapctl-left / .mapbtn / .mapmenu / .mapsubmenu /
+   .mapsubmenu-down / .soontag / .legendnote: rimossi col redesign 1a.
+   Erano i cinque contenitori absolute indipendenti e i loro menu a
+   comparsa — ora sostituiti da .maprail, .mapfields e .mapdock in fondo
+   a questo file. MapView era l'unico consumatore (/mappa fa redirect a
+   /), quindi non restava nessuna pagina da migrare. */
 
-/* "Livelli" (what to show: itinerari/falesie/...) sits top-left, next to the
-   Itinerari/Pianifica CTA pills — weather stuff lives on the right, "what
-   outdoor activity do you want" lives on the left. Dropdown opens downward
-   (not sideways like .mapsubmenu) since it's hugging the left edge. */
-.mapctl-left{position:absolute;top:16px;left:16px;z-index:1001}
-.mapsubmenu-down{position:absolute;top:calc(100% + 8px);left:0;z-index:1000;
-  display:flex;flex-direction:column;gap:8px;align-items:flex-start;white-space:nowrap}
-.legendnote{font-size:10.5px;font-weight:600;opacity:.7;text-align:right;
-  max-width:220px;margin-top:-2px}
-
-.lightning-bolt{display:block;font-size:18px;line-height:1;filter:drop-shadow(0 0 6px #f5d54799);
+.lightning-bolt{display:block;line-height:0;filter:drop-shadow(0 0 6px #f5d54799);
   animation:boltflash 1.1s ease-out forwards}
 @keyframes boltflash{0%{opacity:0;transform:scale(.4)}12%{opacity:1;transform:scale(1.15)}
   25%{transform:scale(1)}100%{opacity:0}}
@@ -218,25 +191,9 @@ footer.wrap{color:var(--faint);font-size:12px;padding-top:10px;padding-bottom:26
 .daystrip .demo{align-self:flex-start;font-size:9px;font-weight:800;
   letter-spacing:.8px;text-transform:uppercase;color:var(--muted-on-l)}
 
-.maptimeline{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);
-  z-index:1000;display:flex;align-items:center;gap:12px;background:var(--glass-l);
-  backdrop-filter:var(--blur);border:1px solid var(--line-on-l);border-radius:999px;
-  padding:9px 18px;width:min(560px,92%);box-shadow:0 6px 22px rgba(11,23,34,.22)}
-.maptimeline input[type=range]{flex:1;padding:0;background:transparent;border:0;
-  accent-color:var(--accent)}
-.maptimeline .t{color:var(--ink-on-l);font-size:12.5px;font-weight:700;
-  font-variant-numeric:tabular-nums;min-width:92px;text-align:right}
-.playbtn{width:36px;height:36px;border-radius:50%;border:0;cursor:pointer;font-size:12px;
-  background:var(--accent);color:#04121f;display:flex;align-items:center;
-  justify-content:center;flex:none;transition:filter .2s}
-.playbtn:hover{filter:brightness(1.12)}
-
-.maplegend{position:absolute;bottom:20px;left:16px;z-index:1000;display:flex;gap:9px;
-  align-items:center;background:var(--glass-l);backdrop-filter:var(--blur);
-  border:1px solid var(--line-on-l);border-radius:var(--r-md);padding:10px 14px;
-  color:var(--muted-on-l);font-size:12px;font-weight:600;box-shadow:0 3px 14px rgba(11,23,34,.18)}
-.maplegend i{width:9px;height:9px;border-radius:50%;display:inline-block;font-style:normal}
-.legendrow{display:flex;align-items:center;gap:8px}
+/* .maptimeline / .playbtn / .maplegend / .legendrow: rimossi col redesign
+   1a — timeline e legenda vivono ora dentro .mapdock (.dock-timeline,
+   .dock-legend). .legendlabel e .legendbar restano: le riusa .legendrow2. */
 .legendlabel{min-width:44px;font-size:10.5px;font-weight:800;letter-spacing:.3px;
   text-transform:uppercase;opacity:.7;flex:none}
 .legendbar{flex:1;height:8px;border-radius:4px;min-width:100px;display:inline-block}
@@ -244,7 +201,6 @@ footer.wrap{color:var(--faint);font-size:12px;padding-top:10px;padding-bottom:26
   background:var(--glass-l);border:1px solid var(--line-on-l);color:var(--ink-on-l);
   border-radius:999px;padding:9px 20px;font-size:13px;font-weight:600;
   white-space:nowrap;backdrop-filter:var(--blur)}
-@media (max-width:640px){.maplegend{display:none}.mapcta{left:16px;top:70px}}
 
 /* ── route markers (pulse) ─────────────────────────────────── */
 .rt-dot{position:relative;display:block;width:18px;height:18px}
@@ -271,3 +227,343 @@ footer.wrap{color:var(--faint);font-size:12px;padding-top:10px;padding-bottom:26
   color:#04121f;font-weight:800;font-size:12.5px;border:3px solid #fff;
   box-shadow:0 2px 10px rgba(11,23,34,.4);transition:transform .15s}
 .crag-cluster:hover{transform:scale(1.08)}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   REDESIGN v3 — globals.patch.css
+   Additivo: nessun token nuovo, nessun hex nuovo fuori dalla scala
+   EAWS 1–5 (standard ufficiale, vive in lib/wx.js). Le tre regole che
+   tengono insieme tutto: numeri tabulari, colore sul bordo, hairline
+   al posto delle box annidate.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── 1.3 · numeri tabulari ─────────────────────────────────────────
+   Ogni cifra che sta in colonna o si aggiorna nel tempo. Senza, le
+   quote e gli orari ballano orizzontalmente a ogni refresh. */
+.tnum,.tnum *{font-variant-numeric:tabular-nums}
+
+/* ── 1.8 · quattro stati per ogni elemento interattivo ─────────────
+   Il focus ring di default del browser sparisce sul fondo scuro.
+   :where() tiene la specificità a 0: qualsiasi regola di componente
+   può ancora sovrascrivere il resto, ma l'outline vince sempre. */
+:where(a,button,input,select,textarea,summary,[tabindex]):focus-visible{
+  outline:2px solid var(--accent);outline-offset:2px}
+:where(button,a,input,select):disabled,
+:where(a,button)[aria-disabled="true"]{opacity:.42;cursor:default}
+
+/* ── 1.5 · hairline al posto delle box annidate ────────────────────
+   Griglia con gap:1px su fondo --line: i separatori sono hairline vere
+   e le celle condividono un solo raggio esterno (quello del
+   contenitore), invece di annidare tre livelli di border-radius. */
+.statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;
+  background:var(--line);border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line)}
+.statcell{background:var(--bg2);padding:11px 13px;display:flex;
+  flex-direction:column;gap:2px;min-width:0}
+.statcell .k{font-size:8.5px;font-weight:700;letter-spacing:1px;
+  text-transform:uppercase;color:var(--faint)}
+.statcell .v{font-size:16px;font-weight:800;letter-spacing:-.3px;color:var(--ink);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.statcell .u{font-size:10px;font-weight:600;color:var(--muted);font-style:normal}
+
+/* ═══ 1a · CHROME DELLA MAPPA ══════════════════════════════════════
+   Tre soli contenitori posizionati (rail, campi, dock); dentro ciascuno
+   si usa flex/grid con gap. L'absolute è per UN elemento appuntato al
+   viewport, mai per una fila di elementi (regola 1.6). */
+
+/* livelli — rail verticale sempre visibile, niente flyout (regola 1.7) */
+.maprail{position:absolute;left:16px;top:90px;z-index:1001;display:flex;
+  flex-direction:column;gap:2px;padding:8px;border-radius:16px;
+  background:var(--glass);border:1px solid var(--line-strong);
+  backdrop-filter:var(--blur);box-shadow:var(--shadow)}
+.railitem{display:flex;flex-direction:column}
+.railsep{height:1px;background:var(--line-strong);margin:5px 6px}
+.railbtn{display:flex;flex-direction:column;align-items:center;gap:5px;
+  padding:10px 8px 9px;border:0;border-radius:11px;background:transparent;
+  color:var(--muted);font-family:inherit;cursor:pointer;min-width:56px;
+  transition:background .18s,color .18s}
+.railbtn .rl{font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.railbtn:hover:not(:disabled){color:var(--ink);background:rgba(255,255,255,.06)}
+.railbtn:active:not(:disabled){transform:translateY(1px)}
+.railbtn.on{background:var(--accent-soft);color:var(--accent)}
+.railbtn:disabled{color:var(--faint)}
+
+/* campi meteo + sfondo — segmented in alto a destra */
+.mapfields{position:absolute;right:16px;top:74px;z-index:1001;display:flex;
+  flex-direction:column;gap:8px;align-items:flex-end;max-width:calc(100% - 104px)}
+.segmented{display:flex;gap:4px;padding:5px;border-radius:999px;
+  background:var(--glass);border:1px solid var(--line-strong);
+  backdrop-filter:var(--blur);box-shadow:var(--shadow);
+  max-width:100%;overflow-x:auto;scrollbar-width:none}
+.segmented::-webkit-scrollbar{display:none}
+.segbtn{flex:none;border:0;border-radius:999px;padding:7px 14px;cursor:pointer;
+  font-family:inherit;font-size:11.5px;font-weight:700;letter-spacing:.3px;
+  background:transparent;color:var(--muted);white-space:nowrap;
+  transition:background .18s,color .18s}
+.segbtn:hover:not(:disabled){color:var(--ink);background:rgba(255,255,255,.06)}
+/* 1.4 · il riempimento pieno è riservato allo stato attivo di un controllo */
+.segbtn.on{background:var(--accent);color:#04121f}
+.segbtn.on.alt{background:var(--accent2)}
+.segbtn.on.light{background:rgba(242,247,251,.9);color:var(--ink-on-l)}
+.segtag{font-size:8.5px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;
+  opacity:.7;font-style:normal;margin-left:4px}
+
+/* dock — legenda, timeline radar e striscia giorni in un solo flex */
+.mapdock{position:absolute;left:104px;right:16px;bottom:28px;z-index:1000;
+  display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap}
+.dockpanel{background:var(--glass);border:1px solid var(--line-strong);
+  backdrop-filter:var(--blur);box-shadow:var(--shadow);color:var(--ink);
+  border-radius:16px}
+.dockhead{font-size:9.5px;font-weight:800;letter-spacing:1.6px;
+  text-transform:uppercase;color:var(--faint)}
+.docknote{font-size:10.5px;font-weight:600;color:var(--muted);margin-top:8px;
+  max-width:210px;line-height:1.45}
+
+.dock-legend{flex:none;width:236px;padding:14px 16px}
+.legendgrid{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.legendrow2{display:grid;grid-template-columns:40px 1fr;gap:9px;align-items:center}
+.legendrow2 .legendlabel{min-width:0;font-size:10px;font-weight:700;letter-spacing:.4px;
+  text-transform:uppercase;color:var(--muted);opacity:1}
+.legendrow2 .legendbar{display:block;width:100%;min-width:0;height:7px;border-radius:4px}
+.legendends{display:flex;justify-content:space-between;font-size:9.5px;
+  font-weight:600;color:var(--faint);margin-top:3px}
+.eawsrow{display:flex;gap:5px;margin-top:8px}
+.eawschip{flex:1;height:20px;border-radius:5px;display:flex;align-items:center;
+  justify-content:center;font-size:10px;font-weight:800}
+
+.dock-timeline{flex:1 1 260px;min-width:0;display:flex;align-items:center;gap:12px;
+  padding:9px 14px 9px 9px;border-radius:999px}
+.dockplay{width:34px;height:34px;border-radius:50%;border:0;cursor:pointer;flex:none;
+  background:var(--accent);color:#04121f;display:flex;align-items:center;
+  justify-content:center;transition:filter .2s}
+.dockplay:hover{filter:brightness(1.12)}
+.scrub{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.scrubhist{display:flex;align-items:flex-end;gap:2px;height:22px}
+.scrubhist span{flex:1;min-width:1px;border-radius:2px 2px 0 0;background:var(--accent)}
+.dock-timeline input[type=range]{width:100%;padding:0;background:transparent;
+  border:0;accent-color:var(--accent);margin:0}
+/* larghezza fissa: l'orario che scorre non deve mai rimpicciolire lo scrubber */
+.dock-timeline .stamp{flex:none;min-width:96px;text-align:right;font-size:12.5px;
+  font-weight:700;color:var(--ink)}
+
+.dock-days{flex:none;max-width:100%;padding:8px 10px;overflow:hidden}
+/* DayStrip non renderizza niente finché non ha i dati del centro mappa:
+   senza questo resterebbe un pannello di vetro vuoto nel dock. */
+.dock-days:empty{display:none}
+
+/* la striscia giorni ora vive DENTRO il dock: niente vetro suo, niente
+   posizione sua — è una riga flex come le altre (regola 1.6) */
+.daystrip{position:static;background:none;border:0;box-shadow:none;
+  backdrop-filter:none;padding:0;border-radius:0;max-width:100%}
+.daychip{color:var(--ink);min-width:50px}
+.daychip .d{color:var(--muted)}
+.daychip .i{display:flex;align-items:center;justify-content:center;
+  height:18px;font-size:0;color:var(--muted)}
+.daystrip .demo{color:var(--faint)}
+
+/* Il messaggio di stato era in alto al centro, dove ora passa la barra
+   ricerca+CTA. È un pannello transitorio e al centro non c'è nient'altro:
+   spostarlo lì è l'unica posizione che non collide a nessuna larghezza. */
+.mapmsg{top:50%;transform:translate(-50%,-50%);background:var(--glass);
+  border-color:var(--line-strong);color:var(--ink);box-shadow:var(--shadow)}
+
+/* Barra alta (ricerca + CTA): non è uno dei sei passi del handoff, ma con
+   rail, campi e dock passati al vetro scuro restava l'unico pannello di
+   vetro chiaro sulla mappa. Portata sullo stesso pattern, senza toccarne
+   il markup. */
+/* left:150px serviva a scavalcare il vecchio bottone "Livelli" in alto a
+   sinistra; ora lì c'è solo lo zoom di Leaflet (largo 44px). */
+.mapcta{left:60px}
+.mapcta a{background:var(--glass);border-color:var(--line-strong);
+  color:var(--ink);box-shadow:var(--shadow)}
+.mapcta a.primary{background:var(--accent);color:#04121f;border-color:var(--accent)}
+.mapsearch input{background:var(--glass);border-color:var(--line-strong);
+  color:var(--ink);box-shadow:var(--shadow)}
+.mapsearch input::placeholder{color:var(--muted)}
+.mapsearch input:focus{background:rgba(56,189,248,.08);border-color:var(--accent)}
+
+/* Leaflet: i suoi controlli restano liberi dai nostri pannelli, e passano
+   al vetro scuro come il resto del chrome (nessun hex nuovo). */
+.mapshell .leaflet-bottom{bottom:0}
+.mapshell .leaflet-control-attribution{margin:0}
+.mapshell .leaflet-control-velocity{margin:0 0 3px 3px!important}
+.mapshell .leaflet-bar{border-color:var(--line-strong)!important;
+  box-shadow:var(--shadow)!important}
+.mapshell .leaflet-bar a{background:var(--glass);color:var(--ink);
+  border-bottom:1px solid var(--line-strong)}
+.mapshell .leaflet-bar a:hover{background:var(--accent-soft);color:var(--accent)}
+
+/* ── mappa · quattro larghezze ─────────────────────────────────── */
+@media (max-width:900px){
+  .mapcta{left:60px;right:16px;top:16px}
+  .mapdock{left:16px;right:16px}
+  .dock-legend{width:auto;flex:1 1 200px}
+}
+@media (max-width:640px){
+  .mapcta{left:16px;right:16px;top:16px}
+  .maprail{top:124px;padding:6px}
+  .railbtn{min-width:0;padding:9px 7px}
+  .railbtn .rl{display:none}
+  .mapfields{top:124px;max-width:calc(100% - 84px)}
+  .mapdock{left:76px;right:10px;bottom:22px;gap:8px}
+  .dock-timeline{flex:1 1 100%}
+  .dock-days{flex:1 1 100%}
+}
+@media (max-width:520px){
+  .dock-legend{display:none}
+}
+
+/* ═══ 1c · CARD ITINERARIO + TAB ATTIVITÀ ═════════════════════════ */
+.acttabs{display:flex;gap:0;margin:26px 0 0;overflow-x:auto;
+  border-bottom:1px solid var(--line);scrollbar-width:none}
+.acttabs::-webkit-scrollbar{display:none}
+.acttab{flex:none;display:inline-flex;align-items:baseline;gap:7px;
+  padding:0 16px 12px;margin-bottom:-1px;font-size:13px;font-weight:600;
+  color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap;
+  transition:color .18s,border-color .18s}
+.acttab:hover{color:var(--ink)}
+.acttab.on{color:var(--ink);font-weight:700;border-bottom-color:var(--accent)}
+.acttab .n{font-size:11.5px;font-weight:600;color:var(--faint)}
+
+.rcard{display:flex;flex-direction:column;border:1px solid var(--line);
+  border-radius:var(--r-lg);background:var(--card);overflow:hidden;
+  transition:border-color .2s,background .2s,transform .16s,box-shadow .2s}
+.rcard:hover{border-color:var(--line-strong);background:var(--card-hover);
+  transform:translateY(-3px);box-shadow:var(--shadow)}
+.rcard-head{display:flex;justify-content:space-between;align-items:flex-start;
+  gap:10px;padding:20px 20px 0}
+.rcard-id{min-width:0}
+.rcard-kicker{display:block;font-size:9.5px;font-weight:800;letter-spacing:1.5px;
+  text-transform:uppercase;color:var(--accent2)}
+.rcard h3{font-size:17px;font-weight:700;letter-spacing:-.35px;margin:5px 0 0;
+  line-height:1.2}
+.rcard-area{font-size:12px;font-weight:500;color:var(--muted);margin:3px 0 0}
+/* 1.4 · difficoltà: bordo e testo, mai riempimento */
+.rcard-grade{flex:none;max-width:92px;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap;font-size:13px;font-weight:800;border:1px solid currentColor;
+  border-radius:8px;padding:5px 9px}
+
+.rcard-profile{position:relative;margin-top:16px}
+.rcard-profile.empty{height:76px;display:flex;align-items:center;
+  justify-content:center;border-top:1px dashed var(--line-strong);
+  border-bottom:1px dashed var(--line-strong);color:var(--faint);
+  font-size:11.5px;font-weight:600}
+.rcard-frz{position:absolute;right:12px;top:4px;font-size:9.5px;font-weight:700;
+  letter-spacing:.4px;color:var(--accent2)}
+.rcard-range{position:absolute;left:12px;bottom:6px;font-size:9.5px;
+  font-weight:600;color:var(--faint)}
+
+.rcard .statgrid{border-bottom:0}
+.rcard-foot{display:flex;align-items:center;justify-content:space-between;
+  gap:10px;padding:12px 20px;font-size:11.5px;font-weight:700}
+.rcard-foot .ok{display:inline-flex;align-items:center;gap:6px;color:var(--accent2)}
+.rcard-foot .todo{color:var(--faint)}
+.rcard-foot .go{color:var(--accent);font-size:12px}
+
+/* ═══ 1d · TABELLA CONDIZIONI ═════════════════════════════════════ */
+.ctable-top{display:flex;align-items:flex-end;justify-content:space-between;
+  gap:20px;flex-wrap:wrap}
+.ctable-scroll{overflow-x:auto;margin-top:16px}
+.ctable{display:grid;min-width:760px;
+  grid-template-columns:minmax(190px,1.9fr) 74px 108px 132px 80px 76px 84px}
+/* header e righe condividono UNA subgrid: le colonne non possono scollarsi */
+.ctable-row{grid-column:1/-1;display:grid;grid-template-columns:subgrid;
+  align-items:center;gap:10px;padding:13px 0;border-bottom:1px solid var(--line)}
+.ctable-row:hover:not(.ctable-head){background:var(--card-hover)}
+.ctable-head{padding:0 0 9px;border-bottom:1px solid var(--line-strong);
+  font-size:9.5px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;
+  color:var(--faint)}
+.ctable-head:hover{background:none}
+.sortlink{color:inherit;transition:color .18s}
+.sortlink:hover{color:var(--ink)}
+.sortlink.on{color:var(--accent)}
+.c-name{display:block;font-size:14px;font-weight:700;color:var(--ink)}
+.ctable-row:hover .c-name{color:var(--accent)}
+.c-sub{display:block;font-size:11.5px;font-weight:500;color:var(--muted);
+  text-transform:capitalize}
+.c-grade{font-size:12px;font-weight:800;color:var(--muted)}
+.c-end{text-align:right}
+.c-none{color:var(--faint)}
+.c-warn{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;
+  font-weight:700;color:var(--warn)}
+/* riempimento pieno ammesso: è la scala ufficiale EAWS */
+.dangerchip{display:inline-flex;align-items:center;border-radius:6px;
+  padding:3px 9px;font-size:11px;font-weight:700;white-space:nowrap}
+.ctable-note{color:var(--faint);font-size:12px;margin-top:14px;line-height:1.65}
+@media (max-width:880px){
+  .ctable{min-width:0;grid-template-columns:minmax(150px,1.9fr) 62px 128px 70px 72px}
+  .ctable .c-prof,.ctable .c-frz{display:none}
+}
+/* subgrid è del 2023 (Chrome 117+): su un browser più vecchio la
+   dichiarazione è invalida e ogni riga collasserebbe in una colonna sola.
+   Le stesse tracce, ripetute: le colonne restano allineate perché sono
+   larghezze fisse, non frazioni condivise. */
+@supports not (grid-template-columns:subgrid){
+  .ctable-row{grid-template-columns:minmax(190px,1.9fr) 74px 108px 132px 80px 76px 84px}
+  @media (max-width:880px){
+    .ctable-row{grid-template-columns:minmax(150px,1.9fr) 62px 128px 70px 72px}
+  }
+}
+
+/* ═══ 1e · PLANNER A DUE COLONNE ══════════════════════════════════ */
+/* margin negativo = sfonda il padding di .wrap in layout.js. Se preferisci
+   restare dentro il contenitore, togli il margine e porta la colonna
+   sinistra a 300px. */
+.plan2{display:grid;grid-template-columns:330px 1fr;margin:22px -28px 0;
+  border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.plan2 .ask{padding:30px 26px;border-right:1px solid var(--line);
+  position:sticky;top:78px;align-self:start;min-width:0}
+.plan2 .out{padding:30px 30px 26px;display:flex;flex-direction:column;gap:16px;
+  min-width:0}
+.plan2 h1{margin:14px 0 8px;font-size:30px;letter-spacing:-1px}
+.plan2 .ask .sub{font-size:13px;margin-bottom:0}
+
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+/* 1.4 · chip inattivo = bordo; attivo = riempimento (stato di un controllo).
+   Sostituisce il <select>, e con lui il popup nativo bianco che andava
+   corretto a mano con select option{background:…}. */
+.chip{border:1px solid var(--line-strong);background:transparent;color:var(--muted);
+  border-radius:8px;padding:7px 12px;font-family:inherit;font-size:11.5px;
+  font-weight:600;cursor:pointer;transition:color .18s,border-color .18s,background .18s}
+.chip:hover:not(:disabled){color:var(--ink);border-color:var(--accent)}
+.chip.on{background:var(--accent);border-color:var(--accent);color:#04121f;font-weight:700}
+
+.plan-filterbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  padding:10px 14px;border-radius:var(--r-md);border:1px solid rgba(94,234,212,.3);
+  background:rgba(94,234,212,.06);color:var(--accent2);font-size:12px;font-weight:700}
+.plan-filterbar em{font-style:normal;color:var(--muted);font-weight:600}
+.plan-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.plan-col{border:1px solid rgba(94,234,212,.26);border-radius:var(--r-md);
+  padding:16px 18px}
+.plan-col.no{border-color:rgba(251,113,133,.26)}
+.plan-col>.dockhead{margin-bottom:11px;color:var(--accent2)}
+.plan-col.no>.dockhead{color:var(--danger)}
+.plan-row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;
+  padding-bottom:9px;margin-bottom:9px;border-bottom:1px solid var(--line)}
+.plan-row:last-child{border-bottom:0;padding-bottom:0;margin-bottom:0}
+.plan-row .nm{font-size:12.5px;font-weight:700;color:var(--ink)}
+.plan-row .why{font-size:11px;line-height:1.5;color:var(--danger);margin-top:2px}
+.declist{display:flex;flex-direction:column;gap:8px}
+.decrow{display:flex;gap:9px}
+.decrow .n{flex:none;font-size:11px;font-weight:800;color:var(--accent)}
+.decrow .t{font-size:12px;line-height:1.55;color:var(--muted)}
+@media (max-width:900px){
+  .plan2{grid-template-columns:1fr;margin:22px 0 0}
+  .plan2 .ask{position:static;border-right:0;border-bottom:1px solid var(--line);
+    padding:24px 0}
+  .plan2 .out{padding:24px 0}
+  .plan-cols{grid-template-columns:1fr}
+}
+
+/* ═══ 1f · METEOGRAM IN METRI ═════════════════════════════════════ */
+.mg-head{display:flex;justify-content:space-between;align-items:baseline;
+  gap:12px;flex-wrap:wrap}
+.mg-head strong{font-size:15px;letter-spacing:-.3px}
+.mg-head .note{margin:0}
+.mg-svg{width:100%;height:auto;display:block;margin-top:12px}
+.mg-legend{display:flex;flex-wrap:wrap;gap:16px;margin-top:14px;padding-top:13px;
+  border-top:1px solid var(--line);font-size:11px;font-weight:600;color:var(--muted)}
+.mg-legend span{display:inline-flex;align-items:center;gap:7px}
+.mg-legend i{width:16px;height:2.4px;border-radius:2px;display:inline-block;
+  font-style:normal;flex:none}
+.mg-legend i.dash{height:0;border-top:1.6px dashed var(--muted)}

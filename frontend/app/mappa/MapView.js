@@ -5,8 +5,28 @@
 // (RainViewer) on demand. Real GPX tracks + official-danger markers.
 import { useEffect, useRef, useState } from "react";
 import { API_BASE } from "@/lib/api";
+import { DANGER_COLORS, dangerInk } from "@/lib/wx";
+import { Icon } from "@/app/components/WxIcon";
+import { MapRail, MapFields, MapDock } from "./MapChrome";
 
-const DANGER_COLORS = { 1: "#9BC53D", 2: "#F5D547", 3: "#F49D37", 4: "#DA4167", 5: "#8B1E3F" };
+// Glifi per i contenuti che Leaflet vuole come STRINGA HTML (divIcon, popup):
+// lì non possiamo montare un componente React, ma il markup SVG è lo stesso
+// che disegna WxIcon — niente emoji nemmeno qui (regola 1.2).
+const svg = (d, { size = 14, fill = false, stroke = "currentColor", extra = "" } = {}) =>
+  `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="${fill ? stroke : "none"}" ` +
+  `stroke="${fill ? "none" : stroke}" stroke-width="1.85" stroke-linecap="round" ` +
+  `stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px;${extra}">${d}</svg>`;
+
+const GLYPH = {
+  warning: svg('<path d="M12 3.6l9.2 16.4H2.8z"/><path d="M12 9.8v4.4M12 17.4v.01"/>'),
+  sun: svg('<circle cx="12" cy="12" r="4.4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2' +
+    'M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6L17 7M7 17l-1.4 1.4"/>'),
+  moon: svg('<path d="M20.2 14.8A8.6 8.6 0 019.4 4a8.6 8.6 0 1010.8 10.8z"/>'),
+  // I popup e i divIcon di Leaflet finiscono nel documento, quindi le
+  // custom property di :root cascadono anche qui: niente hex nuovi.
+  bolt: svg('<path d="M13.2 2L5.5 13.2H11l-1 8.8 7.7-11.4H12z"/>',
+    { size: 20, fill: true, stroke: "var(--warn)" }),
+};
 // Fixed point budget (~200 pts) resampled from the CURRENT map bounds on every
 // pan/zoom (debounced) — the weather field always covers whatever is on
 // screen, anywhere in the world, not just a hardcoded Alps box.
@@ -305,13 +325,13 @@ function popupHtml(area, route) {
   // verifiable and isn't (safety warning). Off-season: nothing at all.
   const danger =
     b?.status === "in_vigore"
-      ? `<div style="margin:7px 0"><span style="background:${DANGER_COLORS[b.danger_level]};color:${b.danger_level >= 4 ? "#fff" : "#0b1722"};padding:2px 9px;border-radius:999px;font-weight:700;font-size:12px">Valanghe ${b.danger_level}/5</span>
+      ? `<div style="margin:7px 0"><span style="background:${DANGER_COLORS[b.danger_level]};color:${dangerInk(b.danger_level)};padding:2px 9px;border-radius:999px;font-weight:700;font-size:12px;font-variant-numeric:tabular-nums">Valanghe ${b.danger_level}/5</span>
          <a href="${b.source_url}" target="_blank" rel="noopener" style="margin-left:8px;font-size:12px">${b.service} →</a></div>`
       : b?.status === "non_verificabile"
-      ? `<div style="margin:7px 0"><em style="font-size:12px">⚠️ Bollettino valanghe non verificabile — prudenza</em></div>`
+      ? `<div style="margin:7px 0;display:flex;align-items:center;gap:6px;color:var(--warn)"><em style="font-size:12px;font-style:normal">${GLYPH.warning} Bollettino valanghe non verificabile — prudenza</em></div>`
       : "";
   const meteo = f
-    ? `<div style="margin-top:7px;font-size:12.5px">0°C <b>${f.freezing_level_m} m</b> · vento ${f.wind_avg_kmh} km/h · temporali ${Math.round(f.thunderstorm_prob * 100)}%${f.source === "mock" ? " <em>(demo)</em>" : ""}</div>`
+    ? `<div style="margin-top:7px;font-size:12.5px;font-variant-numeric:tabular-nums">0°C <b>${f.freezing_level_m} m</b> · vento ${f.wind_avg_kmh} km/h · temporali ${Math.round(f.thunderstorm_prob * 100)}%${f.source === "mock" ? " <em>(demo)</em>" : ""}</div>`
     : "";
   return `<div style="min-width:220px;line-height:1.55">
     <b style="font-size:14px">${route.name}</b><br/><span style="font-size:12px;opacity:.7">${route.activity} · ${area?.area_name || ""}</span>
@@ -323,9 +343,9 @@ function popupHtml(area, route) {
 function popupHtmlCrag(c) {
   const sun =
     c.in_sole_adesso === true
-      ? `<span style="color:#f5d547;font-weight:700">☀️ Al sole ora</span>`
+      ? `<span style="color:var(--warn);font-weight:700">${GLYPH.sun} Al sole ora</span>`
       : c.in_sole_adesso === false
-      ? `<span style="opacity:.75">🌑 In ombra ora</span>`
+      ? `<span style="opacity:.75">${GLYPH.moon} In ombra ora</span>`
       : `<em style="font-size:12px;opacity:.75">${c.nota || "esposizione non censita"}</em>`;
   return `<div style="min-width:200px;line-height:1.55">
     <b style="font-size:14px">${c.name}</b><br/><span style="font-size:12px;opacity:.7">Falesia${c.ele_m ? ` · ${c.ele_m} m` : ""}</span>
@@ -334,27 +354,16 @@ function popupHtmlCrag(c) {
   </div>`;
 }
 
-// Small reusable hover/click flyout menu: open instantly, close after a
-// short delay so moving the pointer from button to submenu doesn't snap it
-// shut (shared by the Meteo and Livelli control menus).
-function useFlyoutMenu() {
-  const [open, setOpen] = useState(false);
-  const timer = useRef(null);
-  const openMenu = () => {
-    clearTimeout(timer.current);
-    setOpen(true);
-  };
-  const closeMenuDelayed = () => {
-    clearTimeout(timer.current);
-    timer.current = setTimeout(() => setOpen(false), 400);
-  };
-  useEffect(() => () => clearTimeout(timer.current), []);
-  return [open, openMenu, closeMenuDelayed, setOpen];
-}
+// useFlyoutMenu è stato cancellato, non ristilizzato (regola 1.7): livelli e
+// campi meteo sono rail e segmented sempre visibili, e un menu che si apre
+// sopra la mappa nasconde proprio la cosa che stai guardando mentre cambi
+// il modo in cui è disegnata.
 
 const BASES = ["chiaro", "terreno", "scuro"];
 
-export default function MapView({ fullscreen = false, focusRoute = null, children }) {
+export default function MapView({
+  fullscreen = false, focusRoute = null, children, days = null,
+}) {
   const mapEl = useRef(null);
   const S = useRef({});
   const [ready, setReady] = useState(false);
@@ -372,7 +381,6 @@ export default function MapView({ fullscreen = false, focusRoute = null, childre
   const [hasSlope, setHasSlope] = useState(false); // tile generati? (area pilota)
   const [gridVersion, setGridVersion] = useState(0); // bump → ridisegna temp/vento sulla griglia corrente
   const [viewVersion, setViewVersion] = useState(0); // bump → ridisegna layer client-only (giorno/notte), SUBITO su ogni moveend, senza aspettare il fetch meteo
-  const [meteoOpen, openMeteoMenu, closeMeteoMenuDelayed, setMeteoOpen] = useFlyoutMenu();
   const [uv, setUv] = useState(false);
   const [clouds, setClouds] = useState(false);
   const [sun, setSun] = useState(false);
@@ -382,7 +390,6 @@ export default function MapView({ fullscreen = false, focusRoute = null, childre
   const [auroraReady, setAuroraReady] = useState(false);
   const [lightning, setLightning] = useState(false);
 
-  const [layersOpen, openLayersMenu, closeLayersMenuDelayed, setLayersOpen] = useFlyoutMenu();
   const [showRoutes, setShowRoutes] = useState(true); // preserva il comportamento attuale (sempre visibili)
   const [showCrags, setShowCrags] = useState(false);
 
@@ -730,7 +737,10 @@ export default function MapView({ fullscreen = false, focusRoute = null, childre
       data: grid.wind,
       displayValues: true,
       displayOptions: {
-        velocityType: "vento 10 m", position: "bottomright",
+        // bottomleft: il dock occupa la fascia bassa da 104px in poi, e
+        // l'attribuzione Leaflet sta in basso a destra — il readout del vento
+        // è l'unico che può stare nell'angolo rimasto libero.
+        velocityType: "vento 10 m", position: "bottomleft",
         emptyString: "", speedUnit: "m/s",
       },
       minVelocity: 0, maxVelocity: 16, velocityScale: 0.008,
@@ -833,7 +843,7 @@ export default function MapView({ fullscreen = false, focusRoute = null, childre
       const m = L.marker([lat, lon], {
         interactive: false,
         icon: L.divIcon({
-          className: "", html: `<span class="lightning-bolt">⚡</span>`,
+          className: "", html: `<span class="lightning-bolt">${GLYPH.bolt}</span>`,
           iconSize: [22, 22], iconAnchor: [11, 11],
         }),
       }).addTo(layer);
@@ -878,164 +888,109 @@ export default function MapView({ fullscreen = false, focusRoute = null, childre
     : "";
   const isForecast = frames[frameIdx] && frames[frameIdx].time * 1000 > Date.now();
 
+  // ── descrizione dichiarativa del chrome ──────────────────────────
+  // Nessuno stato nuovo: sono gli stessi toggle di prima, elencati invece
+  // che scritti a mano uno per uno dentro il JSX.
+  const fields = [
+    { key: "temp", label: "Temp", on: temp, toggle: () => setTemp(!temp) },
+    { key: "wind", label: "Vento", on: wind, toggle: () => setWind(!wind), alt: true },
+    {
+      key: "radar", label: "Pioggia", on: radar, toggle: () => setRadar(!radar),
+      disabled: !frames.length,
+      title: frames.length ? undefined : "Radar RainViewer non raggiungibile",
+    },
+    { key: "uv", label: "UV", on: uv, toggle: () => setUv(!uv) },
+    { key: "clouds", label: "Nuvole", on: clouds, toggle: () => setClouds(!clouds) },
+    {
+      key: "sun", label: "Sole", on: sun, toggle: () => setSun(!sun),
+      title: "Terminatore giorno/notte — calcolo astronomico reale",
+    },
+    {
+      key: "aurora", label: "Aurora", on: aurora, toggle: () => setAurora(!aurora),
+      tag: aurora && !auroraReady ? "…" : undefined,
+      title: "Probabilità aurora — modello NOAA OVATION",
+    },
+    {
+      key: "lightning", label: "Fulmini", on: lightning,
+      toggle: () => setLightning(!lightning), tag: "demo",
+      title: "Dati dimostrativi — nessuna fonte gratuita real-time ancora integrata",
+    },
+  ];
+
+  const layers = [
+    {
+      key: "rt", label: "Itin.", icon: Icon.Route, on: showRoutes,
+      toggle: () => setShowRoutes(!showRoutes), title: "Itinerari: pin e tracce",
+    },
+    {
+      key: "fal", label: "Falesie", icon: Icon.Crag, on: showCrags,
+      toggle: () => setShowCrags(!showCrags),
+    },
+    ...(hasSlope
+      ? [{
+          key: "slope", label: "Pendenze", icon: Icon.Slope, on: slope,
+          toggle: () => setSlope(!slope),
+          title: "Pendenze dal DEM Copernicus: giallo ≥30° · arancio ≥35° · rosso ≥40° · viola ≥45° (area pilota)",
+        }]
+      : []),
+    {
+      key: "ski", label: "Piste", icon: Icon.Ski, disabled: true, sep: true,
+      title: "In arrivo: nessuna fonte dati ancora integrata",
+    },
+  ];
+
+  // La legenda mostra SOLO le scale effettivamente attive: se non ce n'è
+  // nessuna il pannello non viene renderizzato affatto (regola 1.9).
+  const legendRows = [
+    temp && tempRange && {
+      key: "temp", label: "Temp",
+      min: `${Math.round(tempRange[0])}°`, max: `${Math.round(tempRange[1])}°`,
+      gradient: rangeGradient(tempRange[0], tempRange[1]),
+    },
+    wind && {
+      key: "wind", label: "Vento", min: "0", max: "58 km/h",
+      gradient: windGradient(base === "scuro" || temp),
+    },
+    uv && { key: "uv", label: "UV", min: "0", max: "11+", gradient: uvGradient },
+    clouds && { key: "clouds", label: "Nuvole", min: "0%", max: "100%", gradient: CLOUD_GRADIENT },
+    aurora && { key: "aurora", label: "Aurora", min: "bassa", max: "alta", gradient: AURORA_GRADIENT },
+  ].filter(Boolean);
+
+  // La nota del terminatore ("tutta la vista è di giorno") deve poter
+  // comparire anche da sola: il layer sole non aggiunge righe di scala, e
+  // senza questo sparirebbe proprio quando è l'unico layer acceso.
+  const sunOnlyNote = sun ? sunNote : null;
+  const legend =
+    legendRows.length || season || sunOnlyNote
+      ? { rows: legendRows, danger: season, note: sunOnlyNote }
+      : null;
+
+  // Senza frame il pannello timeline non esiste — mai una barra vuota
+  // disabilitata al posto suo.
+  const radarProps =
+    radar && frames.length
+      ? { frames, frameIdx, setFrameIdx, playing, setPlaying, frameTime, isForecast }
+      : null;
+
   return (
     <div className={`mapshell ${fullscreen ? "full" : ""}`}>
       <div ref={mapEl} style={{ position: "absolute", inset: 0 }} />
       {children}
 
-      <div className="mapctl-left">
-        <div className="mapmenu" onMouseEnter={openLayersMenu} onMouseLeave={closeLayersMenuDelayed}>
-          <button
-            className={`mapbtn ${showRoutes || showCrags ? "on" : ""}`}
-            onClick={() => (layersOpen ? setLayersOpen(false) : openLayersMenu())}
-            aria-expanded={layersOpen}
-            disabled={!ready}
-          >
-            <span className="dot" />Livelli
-          </button>
-          {layersOpen && (
-            <div className="mapsubmenu-down" onMouseEnter={openLayersMenu} onMouseLeave={closeLayersMenuDelayed}>
-              <button className={`mapbtn ${showRoutes ? "on" : ""}`} onClick={() => setShowRoutes(!showRoutes)} disabled={!ready}>
-                <span className="dot" />Itinerari
-              </button>
-              <button className={`mapbtn ${showCrags ? "on" : ""}`} onClick={() => setShowCrags(!showCrags)} disabled={!ready}>
-                <span className="dot" />Falesie
-              </button>
-              <button className="mapbtn soon" disabled title="In arrivo: nessuna fonte dati ancora integrata">
-                <span className="dot" />Piste da sci <em className="soontag">in arrivo</em>
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
+      {/* Livelli — cosa è disegnato sulla mappa. Rail sempre visibile. */}
+      <MapRail ready={ready} layers={layers} />
 
-      <div className="mapctl">
-        <div className="mapmenu" onMouseEnter={openMeteoMenu} onMouseLeave={closeMeteoMenuDelayed}>
-          <button
-            className={`mapbtn ${temp || wind || radar || uv || clouds || sun || aurora || lightning ? "on" : ""}`}
-            onClick={() => (meteoOpen ? setMeteoOpen(false) : openMeteoMenu())}
-            aria-expanded={meteoOpen}
-            disabled={!ready}
-          >
-            <span className="dot" />Meteo
-          </button>
-        </div>
-        {meteoOpen && (
-          <div className="mapsubmenu" onMouseEnter={openMeteoMenu} onMouseLeave={closeMeteoMenuDelayed}>
-            <button className={`mapbtn ${temp ? "on" : ""}`} onClick={() => setTemp(!temp)} disabled={!ready}>
-              <span className="dot" />Temperatura
-            </button>
-            <button className={`mapbtn ${wind ? "on" : ""}`} onClick={() => setWind(!wind)} disabled={!ready}>
-              <span className="dot" />Vento
-            </button>
-            <button className={`mapbtn ${radar ? "on" : ""}`} onClick={() => setRadar(!radar)} disabled={!ready || !frames.length}>
-              <span className="dot" />Pioggia
-            </button>
-            <button className={`mapbtn ${uv ? "on" : ""}`} onClick={() => setUv(!uv)} disabled={!ready}>
-              <span className="dot" />UV
-            </button>
-            <button className={`mapbtn ${clouds ? "on" : ""}`} onClick={() => setClouds(!clouds)} disabled={!ready}>
-              <span className="dot" />Nuvole
-            </button>
-            <button className={`mapbtn ${sun ? "on" : ""}`} onClick={() => setSun(!sun)} disabled={!ready}
-              title="Terminatore giorno/notte — calcolo astronomico reale">
-              <span className="dot" />Esposizione al sole
-            </button>
-            {sun && sunNote && <div className="legendnote">{sunNote}</div>}
-            <button className={`mapbtn ${aurora ? "on" : ""}`} onClick={() => setAurora(!aurora)} disabled={!ready}
-              title="Probabilità aurora — modello NOAA OVATION">
-              <span className="dot" />Aurora boreale{aurora && !auroraReady ? "…" : ""}
-            </button>
-            <button className={`mapbtn ${lightning ? "on" : ""}`} onClick={() => setLightning(!lightning)} disabled={!ready}
-              title="Dati dimostrativi — nessuna fonte gratuita real-time ancora integrata">
-              <span className="dot" />Fulmini <em className="soontag">demo</em>
-            </button>
-            <button className="mapbtn soon" disabled
-              title="In arrivo: eclissi di sole, di luna e altri eventi astronomici visibili dalla zona">
-              <span className="dot" />Eventi speciali <em className="soontag">in arrivo</em>
-            </button>
-          </div>
-        )}
-        {hasSlope && (
-          <button className={`mapbtn ${slope ? "on" : ""}`} onClick={() => setSlope(!slope)}
-            disabled={!ready}
-            title="Pendenze dal DEM Copernicus: giallo ≥30° · arancio ≥35° · rosso ≥40° · viola ≥45° (area pilota)">
-            <span className="dot" />Pendenze
-          </button>
-        )}
-        <button className="mapbtn" onClick={() => setBase(BASES[(BASES.indexOf(base) + 1) % BASES.length])} disabled={!ready}>
-          {base === "chiaro" ? "Chiaro" : base === "terreno" ? "Terreno" : "Scuro"} ↺
-        </button>
-      </div>
+      {/* Campi meteo + sfondo — come è disegnata la mappa. */}
+      <MapFields
+        ready={ready}
+        fields={fields}
+        bases={BASES}
+        base={base}
+        setBase={setBase}
+      />
 
-      {radar && frames.length > 0 && (
-        <div className="maptimeline">
-          <button className="playbtn" onClick={() => setPlaying(!playing)} aria-label={playing ? "Pausa" : "Play"}>
-            {playing ? "❚❚" : "▶"}
-          </button>
-          <input
-            type="range" min={0} max={frames.length - 1} value={frameIdx}
-            onChange={(e) => setFrameIdx(Number(e.target.value))}
-            aria-label="Timeline radar"
-          />
-          <span className="t">{frameTime}{isForecast ? " · previsto" : ""}</span>
-        </div>
-      )}
-
-      {((temp && tempRange) || wind || uv || clouds || aurora || season) && (
-      <div className="maplegend" style={{ flexDirection: "column", alignItems: "stretch", gap: 8 }}>
-        {temp && tempRange && (
-          <div className="legendrow">
-            <span className="legendlabel">Temp</span>
-            <span>{Math.round(tempRange[0])}°</span>
-            <span className="legendbar" style={{ background: rangeGradient(tempRange[0], tempRange[1]) }} />
-            <span>{Math.round(tempRange[1])}°</span>
-          </div>
-        )}
-        {wind && (
-          <div className="legendrow">
-            <span className="legendlabel">Vento</span>
-            <span>0</span>
-            <span className="legendbar" style={{ background: windGradient(base === "scuro" || temp) }} />
-            <span>58 km/h</span>
-          </div>
-        )}
-        {uv && (
-          <div className="legendrow">
-            <span className="legendlabel">UV</span>
-            <span>0</span>
-            <span className="legendbar" style={{ background: uvGradient }} />
-            <span>11+</span>
-          </div>
-        )}
-        {clouds && (
-          <div className="legendrow">
-            <span className="legendlabel">Nuvole</span>
-            <span>0%</span>
-            <span className="legendbar" style={{ background: CLOUD_GRADIENT }} />
-            <span>100%</span>
-          </div>
-        )}
-        {aurora && (
-          <div className="legendrow">
-            <span className="legendlabel">Aurora</span>
-            <span>bassa</span>
-            <span className="legendbar" style={{ background: AURORA_GRADIENT }} />
-            <span>alta</span>
-          </div>
-        )}
-        {season && (
-          <div style={{ display: "flex", gap: 9, alignItems: "center" }}>
-            <span className="legendlabel">Valanghe</span>
-            {[1, 2, 3, 4, 5].map((d) => (
-              <span key={d} style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
-                <i style={{ background: DANGER_COLORS[d] }} />{d}
-              </span>
-            ))}
-          </div>
-        )}
-      </div>
-      )}
+      {/* Legenda, timeline radar e striscia giorni: un solo sistema di layout. */}
+      <MapDock legend={legend} radar={radarProps} days={days} />
 
       {msg && <div className="mapmsg">{msg}</div>}
     </div>

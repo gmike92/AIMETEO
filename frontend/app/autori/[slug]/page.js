@@ -2,6 +2,8 @@
 // ogni curatore è una landing condivisibile sui suoi social.
 import { notFound } from "next/navigation";
 import { serverFetch } from "@/lib/api";
+import { Icon } from "../../components/WxIcon";
+import { fmtM } from "@/lib/fmt";
 
 export const revalidate = 600;
 
@@ -35,8 +37,9 @@ export default async function Autore({ params }) {
       <div className="meta" style={{ marginTop: 4 }}>
         {a.ruolo && <span>{a.ruolo}</span>}
         {a.curatore_verificato && (
-          <span className="pill" title="Badge assegnato da Zerotermico dopo verifica — mai autoproclamato">
-            ✓ curatore verificato
+          <span className="pill" style={{ gap: 6 }}
+            title="Badge assegnato da Zerotermico dopo verifica — mai autoproclamato">
+            <Icon.Check size={12} /> curatore verificato
           </span>
         )}
       </div>
@@ -57,11 +60,13 @@ export default async function Autore({ params }) {
               <span className="pill">{r.activity?.replace("_", " ")}</span>
               {r.diff_grade && <span>diff. {r.diff_grade}</span>}
             </div>
-            <div className="meta" style={{ fontVariantNumeric: "tabular-nums" }}>
-              <span>↗ {r.vertical_gain_m} m</span>
-              <span>▲ {r.max_altitude_m} m</span>
-              <span style={{ color: r.verified_at ? "var(--accent2)" : "var(--faint)" }}>
-                {r.verified_at ? "✓ verificato" : "da verificare"}
+            <div className="meta tnum">
+              <span>{fmtM(r.vertical_gain_m)} disl.</span>
+              <span>{fmtM(r.max_altitude_m)} max</span>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 6,
+                color: r.verified_at ? "var(--accent2)" : "var(--faint)" }}>
+                {r.verified_at && <Icon.Check size={12} />}
+                {r.verified_at ? "verificato" : "da verificare"}
               </span>
             </div>
           </a>

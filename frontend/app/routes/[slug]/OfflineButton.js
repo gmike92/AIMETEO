@@ -4,6 +4,7 @@
 // della traccia (zoom 11-13). Parla col service worker via postMessage.
 import { useEffect, useState } from "react";
 import { API_BASE } from "@/lib/api";
+import { Icon } from "@/app/components/WxIcon";
 
 function lon2tile(lon, z) { return Math.floor(((lon + 180) / 360) * 2 ** z); }
 function lat2tile(lat, z) {
@@ -71,9 +72,14 @@ export default function OfflineButton({ slug, trackPoints }) {
         style={{ color: "var(--accent2)", cursor: "pointer" }}
         role="button"
       >
-        {state === "idle" && "Salva per offline ◎"}
+        {state === "idle" && "Salva per offline"}
         {state === "saving" && "Salvo per offline…"}
-        {state === "done" && `Salvata offline ✓${progress ? ` (${progress})` : ""}`}
+        {state === "done" && (
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+            <Icon.Check size={12} />
+            {`Salvata offline${progress ? ` (${progress})` : ""}`}
+          </span>
+        )}
         {state === "err" && "Offline non riuscito — riprova"}
       </a>
     </span>

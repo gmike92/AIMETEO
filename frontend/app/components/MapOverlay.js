@@ -4,7 +4,8 @@
 // - striscia dei prossimi giorni al CENTRO MAPPA (si aggiorna quando ti sposti)
 import { useEffect, useRef, useState } from "react";
 import { API_BASE } from "@/lib/api";
-import { wxIcon, scoreColor } from "@/lib/wx";
+import { scoreColor } from "@/lib/wx";
+import { WxIcon } from "./WxIcon";
 
 export function MapSearch() {
   const [q, setQ] = useState("");
@@ -58,15 +59,15 @@ export function DayStrip() {
 
   if (!week) return null;
   return (
-    <div className="daystrip" role="list"
+    <div className="daystrip tnum" role="list"
       title={`Prossimi giorni al centro della mappa · fonte ${week.source}`}>
       {week.giorni.map((g) => (
         <div className="daychip" role="listitem" key={g.data}>
           <span className="d">
             {new Date(`${g.data}T12:00:00`).toLocaleDateString("it-IT", { weekday: "short" })}
           </span>
-          <span className="i" aria-hidden>
-            {wxIcon({ precip_mm: g.precip_mm, nuvole_pct: g.nuvole_pct })}
+          <span className="i">
+            <WxIcon precip_mm={g.precip_mm} nuvole_pct={g.nuvole_pct} size={17} />
           </span>
           <span className="t">{Math.round(g.temp_max_c)}°</span>
           <span className="s" style={{ background: scoreColor(g.punteggio) }} />

@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { api } from "@/lib/api";
+import { Icon } from "./WxIcon";
 
 // Small waitlist signup form (client component). Posts to POST /waitlist
 // with source: "frontend"; backend returns 200 {status:"ok"} or 422 on
@@ -44,8 +45,9 @@ export default function WaitlistSignup({ source = "frontend" }) {
         </button>
       </form>
       {status === "ok" && (
-        <p className="note" style={{ color: "var(--accent2)" }} role="status">
-          Sei in lista! ✅
+        <p className="note" role="status"
+          style={{ color: "var(--accent2)", display: "flex", alignItems: "center", gap: 7 }}>
+          <Icon.Check size={14} /> Sei in lista!
         </p>
       )}
       {status === "err" && (

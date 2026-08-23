@@ -1,6 +1,26 @@
 "use client";
+// Planner a due colonne — opzione 1e.
+//
+// Qui non cambia una riga di logica: stato, execute, deep link e copyLink
+// sono identici a prima. Cambia solo l'involucro — il form diventa sticky a
+// sinistra, l'esito scorre a destra, e i due blocchi finali (safe_candidates
+// ed blocked) passano da lista verticale a due colonne pari, così il filtro
+// di sicurezza si legge come una scelta motivata e non come una sequenza
+// di errori.
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
+import { Icon } from "../components/WxIcon";
+
+const ACTIVITIES = [
+  ["scialpinismo", "Scialpinismo"],
+  ["alpinismo", "Alpinismo"],
+  ["arrampicata", "Arrampicata"],
+  ["via_ferrata", "Via ferrata"],
+  ["escursionismo", "Escursionismo"],
+  ["trail_running", "Trail running"],
+  ["mtb_alpino", "MTB alpino"],
+  ["volo_libero", "Volo libero"],
+];
 
 export default function Planner() {
   const [intent, setIntent] = useState(
@@ -58,183 +78,215 @@ export default function Planner() {
     }
   };
 
+  const plan = result?.plan;
+
   return (
     <div>
-      <span className="eyebrow">Pro · pianificatore AI</span>
-      <h1>Pianifica una <em>gita</em></h1>
-      <p className="sub">
-        Descrivi cosa vorresti fare. Il backend filtra gli itinerari, incrocia meteo e
-        bollettino e applica i filtri di sicurezza <strong>prima</strong> che l'AI scriva.
-        Gli itinerari non sicuri non vengono mai proposti.
-      </p>
+      <div className="plan2">
+        <div className="ask">
+          <span className="eyebrow">Pro · pianificatore AI</span>
+          <h1>Pianifica una <em>gita</em></h1>
+          <p className="sub">
+            Descrivi cosa vorresti fare. I filtri di sicurezza girano{" "}
+            <strong>prima</strong> che l'AI scriva: gli itinerari non sicuri non le
+            vengono mai mostrati.
+          </p>
 
-      <form onSubmit={run} className="panel">
-        <label>Cosa vorresti fare?</label>
-        <textarea rows={3} value={intent} onChange={(e) => setIntent(e.target.value)} />
-        <label>Attività</label>
-        <select value={activity} onChange={(e) => setActivity(e.target.value)}>
-          <option value="scialpinismo">Scialpinismo</option>
-          <option value="alpinismo">Alpinismo</option>
-          <option value="arrampicata">Arrampicata</option>
-          <option value="via_ferrata">Via ferrata</option>
-          <option value="escursionismo">Escursionismo</option>
-          <option value="trail_running">Trail running</option>
-          <option value="mtb_alpino">MTB alpino</option>
-          <option value="volo_libero">Volo libero (parapendio)</option>
-        </select>
-        <div style={{ marginTop: 16 }}>
-          <button className="btn" type="submit" disabled={loading}>
-            {loading ? "Elaboro…" : "Pianifica"}
-          </button>
-        </div>
-      </form>
+          <form onSubmit={run}>
+            <label htmlFor="intent">Cosa vorresti fare?</label>
+            <textarea
+              id="intent"
+              rows={3}
+              value={intent}
+              onChange={(e) => setIntent(e.target.value)}
+            />
 
-      {error && <p className="err">Errore: {error}</p>}
+            {/* Il <select> diventa una fila di chip: risolve anche il popup
+                nativo bianco che andava corretto con select option{…}. */}
+            <label id="act-label">Attività</label>
+            <div className="chips" role="group" aria-labelledby="act-label">
+              {ACTIVITIES.map(([val, label]) => (
+                <button
+                  key={val}
+                  type="button"
+                  className={`chip ${activity === val ? "on" : ""}`}
+                  aria-pressed={activity === val}
+                  onClick={() => setActivity(val)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
 
-      {result && (
-        <>
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <h2 style={{ margin: "30px 0 12px" }}>Esito</h2>
-            <button type="button" className="btn ghost" onClick={copyLink}
-              style={{ padding: "7px 16px", fontSize: 13 }}>
-              {copied ? "Link copiato ✓" : "Condividi col compagno di gita"}
-            </button>
-          </div>
-          <p className="note" style={{ marginTop: -6 }}>
+            <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 9 }}>
+              <button className="btn" type="submit" disabled={loading}>
+                {loading ? "Elaboro…" : "Pianifica"}
+              </button>
+              <button
+                type="button"
+                className="btn ghost"
+                onClick={copyLink}
+                style={{ padding: "10px 16px", fontSize: 13 }}
+              >
+                {copied ? "Link copiato" : "Condividi col compagno di gita"}
+              </button>
+            </div>
+          </form>
+
+          <p className="note" style={{ marginTop: 16, paddingTop: 14, borderTop: "1px solid var(--line)" }}>
             Chi apre il link vede il piano <strong>ricalcolato adesso</strong>, con
             bollettino e meteo aggiornati — mai una copia vecchia.
           </p>
-          {result.forecast_notice && (
+        </div>
+
+        <div className="out">
+          {error && <p className="err">Errore: {error}</p>}
+          {!result && !error && !loading && (
+            <p className="note">L'esito del piano compare qui.</p>
+          )}
+          {loading && <p className="loading">Elaboro il piano…</p>}
+
+          {result && (
+            <div className="plan-filterbar">
+              <Icon.Check size={15} />
+              {result.safe_candidates.length} itinerari passano i filtri
+              <em>{result.blocked.length} esclusi · l'AI non li vede</em>
+            </div>
+          )}
+
+          {result?.forecast_notice && (
             <p className="err" role="status">{result.forecast_notice}</p>
           )}
 
-          {result.plan && (
-            <div className="panel">
-              {result.plan.titolo && <h3>{result.plan.titolo}</h3>}
+          {plan && (
+            <div className="panel" style={{ marginTop: 0 }}>
+              {plan.titolo && <h3>{plan.titolo}</h3>}
 
-              {result.plan.allerta_sicurezza && (
+              {plan.allerta_sicurezza && (
                 <div className="bulletin blocked">
-                  <strong>⚠️ Allerta sicurezza</strong>
-                  <div className="why">{result.plan.allerta_sicurezza}</div>
+                  <strong style={{ display: "inline-flex", alignItems: "center", gap: 7 }}>
+                    <Icon.Warning size={15} /> Allerta sicurezza
+                  </strong>
+                  <div className="why">{plan.allerta_sicurezza}</div>
                 </div>
               )}
 
-              {result.plan.bollettino_valanghe && (
+              {plan.bollettino_valanghe && (
                 <div className="bulletin">
-                  <div className="lvl">
-                    Bollettino {result.plan.bollettino_valanghe.fonte}
-                    {result.plan.bollettino_valanghe.grado_ufficiale != null &&
-                      ` · pericolo ${result.plan.bollettino_valanghe.grado_ufficiale}`}
+                  <div className="lvl tnum">
+                    Bollettino {plan.bollettino_valanghe.fonte}
+                    {plan.bollettino_valanghe.grado_ufficiale != null &&
+                      ` · pericolo ${plan.bollettino_valanghe.grado_ufficiale}`}
                   </div>
-                  {result.plan.bollettino_valanghe.sintesi && (
-                    <p className="note">{result.plan.bollettino_valanghe.sintesi}</p>
+                  {plan.bollettino_valanghe.sintesi && (
+                    <p className="note">{plan.bollettino_valanghe.sintesi}</p>
                   )}
-                  {result.plan.bollettino_valanghe.link && (
-                    <a
-                      className="note"
-                      href={result.plan.bollettino_valanghe.link}
-                      target="_blank"
-                      rel="noopener"
-                    >
+                  {plan.bollettino_valanghe.link && (
+                    <a className="note" href={plan.bollettino_valanghe.link}
+                      target="_blank" rel="noopener">
                       Fonte ufficiale →
                     </a>
                   )}
                 </div>
               )}
 
-              {result.plan.itinerario && (
-                <p style={{ marginTop: 14 }}>{result.plan.itinerario}</p>
-              )}
+              {plan.itinerario && <p style={{ marginTop: 14 }}>{plan.itinerario}</p>}
 
-              {result.plan.timing && (
-                <div className="stats">
-                  {result.plan.timing.alba && (
-                    <div className="stat"><div className="k">Alba</div><div className="v">{result.plan.timing.alba}</div></div>
+              {plan.timing && (
+                <div className="stats tnum">
+                  {plan.timing.alba && (
+                    <div className="stat"><div className="k">Alba</div><div className="v">{plan.timing.alba}</div></div>
                   )}
-                  {result.plan.timing.partenza_consigliata && (
-                    <div className="stat"><div className="k">Partenza</div><div className="v">{result.plan.timing.partenza_consigliata}</div></div>
+                  {plan.timing.partenza_consigliata && (
+                    <div className="stat"><div className="k">Partenza</div><div className="v" style={{ color: "var(--accent)" }}>{plan.timing.partenza_consigliata}</div></div>
                   )}
-                  {result.plan.timing.vetta_entro && (
-                    <div className="stat"><div className="k">Vetta entro</div><div className="v">{result.plan.timing.vetta_entro}</div></div>
+                  {plan.timing.vetta_entro && (
+                    <div className="stat"><div className="k">Vetta entro</div><div className="v">{plan.timing.vetta_entro}</div></div>
                   )}
-                  {result.plan.timing.rientro_stimato && (
-                    <div className="stat"><div className="k">Rientro</div><div className="v">{result.plan.timing.rientro_stimato}</div></div>
+                  {plan.timing.rientro_stimato && (
+                    <div className="stat"><div className="k">Rientro</div><div className="v">{plan.timing.rientro_stimato}</div></div>
                   )}
                 </div>
               )}
 
-              {result.plan.condizioni && (
-                <p className="note"><strong>Condizioni:</strong> {result.plan.condizioni}</p>
+              {plan.condizioni && (
+                <p className="note"><strong>Condizioni:</strong> {plan.condizioni}</p>
               )}
 
-              {(result.plan.equipaggiamento_consigliato || []).length > 0 && (
-                <div style={{ marginTop: 14 }}>
-                  <strong>Equipaggiamento consigliato</strong>
+              {(plan.punti_decisionali || []).length > 0 && (
+                <div style={{ marginTop: 16 }}>
+                  <div className="dockhead" style={{ marginBottom: 9 }}>Punti decisionali</div>
+                  <div className="declist">
+                    {plan.punti_decisionali.map((p, i) => (
+                      <div className="decrow" key={i}>
+                        <span className="n tnum">{i + 1}</span>
+                        <span className="t">{p}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {(plan.equipaggiamento_consigliato || []).length > 0 && (
+                <div style={{ marginTop: 16 }}>
+                  <div className="dockhead" style={{ marginBottom: 9 }}>Equipaggiamento</div>
                   <div className="meta">
-                    {result.plan.equipaggiamento_consigliato.map((item, i) => (
+                    {plan.equipaggiamento_consigliato.map((item, i) => (
                       <span className="pill" key={i}>{item}</span>
                     ))}
                   </div>
                 </div>
               )}
 
-              {(result.plan.punti_decisionali || []).length > 0 && (
-                <div style={{ marginTop: 14 }}>
-                  <strong>Punti decisionali</strong>
-                  {result.plan.punti_decisionali.map((p, i) => (
-                    <p className="note" key={i}>🧭 {p}</p>
-                  ))}
-                </div>
-              )}
-
-              {result.plan.piano_b && (
-                <p className="note"><strong>Piano B:</strong> {result.plan.piano_b}</p>
+              {plan.piano_b && (
+                <p className="note" style={{ marginTop: 16 }}>
+                  <strong>Piano B:</strong> {plan.piano_b}
+                </p>
               )}
             </div>
           )}
 
-          {!result.plan && result.plan_text && (
-            <div className="panel">
-              <p>{result.plan_text}</p>
-            </div>
+          {result && !plan && result.plan_text && (
+            <div className="panel" style={{ marginTop: 0 }}><p>{result.plan_text}</p></div>
           )}
 
-          {result.plan_model && (
-            <p className="note">generato da {result.plan_model}</p>
-          )}
+          {result?.plan_model && <p className="note">generato da {result.plan_model}</p>}
 
-          {result.safe_candidates.length > 0 && (
-            <div className="panel">
-              <strong className="safe">Itinerari sicuri ({result.safe_candidates.length})</strong>
-              <div className="grid">
+          {result && (result.safe_candidates.length > 0 || result.blocked.length > 0) && (
+            <div className="plan-cols">
+              <div className="plan-col">
+                <div className="dockhead">Sicuri · {result.safe_candidates.length}</div>
+                {result.safe_candidates.length === 0 && (
+                  <p className="note" style={{ margin: 0 }}>Nessuno per questa richiesta.</p>
+                )}
                 {result.safe_candidates.map((c) => (
-                  <a className="card" key={c.route_id} href={`/routes/${c.route_id}`}>
-                    <h3>{c.name}</h3>
-                    <div className="meta"><span className="pill">passa i filtri</span></div>
-                  </a>
+                  <div className="plan-row" key={c.route_id}>
+                    <a className="nm" href={`/routes/${c.route_id}`}>{c.name}</a>
+                  </div>
                 ))}
+              </div>
+
+              <div className="plan-col no">
+                <div className="dockhead">Esclusi dai filtri · {result.blocked.length}</div>
+                {result.blocked.length === 0 && (
+                  <p className="note" style={{ margin: 0 }}>Nessuno escluso.</p>
+                )}
+                {result.blocked.map((c) => (
+                  <div className="plan-row" key={c.route_id} style={{ display: "block" }}>
+                    <span className="nm">{c.name}</span>
+                    {c.block_reasons.map((r, i) => (
+                      <div className="why" key={i}>{r}</div>
+                    ))}
+                  </div>
+                ))}
+                <p className="note" style={{ marginTop: 10 }}>
+                  L'AI non vede mai questi itinerari, quindi non può proporli.
+                </p>
               </div>
             </div>
           )}
-
-          {result.blocked.length > 0 && (
-            <div className="panel">
-              <strong>Esclusi dai filtri di sicurezza ({result.blocked.length})</strong>
-              {result.blocked.map((c) => (
-                <div className="bulletin blocked" key={c.route_id}>
-                  <strong>{c.name}</strong>
-                  {c.block_reasons.map((r, i) => (
-                    <div className="why" key={i}>⛔ {r}</div>
-                  ))}
-                </div>
-              ))}
-              <p className="note">
-                L'AI non vede mai questi itinerari, quindi non può proporli.
-              </p>
-            </div>
-          )}
-        </>
-      )}
+        </div>
+      </div>
 
       <p className="disclaimer">
         Supporto alla decisione, non raccomandazione. Responsabilità finale al capogita;
