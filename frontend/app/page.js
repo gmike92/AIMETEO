@@ -14,13 +14,15 @@ export default function Home({ searchParams }) {
   const focusRoute = searchParams?.route || null;
   return (
     <div>
-      <MapView fullscreen focusRoute={focusRoute}>
+      {/* La striscia dei giorni passa come prop invece che come children:
+          nel chrome 1a vive DENTRO il dock in basso, insieme a legenda e
+          timeline, non come sesto elemento absolute per conto suo. */}
+      <MapView fullscreen focusRoute={focusRoute} days={<DayStrip />}>
         <div className="mapcta">
           <MapSearch />
           <a href="/itinerari" className="primary">Itinerari →</a>
           <a href="/planner">Pianifica gita</a>
         </div>
-        <DayStrip />
       </MapView>
       <p className="disclaimer" style={{ marginTop: 14 }}>
         Supporto alla decisione, non una raccomandazione. Il bollettino valanghe ufficiale

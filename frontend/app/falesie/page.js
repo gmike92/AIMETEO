@@ -1,6 +1,7 @@
 // Falesie — sole/ombra per parete dal modello solare (server component).
 // La domanda a cui risponde: "dove si scala al sole (o all'ombra) oggi?"
 import { serverFetch } from "@/lib/api";
+import { Icon } from "../components/WxIcon";
 
 export const revalidate = 900;
 
@@ -59,8 +60,10 @@ export default async function Falesie() {
               <span className="pill">parete {c.aspect}</span>
               {c.ele_m != null && <span>{c.ele_m} m</span>}
               {c.in_sole_adesso != null && (
-                <span style={{ color: c.in_sole_adesso ? "var(--warn)" : "var(--accent)" }}>
-                  {c.in_sole_adesso ? "☀ al sole adesso" : "◐ in ombra adesso"}
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 6,
+                  color: c.in_sole_adesso ? "var(--warn)" : "var(--accent)" }}>
+                  {c.in_sole_adesso ? <Icon.Sun size={14} /> : <Icon.Moon size={14} />}
+                  {c.in_sole_adesso ? "al sole adesso" : "in ombra adesso"}
                 </span>
               )}
             </div>

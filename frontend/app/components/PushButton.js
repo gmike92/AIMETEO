@@ -4,6 +4,7 @@
 // - browser senza supporto push → il bottone non appare.
 import { useEffect, useState } from "react";
 import { API_BASE } from "@/lib/api";
+import { Icon } from "./WxIcon";
 
 function b64ToU8(b64) {
   const pad = "=".repeat((4 - (b64.length % 4)) % 4);
@@ -72,8 +73,9 @@ export default function PushButton() {
         disabled={state === "busy" || state === "on"}
         style={{ padding: "7px 16px", fontSize: 13 }}
       >
-        {state === "on" ? "🔔 Notifiche attive" :
-         state === "busy" ? "Attivo…" : "🔔 Avvisami (meteo e condizioni)"}
+        {state !== "busy" && <Icon.Bell size={14} />}
+        {state === "on" ? "Notifiche attive" :
+         state === "busy" ? "Attivo…" : "Avvisami (meteo e condizioni)"}
       </button>
       {msg && <span className="note">{msg}</span>}
     </span>

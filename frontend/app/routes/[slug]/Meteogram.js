@@ -1,12 +1,32 @@
 "use client";
-// Meteogram — 7-day hourly chart at the route's REAL trailhead (Open-Meteo:
-// temperature, precipitation, wind, freezing level). Client-only (fetch);
-// renders nothing without coordinates, shows an honest message when offline.
+// Meteogram con asse in METRI — opzione 1f.
+//
+// Il meteogram precedente aveva due assi Y (temperatura a sinistra, quota a
+// destra) e quindi due unità che si contendevano lo stesso spazio. Questa
+// versione ne tiene una sola — i metri — e ci sovrappone la fascia di quota
+// dell'itinerario, perché la domanda operativa non è «quanti gradi», è «a che
+// quota passa il limite pioggia/neve rispetto a dove salgo».
+//
+// Sopra la linea nevica, sotto piove: quando la linea entra nella fascia
+// dell'itinerario, la gita cambia natura a metà percorso.
+//
+// Stessa chiamata Open-Meteo di prima e stesso fallback offline.
+
 import { useEffect, useState } from "react";
+import { fmtNum, fmtM } from "@/lib/fmt";
 
-const W = 720, H = 240, L = 46, RGT = 46, B = 30, TOP = 14;
+const W = 720, H = 260, L = 54, R = 18, TOP = 18, B = 46;
+const PLOT_H = H - TOP - B;
+const HIST_H = 38; // banda dell'istogramma precipitazioni, sopra la linea di base
 
-export default function Meteogram({ lat, lon, name }) {
+/** Passo "tondo" per le tacche dell'asse quota. */
+function niceStep(span) {
+  const raw = span / 4;
+  for (const s of [50, 100, 200, 250, 500, 1000, 2000]) if (raw <= s) return s;
+  return 2500;
+}
+
+export default function Meteogram({ lat, lon, name, startAltitude, maxAltitude }) {
   const [data, setData] = useState(null);
   const [err, setErr] = useState(null);
 
@@ -27,58 +47,127 @@ export default function Meteogram({ lat, lon, name }) {
   if (!data) return <p className="note">Carico il meteogramma…</p>;
 
   const n = data.time.length;
-  const temps = data.temperature_2m;
-  const prec = data.precipitation;
   const frz = data.freezing_level_height;
-  const tMin = Math.min(...temps), tMax = Math.max(...temps);
-  const fMax = Math.max(...frz, 3000);
-  const pMax = Math.max(...prec, 2);
-  const x = (i) => L + (i / (n - 1)) * (W - L - RGT);
-  const yT = (t) => (H - B) - ((t - tMin) / (tMax - tMin || 1)) * (H - B - TOP);
-  const yF = (f) => (H - B) - (f / fMax) * (H - B - TOP);
-  const yP = (p) => ((p / pMax) * (H - B - TOP)) * 0.55;
+  const prec = data.precipitation;
 
-  const tLine = temps.map((t, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${yT(t).toFixed(1)}`).join(" ");
-  const fLine = frz.map((f, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${yF(f).toFixed(1)}`).join(" ");
+  const start = Number.isFinite(Number(startAltitude)) ? Number(startAltitude) : null;
+  const top = Number.isFinite(Number(maxAltitude)) ? Number(maxAltitude) : null;
+  const hasBand = start != null && top != null && top > start;
+
+  // La scala contiene SEMPRE partenza e vetta dell'itinerario, così il
+  // confronto è visivo e non aritmetico.
+  const candLo = [Math.min(...frz), ...(start != null ? [start] : [])];
+  const candHi = [Math.max(...frz), ...(top != null ? [top] : [])];
+  const rawLo = Math.min(...candLo);
+  const rawHi = Math.max(...candHi);
+  const pad = Math.max(200, (rawHi - rawLo) * 0.12);
+  const step = niceStep(rawHi - rawLo + pad * 2);
+  const vLo = Math.max(0, Math.floor((rawLo - pad) / step) * step);
+  const vHi = Math.ceil((rawHi + pad) / step) * step;
+  const span = Math.max(1, vHi - vLo);
+
+  const x = (i) => L + (i / (n - 1)) * (W - L - R);
+  const y = (m) => TOP + PLOT_H - ((m - vLo) / span) * PLOT_H;
+  const base = TOP + PLOT_H;
+
+  const pMax = Math.max(...prec, 1);
+  const yP = (p) => (p / pMax) * HIST_H;
+
+  const frzPts = frz.map((f, i) => `${x(i).toFixed(1)},${y(f).toFixed(1)}`).join(" ");
+
+  const ticks = [];
+  for (let m = vLo; m <= vHi + 0.5; m += step) ticks.push(m);
+
   const days = [];
-  for (let i = 0; i < n; i += 24) days.push({ i, label: new Date(data.time[i]).toLocaleDateString("it-IT", { weekday: "short" }) });
+  for (let i = 0; i < n; i += 24) {
+    days.push({
+      i,
+      label: new Date(data.time[i]).toLocaleDateString("it-IT", { weekday: "short" }),
+    });
+  }
+
+  // Un aria-label che dice davvero l'intervallo, a parole.
+  const aria =
+    `Zero termico sui prossimi 7 giorni a ${name}: quota tra ` +
+    `${fmtNum(Math.min(...frz))} e ${fmtNum(Math.max(...frz))} metri` +
+    (hasBand
+      ? `; l'itinerario va da ${fmtNum(start)} a ${fmtNum(top)} metri.`
+      : ".");
 
   return (
-    <div className="panel" style={{ padding: "18px 18px 10px" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 6 }}>
-        <strong style={{ fontSize: 14 }}>Meteogramma 7 giorni — {name}</strong>
-        <span className="note" style={{ margin: 0, display: "flex", gap: 12 }}>
-          <span style={{ color: "#38bdf8" }}>— temperatura</span>
-          <span style={{ color: "#5eead4" }}>— zero termico</span>
-          <span style={{ color: "#7f9cf5" }}>▮ precipitazioni</span>
-        </span>
+    <div className="panel mg">
+      <div className="mg-head">
+        <strong>Zero termico sul percorso — {name}</strong>
+        <span className="note">Open-Meteo · 7 giorni</span>
       </div>
-      <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto", marginTop: 8 }}
-           role="img" aria-label={`Meteogramma 7 giorni: temperatura da ${Math.round(tMin)} a ${Math.round(tMax)} gradi`}>
-        {days.map((d) => (
-          <g key={d.i}>
-            <line x1={x(d.i)} y1={TOP} x2={x(d.i)} y2={H - B} stroke="rgba(148,180,208,.12)" />
-            <text x={x(d.i) + 4} y={H - 10} fontSize="10.5" fill="#5c7186">{d.label}</text>
+
+      <svg viewBox={`0 0 ${W} ${H}`} className="mg-svg" role="img" aria-label={aria}>
+        {/* tacche di quota */}
+        {ticks.map((m) => (
+          <g key={m}>
+            <line x1={L} y1={y(m)} x2={W - R} y2={y(m)} stroke="var(--line)" />
+            <text x={L - 8} y={y(m) + 3.5} textAnchor="end" fontSize="10.5"
+              fill="var(--faint)" className="tnum">
+              {fmtNum(m)}
+            </text>
           </g>
         ))}
-        {[tMin, (tMin + tMax) / 2, tMax].map((t, k) => (
-          <text key={k} x={L - 6} y={yT(t) + 3.5} textAnchor="end" fontSize="10.5" fill="#38bdf8">{Math.round(t)}°</text>
+
+        {/* fascia di quota dell'itinerario */}
+        {hasBand && (
+          <g>
+            <rect x={L} y={y(top)} width={W - L - R} height={Math.max(1, y(start) - y(top))}
+              fill="rgba(148,180,208,.09)" />
+            <line x1={L} y1={y(start)} x2={W - R} y2={y(start)}
+              stroke="var(--muted)" strokeWidth="1.3" strokeDasharray="5 4" />
+            <line x1={L} y1={y(top)} x2={W - R} y2={y(top)}
+              stroke="var(--muted)" strokeWidth="1.3" strokeDasharray="5 4" />
+            <text x={L + 7} y={y(start) - 6} fontSize="9.5" fontWeight="800"
+              letterSpacing=".6" fill="var(--muted)" className="tnum">
+              {`PARTENZA ${fmtM(start)}`}
+            </text>
+            <text x={L + 7} y={y(top) + 13} fontSize="9.5" fontWeight="800"
+              letterSpacing=".6" fill="var(--muted)" className="tnum">
+              {`VETTA ${fmtM(top)}`}
+            </text>
+          </g>
+        )}
+
+        {/* separatori di giorno */}
+        {days.map((d) => (
+          <g key={d.i}>
+            <line x1={x(d.i)} y1={TOP} x2={x(d.i)} y2={base} stroke="var(--line)" />
+            <text x={x(d.i) + 4} y={H - 10} fontSize="10.5" fill="var(--faint)">{d.label}</text>
+          </g>
         ))}
-        {[0, fMax / 2, fMax].map((f, k) => (
-          <text key={k} x={W - RGT + 6} y={yF(f) + 3.5} fontSize="10.5" fill="#5eead4">{Math.round(f / 100) / 10}k</text>
-        ))}
+
+        {/* precipitazioni: istogramma sulla linea di base, non un secondo asse */}
         {prec.map((p, i) =>
           p > 0.05 ? (
-            <rect key={i} x={x(i) - 1} y={H - B - yP(p)} width="2.2" height={yP(p)} fill="rgba(127,156,245,.65)" />
+            <rect key={i} x={x(i) - 1.1} y={base - yP(p)} width="2.2" height={yP(p)}
+              fill="var(--accent2)" opacity=".85" />
           ) : null
         )}
-        <path d={fLine} fill="none" stroke="#5eead4" strokeWidth="1.6" strokeDasharray="5,4" opacity=".9" />
-        <path d={tLine} fill="none" stroke="#38bdf8" strokeWidth="2.2" strokeLinejoin="round" />
-        <line x1={L} y1={H - B} x2={W - RGT} y2={H - B} stroke="rgba(148,180,208,.3)" />
+
+        {/* quota dello zero termico */}
+        <polygon points={`${L},${base} ${frzPts} ${W - R},${base}`}
+          fill="var(--accent)" opacity=".14" />
+        <polyline points={frzPts} fill="none" stroke="var(--accent)" strokeWidth="2.2"
+          strokeLinejoin="round" strokeLinecap="round" />
+
+        <line x1={L} y1={base} x2={W - R} y2={base} stroke="var(--line-strong)" />
       </svg>
-      <p className="note" style={{ marginTop: 4 }}>
-        Modello Open-Meteo al punto di partenza ({Number(lat).toFixed(3)}, {Number(lon).toFixed(3)}).
-        Dati indicativi: per la decisione finale contano bollettino e osservazione sul posto.
+
+      <div className="mg-legend">
+        <span><i style={{ background: "var(--accent)" }} />quota zero termico</span>
+        <span><i style={{ background: "var(--accent2)" }} />precipitazioni (mm/h)</span>
+        {hasBand && <span><i className="dash" />fascia dell'itinerario</span>}
+      </div>
+
+      <p className="note">
+        Sopra la linea nevica, sotto piove. Modello Open-Meteo al punto di partenza
+        ({Number(lat).toFixed(3)}, {Number(lon).toFixed(3)}): dati indicativi, per la
+        decisione finale contano bollettino e osservazione sul posto.
       </p>
     </div>
   );

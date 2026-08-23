@@ -11,6 +11,7 @@ import RouteWeatherStrip from "./RouteWeatherStrip";
 import OfflineButton from "./OfflineButton";
 import BestWindowCard from "./BestWindowCard";
 import PushButton from "../../components/PushButton";
+import { Icon } from "../../components/WxIcon";
 
 export const revalidate = 300;
 
@@ -78,7 +79,7 @@ export default async function RouteDetail({ params }) {
             className="note"
             style={{ marginLeft: 16, color: "var(--accent2)" }}
           >
-            Scarica GPX ↓
+            Scarica GPX <Icon.Download size={12} style={{ display: "inline-block", verticalAlign: "-2px" }} />
           </a>
           <OfflineButton slug={params.slug} trackPoints={route.track_points} />
           <span style={{ marginLeft: 12 }}><PushButton /></span>
@@ -100,7 +101,7 @@ export default async function RouteDetail({ params }) {
       )}
       <p className="sub">{route.ideal_conditions}</p>
 
-      <div className="stats">
+      <div className="stats tnum">
         {route.tempi?.totale_min != null && (
           <div className="stat" title={`${route.tempi.metodo} · ${route.tempi.parametri}`}>
             <div className="k">Tempo (no soste)</div>
@@ -151,7 +152,13 @@ export default async function RouteDetail({ params }) {
       <ElevationProfile trackPoints={route.track_points} />
 
       {hasRealCoords && (
-        <Meteogram lat={route.start_lat} lon={route.start_lon} name={route.name} />
+        <Meteogram
+          lat={route.start_lat}
+          lon={route.start_lon}
+          name={route.name}
+          startAltitude={route.start_altitude_m}
+          maxAltitude={route.max_altitude_m}
+        />
       )}
 
       <BriefingPanel slug={params.slug} />
