@@ -283,20 +283,59 @@ html:has(.navbar.chrome-hidden) .mapcta{top:16px}
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .statcell .u{font-size:10px;font-weight:600;color:var(--muted);font-style:normal}
 
-/* ═══ 1a · CHROME DELLA MAPPA ══════════════════════════════════════
+/* ═══ 1b · CHROME DELLA MAPPA ══════════════════════════════════════
    Tre soli contenitori posizionati (rail, campi, dock); dentro ciascuno
    si usa flex/grid con gap. L'absolute è per UN elemento appuntato al
    viewport, mai per una fila di elementi (regola 1.6). */
 
-/* livelli — rail verticale sempre visibile, niente flyout (regola 1.7) */
-.maprail{position:absolute;left:16px;top:calc(var(--navbar-h) + 90px);z-index:1001;display:flex;
-  flex-direction:column;gap:2px;padding:8px;border-radius:16px;
+/* ── trigger compatto + pannello a comparsa (FlyoutGroup) ───────────
+   Hover su desktop (CSS puro, gated a pointer:fine così il touch non
+   eredita hover fantasma) o click/tocco ovunque (.expanded, stato React
+   — funziona anche da tastiera). Un pin, in piccolo, per tenerlo aperto
+   senza doverci restare sopra. */
+.flyout{position:relative}
+.flyout-trigger{display:flex;align-items:center;gap:7px;padding:9px 14px;
+  border:1px solid var(--line-strong);border-radius:999px;cursor:pointer;
+  background:var(--glass);backdrop-filter:var(--blur);box-shadow:var(--shadow);
+  color:var(--muted);font-family:inherit;font-size:12.5px;font-weight:700;
+  letter-spacing:.2px;white-space:nowrap;
+  transition:color .18s,background .18s,border-color .18s}
+.flyout-trigger:hover:not(:disabled){color:var(--ink);border-color:var(--accent)}
+.flyout.expanded .flyout-trigger{color:var(--ink);border-color:var(--accent);
+  background:var(--accent-soft)}
+.flyout-badge{display:flex;align-items:center;justify-content:center;
+  min-width:17px;height:17px;padding:0 4px;border-radius:999px;
+  background:var(--accent);color:#04121f;font-size:10px;font-weight:800;
+  font-style:normal;font-variant-numeric:tabular-nums}
+
+.flyout-panel{position:absolute;left:0;top:calc(100% + 8px);z-index:1002;
+  padding:10px;border-radius:16px;
   background:var(--glass);border:1px solid var(--line-strong);
   backdrop-filter:var(--blur);box-shadow:var(--shadow);
-  transition:transform .3s ease,opacity .3s ease}
+  visibility:hidden;opacity:0;transform:translateY(-6px);pointer-events:none;
+  transition:opacity .18s ease,transform .18s ease,visibility .18s}
+@media (hover:hover) and (pointer:fine){
+  .flyout:hover .flyout-panel{visibility:visible;opacity:1;transform:none;pointer-events:auto}
+}
+.flyout.expanded .flyout-panel{visibility:visible;opacity:1;transform:none;pointer-events:auto}
+/* il trigger dei campi meteo sta a destra: il pannello si apre verso
+   sinistra, non verso il bordo dello schermo. Larghezza esplicita: uno
+   shrink-to-fit su un right:0 assoluto con dentro un figlio flex-wrap è
+   ambiguo nei motori di rendering e collassava a una singola colonna
+   invece di andare a capo su più righe. */
+.mapfields-flyout .flyout-panel{left:auto;right:0;width:264px}
+
+/* livelli — trigger "Attività" in colonna sinistra, sotto lo zoom Leaflet:
+   il più in alto possibile, ma deve restare sotto lo zoom (regola 1.6bis:
+   vedi --navbar-h in :root e .leaflet-top più sotto — stessa logica di
+   mapcta, così quando la navbar riappare tutto scende in blocco, coerente). */
+.maprail{position:absolute;left:16px;top:calc(var(--navbar-h) + 82px);z-index:1001;
+  transition:transform .3s ease,opacity .3s ease,top .32s ease}
+html:has(.navbar.chrome-hidden) .maprail{top:82px}
 /* A scomparsa dopo qualche secondo di inattività (vedi useAutoHide) —
    torna visibile a qualunque interazione sulla pagina/mappa. */
 .maprail.chrome-hidden{transform:translateX(-14px);opacity:0;pointer-events:none}
+.flyout-rail{display:flex;flex-direction:column;gap:2px}
 .railitem{display:flex;flex-direction:column}
 .railsep{height:1px;background:var(--line-strong);margin:5px 6px}
 .railbtn{display:flex;flex-direction:column;align-items:center;gap:5px;
@@ -309,16 +348,22 @@ html:has(.navbar.chrome-hidden) .mapcta{top:16px}
 .railbtn.on{background:var(--accent-soft);color:var(--accent)}
 .railbtn:disabled{color:var(--faint)}
 
-/* campi meteo + sfondo — segmented in alto a destra */
-.mapfields{position:absolute;right:16px;top:calc(var(--navbar-h) + 74px);z-index:1001;display:flex;
-  flex-direction:column;gap:8px;align-items:flex-end;max-width:calc(100% - 104px);
-  transition:transform .3s ease,opacity .3s ease}
+/* campi meteo — trigger "Meteo" in colonna destra; lo sfondo mappa non è
+   un campo meteo, resta un tap sempre visibile subito sotto. */
+.mapfields{position:absolute;right:16px;top:calc(var(--navbar-h) + 16px);z-index:1001;
+  display:flex;flex-direction:column;gap:8px;align-items:flex-end;
+  transition:transform .3s ease,opacity .3s ease,top .32s ease}
+html:has(.navbar.chrome-hidden) .mapfields{top:16px}
 .mapfields.chrome-hidden{transform:translateY(-10px);opacity:0;pointer-events:none}
 .segmented{display:flex;gap:4px;padding:5px;border-radius:999px;
   background:var(--glass);border:1px solid var(--line-strong);
   backdrop-filter:var(--blur);box-shadow:var(--shadow);
   max-width:100%;overflow-x:auto;scrollbar-width:none}
 .segmented::-webkit-scrollbar{display:none}
+/* dentro un .flyout-panel che ha già il suo vetro — niente vetro doppio,
+   e più respiro per andare a capo invece di scorrere in orizzontale */
+.segmented-flyout{background:none;border:0;box-shadow:none;backdrop-filter:none;
+  padding:0;overflow:visible;flex-wrap:wrap;max-width:300px}
 .segbtn{flex:none;border:0;border-radius:999px;padding:7px 14px;cursor:pointer;
   font-family:inherit;font-size:11.5px;font-weight:700;letter-spacing:.3px;
   background:transparent;color:var(--muted);white-space:nowrap;
@@ -440,10 +485,12 @@ html:has(.navbar.chrome-hidden) .mapshell.full .leaflet-top{top:0}
 }
 @media (max-width:640px){
   .mapcta{left:16px;right:16px}
-  .maprail{top:calc(var(--navbar-h) + 124px);padding:6px}
-  .railbtn{min-width:0;padding:9px 7px}
-  .railbtn .rl{display:none}
-  .mapfields{top:calc(var(--navbar-h) + 124px);max-width:calc(100% - 84px)}
+  /* .mapcta va a capo su due righe sotto i ~640px: trigger più in basso
+     per non finirci sotto, sia a navbar visibile che nascosta. */
+  .maprail{top:calc(var(--navbar-h) + 124px)}
+  html:has(.navbar.chrome-hidden) .maprail{top:124px}
+  .mapfields{top:calc(var(--navbar-h) + 124px)}
+  html:has(.navbar.chrome-hidden) .mapfields{top:124px}
   .mapdock{left:76px;right:10px;bottom:22px;gap:8px}
   .dock-timeline{flex:1 1 100%}
   .dock-days{flex:1 1 100%}

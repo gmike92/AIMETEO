@@ -56,11 +56,15 @@ export function useAutoHide(active = true, delay = 2800) {
 
 // Same fade behavior as useAutoHide, but a DIFFERENT reveal trigger: instead
 // of any activity anywhere on the page, it only wakes when the pointer/touch
-// is within `edgePx` of the top of the viewport. Meant for chrome that sits
+// is in the top-CENTER zone of the viewport (within `edgePx` of the top AND
+// within the middle `centerFrac` of the width). Meant for chrome that sits
 // right at the top (a navbar) so it doesn't keep popping back up every time
-// the user is just interacting with the map lower down — it's a separate,
-// independent mechanism from useAutoHide, not a shared timer.
-export function useTopEdgeAutoHide(active = true, { edgePx = 72, delay = 2800 } = {}) {
+// the user reaches for something else up there — the weather-fields trigger
+// sits top-right and the zoom control top-left, and a full-width reveal zone
+// meant heading for either of those also dragged the navbar down under the
+// cursor, which then shoved the fields trigger out from under it too. It's a
+// separate, independent mechanism from useAutoHide, not a shared timer.
+export function useTopEdgeAutoHide(active = true, { edgePx = 72, delay = 2800, centerFrac = 0.5 } = {}) {
   const [hidden, setHidden] = useState(false);
   const overRef = useRef(false);
   const timerRef = useRef(null);
@@ -82,7 +86,12 @@ export function useTopEdgeAutoHide(active = true, { edgePx = 72, delay = 2800 } 
     };
     const onMove = (e) => {
       const y = e.touches ? e.touches[0]?.clientY : e.clientY;
-      if (y != null && y <= edgePx) wake();
+      const x = e.touches ? e.touches[0]?.clientX : e.clientX;
+      if (y == null || x == null || y > edgePx) return;
+      const half = (window.innerWidth * centerFrac) / 2;
+      const cx = window.innerWidth / 2;
+      if (x < cx - half || x > cx + half) return;
+      wake();
     };
     window.addEventListener("mousemove", onMove);
     window.addEventListener("touchstart", onMove, { passive: true });
@@ -94,7 +103,7 @@ export function useTopEdgeAutoHide(active = true, { edgePx = 72, delay = 2800 } 
       window.removeEventListener("touchstart", onMove);
       window.removeEventListener("touchmove", onMove);
     };
-  }, [active, edgePx, delay]);
+  }, [active, edgePx, delay, centerFrac]);
 
   // Tastiera: il focus che entra nella navbar (Tab) la tiene visibile anche
   // se il puntatore non è in cima — non è "andare in cima con un dito o un
