@@ -14,6 +14,9 @@
   --muted-on-l:#42566b; --line-on-l:rgba(11,23,34,.14); --blur:saturate(1.4) blur(14px);
   --r-sm:10px; --r-md:14px; --r-lg:20px;
   --shadow:0 10px 40px rgba(2,8,16,.5);
+  --navbar-h:62px; /* altezza reale della navbar — la mappa immersiva la
+    riserva per zoom/ricerca/CTA anche quando la navbar stessa è nascosta,
+    così quando riappare (overlay flottante) non li copre mai. */
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
@@ -31,7 +34,13 @@ a{color:inherit;text-decoration:none}
 
 /* ── nav ───────────────────────────────────────────────────── */
 .navbar{position:sticky;top:0;z-index:1200;background:var(--glass);
-  backdrop-filter:var(--blur);border-bottom:1px solid var(--line)}
+  backdrop-filter:var(--blur);border-bottom:1px solid var(--line);
+  transition:transform .32s ease}
+/* Mappa immersiva ("/"): la navbar diventa un overlay flottante che si
+   ritira da sola quando l'utente non interagisce, così la mappa occupa
+   tutta l'altezza del viewport invece di lasciarle sempre una fascia fissa. */
+.navbar.navbar-immersive{position:fixed;top:0;left:0;right:0}
+.navbar.navbar-immersive.chrome-hidden{transform:translateY(-100%)}
 .nav{display:flex;justify-content:space-between;align-items:center;padding:15px 0}
 .logo{font-weight:800;letter-spacing:-.3px;font-size:19px;display:flex;align-items:center;gap:9px}
 .logo svg{flex:none}
@@ -120,8 +129,10 @@ footer.wrap{color:var(--faint);font-size:12px;padding-top:10px;padding-bottom:26
 .mapshell{position:relative;height:min(72vh,760px);min-height:460px;
   border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--line);
   background:var(--bg2);margin-top:18px;box-shadow:var(--shadow)}
+/* La navbar sopra è un overlay flottante (auto-hide), non riserva più
+   spazio in flusso: la mappa può occupare l'intero viewport. */
 .mapshell.full{left:50%;transform:translateX(-50%);width:100vw;
-  height:calc(100vh - 62px);min-height:520px;border-radius:0;border:0;margin-top:0;box-shadow:none}
+  height:100vh;min-height:520px;border-radius:0;border:0;margin-top:0;box-shadow:none}
 .mapshell .leaflet-container{height:100%;width:100%;background:var(--bg2);font-family:inherit}
 .leaflet-popup-content-wrapper{background:var(--glass);backdrop-filter:var(--blur);
   color:var(--ink);border:1px solid var(--line-strong);border-radius:var(--r-md);
@@ -155,8 +166,14 @@ footer.wrap{color:var(--faint);font-size:12px;padding-top:10px;padding-bottom:26
 @keyframes boltflash{0%{opacity:0;transform:scale(.4)}12%{opacity:1;transform:scale(1.15)}
   25%{transform:scale(1)}100%{opacity:0}}
 
-.mapcta{position:absolute;top:16px;left:150px;right:70px;z-index:1000;
-  display:flex;gap:8px;align-items:center;flex-wrap:wrap;pointer-events:none}
+.mapcta{position:absolute;top:calc(var(--navbar-h) + 16px);left:150px;right:70px;z-index:1000;
+  display:flex;gap:8px;align-items:center;flex-wrap:wrap;pointer-events:none;
+  transition:top .32s ease}
+/* Navbar ritirata (vedi .navbar.chrome-hidden, useTopEdgeAutoHide): niente
+   più da scavalcare, quindi ricerca/CTA salgono il più in alto possibile —
+   e riscendono in automatico (:has, nessun JS in più) appena la navbar
+   torna ad occupare quello spazio. */
+html:has(.navbar.chrome-hidden) .mapcta{top:16px}
 .mapcta>*{pointer-events:auto}
 .mapcta a{background:var(--glass-l);border:1px solid var(--line-on-l);
   backdrop-filter:var(--blur);border-radius:999px;padding:10px 18px;font-size:13px;
@@ -272,10 +289,14 @@ footer.wrap{color:var(--faint);font-size:12px;padding-top:10px;padding-bottom:26
    viewport, mai per una fila di elementi (regola 1.6). */
 
 /* livelli — rail verticale sempre visibile, niente flyout (regola 1.7) */
-.maprail{position:absolute;left:16px;top:90px;z-index:1001;display:flex;
+.maprail{position:absolute;left:16px;top:calc(var(--navbar-h) + 90px);z-index:1001;display:flex;
   flex-direction:column;gap:2px;padding:8px;border-radius:16px;
   background:var(--glass);border:1px solid var(--line-strong);
-  backdrop-filter:var(--blur);box-shadow:var(--shadow)}
+  backdrop-filter:var(--blur);box-shadow:var(--shadow);
+  transition:transform .3s ease,opacity .3s ease}
+/* A scomparsa dopo qualche secondo di inattività (vedi useAutoHide) —
+   torna visibile a qualunque interazione sulla pagina/mappa. */
+.maprail.chrome-hidden{transform:translateX(-14px);opacity:0;pointer-events:none}
 .railitem{display:flex;flex-direction:column}
 .railsep{height:1px;background:var(--line-strong);margin:5px 6px}
 .railbtn{display:flex;flex-direction:column;align-items:center;gap:5px;
@@ -289,8 +310,10 @@ footer.wrap{color:var(--faint);font-size:12px;padding-top:10px;padding-bottom:26
 .railbtn:disabled{color:var(--faint)}
 
 /* campi meteo + sfondo — segmented in alto a destra */
-.mapfields{position:absolute;right:16px;top:74px;z-index:1001;display:flex;
-  flex-direction:column;gap:8px;align-items:flex-end;max-width:calc(100% - 104px)}
+.mapfields{position:absolute;right:16px;top:calc(var(--navbar-h) + 74px);z-index:1001;display:flex;
+  flex-direction:column;gap:8px;align-items:flex-end;max-width:calc(100% - 104px);
+  transition:transform .3s ease,opacity .3s ease}
+.mapfields.chrome-hidden{transform:translateY(-10px);opacity:0;pointer-events:none}
 .segmented{display:flex;gap:4px;padding:5px;border-radius:999px;
   background:var(--glass);border:1px solid var(--line-strong);
   backdrop-filter:var(--blur);box-shadow:var(--shadow);
@@ -303,8 +326,19 @@ footer.wrap{color:var(--faint);font-size:12px;padding-top:10px;padding-bottom:26
 .segbtn:hover:not(:disabled){color:var(--ink);background:rgba(255,255,255,.06)}
 /* 1.4 · il riempimento pieno è riservato allo stato attivo di un controllo */
 .segbtn.on{background:var(--accent);color:#04121f}
-.segbtn.on.alt{background:var(--accent2)}
 .segbtn.on.light{background:rgba(242,247,251,.9);color:var(--ink-on-l)}
+/* Palette categorica per campo — prima solo il vento aveva un colore
+   diverso (teal) da acceso, tutti gli altri diventavano lo stesso blu
+   accent: con più campi accesi insieme erano indistinguibili a colpo
+   d'occhio. Otto tinte nette, staccate tra loro sulla ruota colore. */
+.segbtn.on.v-temp{background:#fb7185}
+.segbtn.on.v-wind{background:#f59e0b}
+.segbtn.on.v-radar{background:#38bdf8}
+.segbtn.on.v-uv{background:#a855f7}
+.segbtn.on.v-clouds{background:#94a3b8}
+.segbtn.on.v-sun{background:#fde047}
+.segbtn.on.v-aurora{background:#34d399}
+.segbtn.on.v-lightning{background:#f472b6}
 .segtag{font-size:8.5px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;
   opacity:.7;font-style:normal;margin-left:4px}
 
@@ -384,6 +418,11 @@ footer.wrap{color:var(--faint);font-size:12px;padding-top:10px;padding-bottom:26
 
 /* Leaflet: i suoi controlli restano liberi dai nostri pannelli, e passano
    al vetro scuro come il resto del chrome (nessun hex nuovo). */
+/* Lo zoom (topleft) sta riservato sotto la fascia navbar, sempre — anche
+   quando la navbar è nascosta — così quando riappare (overlay flottante,
+   vedi .navbar-immersive) non lo copre mai. */
+.mapshell.full .leaflet-top{top:var(--navbar-h);transition:top .32s ease}
+html:has(.navbar.chrome-hidden) .mapshell.full .leaflet-top{top:0}
 .mapshell .leaflet-bottom{bottom:0}
 .mapshell .leaflet-control-attribution{margin:0}
 .mapshell .leaflet-control-velocity{margin:0 0 3px 3px!important}
@@ -395,16 +434,16 @@ footer.wrap{color:var(--faint);font-size:12px;padding-top:10px;padding-bottom:26
 
 /* ── mappa · quattro larghezze ─────────────────────────────────── */
 @media (max-width:900px){
-  .mapcta{left:60px;right:16px;top:16px}
+  .mapcta{left:60px;right:16px}
   .mapdock{left:16px;right:16px}
   .dock-legend{width:auto;flex:1 1 200px}
 }
 @media (max-width:640px){
-  .mapcta{left:16px;right:16px;top:16px}
-  .maprail{top:124px;padding:6px}
+  .mapcta{left:16px;right:16px}
+  .maprail{top:calc(var(--navbar-h) + 124px);padding:6px}
   .railbtn{min-width:0;padding:9px 7px}
   .railbtn .rl{display:none}
-  .mapfields{top:124px;max-width:calc(100% - 84px)}
+  .mapfields{top:calc(var(--navbar-h) + 124px);max-width:calc(100% - 84px)}
   .mapdock{left:76px;right:10px;bottom:22px;gap:8px}
   .dock-timeline{flex:1 1 100%}
   .dock-days{flex:1 1 100%}

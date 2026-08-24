@@ -3,8 +3,8 @@ import "leaflet-velocity/dist/leaflet-velocity.min.css";
 import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import "./globals.css";
-import Link from "next/link";
 import PwaRegister from "./components/PwaRegister";
+import SiteNav from "./components/SiteNav";
 
 export const metadata = {
   title: "Zerotermico — Il meteo alla tua quota.",
@@ -16,35 +16,6 @@ export const metadata = {
 
 export const viewport = { themeColor: "#0a1420" };
 
-function Nav() {
-  return (
-    <header className="navbar">
-      <div className="wrap">
-        <nav className="nav">
-          <Link href="/" className="logo" aria-label="Zerotermico">
-            <svg width="24" height="24" viewBox="0 0 32 32" aria-hidden>
-              <ellipse cx="14" cy="17" rx="9" ry="12" fill="none"
-                stroke="var(--accent)" strokeWidth="3.4" />
-              <line x1="7.5" y1="17" x2="20.5" y2="17"
-                stroke="var(--accent2)" strokeWidth="2.6" />
-              <circle cx="27.5" cy="6" r="3" fill="none"
-                stroke="var(--accent)" strokeWidth="2.4" />
-            </svg>
-            zero<span>°termico</span>
-          </Link>
-          <div>
-            <Link href="/">Mappa</Link>
-            <Link href="/localita">Cerca</Link>
-            <Link href="/itinerari">Itinerari</Link>
-            <Link href="/falesie">Falesie</Link>
-            <Link href="/planner">Pianifica</Link>
-          </div>
-        </nav>
-      </div>
-    </header>
-  );
-}
-
 export default function RootLayout({ children }) {
   return (
     <html lang="it">
@@ -55,7 +26,7 @@ export default function RootLayout({ children }) {
           rel="stylesheet"
         />
         <PwaRegister />
-        <Nav />
+        <SiteNav />
         <main className="wrap">{children}</main>
         <footer className="wrap">
           Zerotermico · nome di lavoro · Bollettini: fonte ufficiale AINEVA / Meteomont ·{" "}

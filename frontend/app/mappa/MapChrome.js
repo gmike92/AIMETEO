@@ -31,10 +31,16 @@ import { DANGER_COLORS, dangerInk } from "@/lib/wx";
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
 /* ── livelli: cosa è disegnato sulla mappa ─────────────────────────── */
-export function MapRail({ layers = [], ready = true }) {
+export function MapRail({
+  layers = [], ready = true, hidden = false, onMouseEnter, onMouseLeave,
+}) {
   if (!layers.length) return null;
   return (
-    <div className="maprail" role="group" aria-label="Livelli della mappa">
+    <div
+      className={`maprail ${hidden ? "chrome-hidden" : ""}`}
+      role="group" aria-label="Livelli della mappa"
+      onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}
+    >
       {layers.map((l) => {
         const Ico = l.icon || Icon.Layers;
         return (
@@ -59,17 +65,23 @@ export function MapRail({ layers = [], ready = true }) {
 }
 
 /* ── campi meteo + sfondo: come è disegnata la mappa ───────────────── */
-export function MapFields({ fields = [], bases = [], base, setBase, ready = true }) {
+export function MapFields({
+  fields = [], bases = [], base, setBase, ready = true,
+  hidden = false, onMouseEnter, onMouseLeave,
+}) {
   if (!fields.length && !bases.length) return null;
   return (
-    <div className="mapfields">
+    <div
+      className={`mapfields ${hidden ? "chrome-hidden" : ""}`}
+      onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}
+    >
       {fields.length > 0 && (
         <div className="segmented" role="group" aria-label="Campi meteo">
           {fields.map((f) => (
             <button
               key={f.key}
               type="button"
-              className={`segbtn ${f.on ? (f.alt ? "on alt" : "on") : ""}`}
+              className={`segbtn ${f.on ? `on ${f.variant ? `v-${f.variant}` : ""}` : ""}`}
               onClick={f.toggle}
               aria-pressed={!!f.on}
               disabled={!ready || f.disabled}

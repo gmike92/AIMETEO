@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { API_BASE } from "@/lib/api";
 import { DANGER_COLORS, dangerInk } from "@/lib/wx";
 import { Icon } from "@/app/components/WxIcon";
+import { useAutoHide } from "@/lib/useAutoHide";
 import { MapRail, MapFields, MapDock } from "./MapChrome";
 
 // Glifi per i contenuti che Leaflet vuole come STRINGA HTML (divIcon, popup):
@@ -82,23 +83,60 @@ async function fetchAurora() {
   const data = await res.json();
   return data.coordinates || [];
 }
+// Blur pass (own canvas, read-then-write so browsers don't choke on
+// self-referential filtered draws) — turns a resampled-but-still-gridded
+// field into a soft, organic-looking glow.
+function blurredDataUrl(cv, px) {
+  const out = document.createElement("canvas");
+  out.width = cv.width;
+  out.height = cv.height;
+  const ctx = out.getContext("2d");
+  ctx.filter = `blur(${px}px)`;
+  ctx.drawImage(cv, 0, 0);
+  return out.toDataURL();
+}
+
+// NOAA's OVATION grid is 1 sample per degree — plotted 1px/degree it reads
+// as visible squares. Oversample 2x and bilinearly interpolate between
+// source samples (wrapping at the antimeridian) before blurring, so the
+// glow is smooth instead of a blocky mosaic of the raw grid cells.
 function auroraCanvas(coords) {
-  const W = 360, H = 181; // 1px/degree: lon 0..359, lat +90..-90 top-to-bottom
+  const SRC_W = 360, SRC_H = 181; // lon 0..359, lat +90..-90 top-to-bottom
+  const vals = new Float32Array(SRC_W * SRC_H);
+  for (const [lon, lat, val] of coords) {
+    const px = Math.round(((lon % 360) + 360) % 360);
+    const py = Math.round(90 - lat);
+    if (px < 0 || px >= SRC_W || py < 0 || py >= SRC_H) continue;
+    vals[py * SRC_W + px] = val;
+  }
+  const W = SRC_W * 2, H = SRC_H * 2;
   const cv = document.createElement("canvas");
   cv.width = W;
   cv.height = H;
   const ctx = cv.getContext("2d");
   const img = ctx.createImageData(W, H);
-  for (const [lon, lat, val] of coords) {
-    const px = Math.round(((lon % 360) + 360) % 360);
-    const py = Math.round(90 - lat);
-    if (px < 0 || px >= W || py < 0 || py >= H) continue;
-    const i = (py * W + px) * 4;
-    img.data[i] = 60; img.data[i + 1] = 255; img.data[i + 2] = 170;
-    img.data[i + 3] = val > 4 ? Math.round(255 * Math.min(1, val / 55)) : 0;
+  for (let py = 0; py < H; py++) {
+    const gy = Math.min(SRC_H - 1, (py / (H - 1)) * (SRC_H - 1));
+    const y0 = Math.floor(gy);
+    const y1 = Math.min(SRC_H - 1, y0 + 1);
+    const fy = gy - y0;
+    for (let px = 0; px < W; px++) {
+      const gx = (px / W) * SRC_W; // longitude wraps, no clamping at the edge
+      const x0 = Math.floor(gx) % SRC_W;
+      const x1 = (x0 + 1) % SRC_W;
+      const fx = gx - Math.floor(gx);
+      const v =
+        vals[y0 * SRC_W + x0] * (1 - fx) * (1 - fy) +
+        vals[y0 * SRC_W + x1] * fx * (1 - fy) +
+        vals[y1 * SRC_W + x0] * (1 - fx) * fy +
+        vals[y1 * SRC_W + x1] * fx * fy;
+      const i = (py * W + px) * 4;
+      img.data[i] = 60; img.data[i + 1] = 255; img.data[i + 2] = 170;
+      img.data[i + 3] = v > 4 ? Math.round(190 * Math.min(1, v / 55)) : 0;
+    }
   }
   ctx.putImageData(img, 0, 0);
-  return cv.toDataURL();
+  return blurredDataUrl(cv, 3);
 }
 
 // Leaflet bounds (possibly outside ±180° after panning around the globe) →
@@ -189,7 +227,7 @@ async function fetchGrid(g) {
 // Shared by temperature/UV/cloud-cover — only the color function and max
 // opacity differ per field.
 function fieldCanvas(values, nx, ny, colorFn, opts = {}) {
-  const { alphaFn = () => 1, maxAlpha = 255 } = opts;
+  const { alphaFn = () => 1, maxAlpha = 255, blur = 0 } = opts;
   const W = 560;
   const H = 320;
   const cv = document.createElement("canvas");
@@ -227,7 +265,7 @@ function fieldCanvas(values, nx, ny, colorFn, opts = {}) {
     }
   }
   ctx.putImageData(img, 0, 0);
-  return cv.toDataURL();
+  return blur ? blurredDataUrl(cv, blur) : cv.toDataURL();
 }
 const tempCanvas = (temps, nx, ny) => fieldCanvas(temps, nx, ny, tempColor);
 
@@ -248,13 +286,16 @@ function uvColor(v) {
   }
   return UV_STOPS[UV_STOPS.length - 1][1];
 }
-const uvCanvas = (uvs, nx, ny) => fieldCanvas(uvs, nx, ny, uvColor, { maxAlpha: 190 });
+const uvCanvas = (uvs, nx, ny) => fieldCanvas(uvs, nx, ny, uvColor, { maxAlpha: 150 });
 
 // Cloud cover 0–100% → neutral white haze, opacity scales with coverage
-// (0% clouds = invisible, 100% = a soft overcast haze).
+// (0% clouds = invisible, 100% = a soft overcast haze). Blurred: at ~200
+// sample points bilinear interpolation alone still reads as a faceted
+// mosaic once stretched over a real map — the blur is what makes it read
+// as haze instead of tiles.
 const cloudCanvas = (clouds, nx, ny) =>
-  fieldCanvas(clouds, nx, ny, () => [235, 240, 245], {
-    maxAlpha: 210, alphaFn: (v) => Math.min(1, Math.max(0, v) / 100),
+  fieldCanvas(clouds, nx, ny, () => [244, 240, 232], {
+    maxAlpha: 160, alphaFn: (v) => Math.min(1, Math.max(0, v) / 100), blur: 6,
   });
 
 // Day/night terminator, computed per OUTPUT pixel directly (not interpolated
@@ -299,10 +340,14 @@ function rangeGradient(tmin, tmax) {
 // Wind particle color scale — same array feeds both the velocity layer and
 // its legend, so they can never drift apart. `light` = busy/dark background
 // (dark base or the temperature field underneath) → lighter particle colors.
+// Amber/gold rather than blue: temperature already owns the cool end of the
+// spectrum (violet→blue→cyan for cold Alpine readings), so a blue wind field
+// on top just read as "everything is blue" — gold particles stay legible
+// over both the cool temperature field and the plain basemap.
 function windColorScale(light) {
   return light
-    ? ["#ffffff", "#f0f4ff", "#dbe6ff", "#c3d5ff", "#a8c2ff", "#8facff"]
-    : ["#33536f", "#2b618f", "#2470ae", "#1d7fce", "#158eee", "#0e9dff"];
+    ? ["#fff7e6", "#ffe8ad", "#ffd166", "#ffb020", "#ff8c00", "#ff6a00"]
+    : ["#7a4a00", "#9c6300", "#c17f00", "#e69a00", "#ffb020", "#ffd166"];
 }
 const windGradient = (light) => `linear-gradient(90deg, ${windColorScale(light).join(",")})`;
 
@@ -315,7 +360,7 @@ const uvGradient = (() => {
   return `linear-gradient(90deg, ${stops.join(",")})`;
 })();
 
-const CLOUD_GRADIENT = "linear-gradient(90deg, rgba(235,240,245,0), rgba(235,240,245,.82))";
+const CLOUD_GRADIENT = "linear-gradient(90deg, rgba(244,240,232,0), rgba(244,240,232,.82))";
 const AURORA_GRADIENT = "linear-gradient(90deg, rgba(60,255,170,0), rgba(60,255,170,.9))";
 
 function popupHtml(area, route) {
@@ -388,10 +433,17 @@ export default function MapView({
   const [sunNote, setSunNote] = useState(null); // "vista tutta di giorno/notte" quando non c'è confine visibile
   const [aurora, setAurora] = useState(false);
   const [auroraReady, setAuroraReady] = useState(false);
+  const [auroraDataVersion, setAuroraDataVersion] = useState(0); // bump → nuovo fetch NOAA disegnato
   const [lightning, setLightning] = useState(false);
 
   const [showRoutes, setShowRoutes] = useState(true); // preserva il comportamento attuale (sempre visibili)
   const [showCrags, setShowCrags] = useState(false);
+
+  // Rail (livelli/attività) e campi meteo: a scomparsa dopo qualche secondo
+  // di inattività, tornano visibili a qualunque interazione sulla pagina —
+  // stesso pattern della navbar immersiva (vedi useAutoHide.js).
+  const railAutoHide = useAutoHide(ready);
+  const fieldsAutoHide = useAutoHide(ready);
 
   useEffect(() => {
     if (!sun) return;
@@ -452,19 +504,28 @@ export default function MapView({
 
         // Live model grid (temperature + wind), resampled from whatever is
         // on screen — refetched (debounced) on every pan/zoom so it always
-        // covers the current view, anywhere in the world.
+        // covers the current view, anywhere in the world. Also on a plain
+        // 5' timer (below), so a transient failure (e.g. Open-Meteo's hourly
+        // rate limit) recovers on its own instead of needing a pan/zoom.
         const refreshGrid = async () => {
           if (S.current.gridFetching) return;
           S.current.gridFetching = true;
           try {
             const data = await fetchGrid(computeGridFromBounds(map.getBounds()));
+            const hadNoGrid = !S.current.grid;
             S.current.grid = data;
             if (!dead) {
               setTempRange([Math.min(...data.temps), Math.max(...data.temps)]);
               setGridVersion((v) => v + 1);
+              // Il fetch iniziale può fallire (es. quota oraria Open-Meteo
+              // esaurita) e lasciare il banner d'errore appeso a schermo:
+              // appena arriva un fetch buono, il banner sparisce.
+              if (hadNoGrid) {
+                setMsg((m) => (m === "Dati meteo live non raggiungibili." ? "" : m));
+              }
             }
           } catch {
-            // silent on pan/zoom refetch — keep showing the last good grid
+            // silent on retry — keep showing the last good grid (se c'è)
           } finally {
             S.current.gridFetching = false;
           }
@@ -481,6 +542,9 @@ export default function MapView({
           clearTimeout(S.current.gridTimer);
           S.current.gridTimer = setTimeout(() => S.current.refreshGrid?.(), 700);
         });
+        S.current.gridRetryTimer = setInterval(() => {
+          if (!S.current.grid) S.current.refreshGrid?.();
+        }, 5 * 60 * 1000);
 
         const [conds, routes] = await Promise.all([
           fetch(`${API_BASE}/conditions`).then((r) => (r.ok ? r.json() : [])),
@@ -588,6 +652,7 @@ export default function MapView({
       window.removeEventListener("resize", onResize);
       clearInterval(S.current.timer);
       clearTimeout(S.current.gridTimer);
+      clearInterval(S.current.gridRetryTimer);
       if (S.current.map) S.current.map.remove();
       S.current = {};
     };
@@ -663,7 +728,7 @@ export default function MapView({
       S.current.tempOverlay = L.imageOverlay(
         tempCanvas(grid.temps, grid.nx, grid.ny),
         [[grid.la2, grid.lo1], [grid.la1, grid.lo2]],
-        { opacity: 0.55, interactive: false }
+        { opacity: 0.4, interactive: false }
       ).addTo(map);
       S.current.tempOverlay.bringToFront?.();
     }
@@ -681,7 +746,7 @@ export default function MapView({
       S.current.uvOverlay = L.imageOverlay(
         uvCanvas(grid.uvs, grid.nx, grid.ny),
         [[grid.la2, grid.lo1], [grid.la1, grid.lo2]],
-        { opacity: 0.6, interactive: false }
+        { opacity: 0.45, interactive: false }
       ).addTo(map);
       S.current.uvOverlay.bringToFront?.();
     }
@@ -699,7 +764,7 @@ export default function MapView({
       S.current.cloudOverlay = L.imageOverlay(
         cloudCanvas(grid.clouds, grid.nx, grid.ny),
         [[grid.la2, grid.lo1], [grid.la1, grid.lo2]],
-        { opacity: 0.75, interactive: false }
+        { opacity: 0.5, interactive: false }
       ).addTo(map);
       S.current.cloudOverlay.bringToFront?.();
     }
@@ -744,7 +809,7 @@ export default function MapView({
         emptyString: "", speedUnit: "m/s",
       },
       minVelocity: 0, maxVelocity: 16, velocityScale: 0.008,
-      particleMultiplier: 1 / 260, lineWidth: 1.6,
+      particleMultiplier: 1 / 260, lineWidth: 1.3, particleAge: 55,
       colorScale: scale,
     }).addTo(map);
   }, [wind, temp, base, ready, gridVersion]);
@@ -788,13 +853,9 @@ export default function MapView({
 
   // Aurora boreale/australe — NOAA OVATION model, fetched once per toggle-on
   // (world-fixed grid, refreshed every 5' while visible; not tied to pan/zoom).
+  // Only the DATA fetch lives here — where it's drawn is a separate effect
+  // below, so panning doesn't need a fresh network round-trip to update.
   useEffect(() => {
-    const { L, map } = S.current;
-    if (!map) return;
-    if (S.current.auroraLayer) {
-      map.removeLayer(S.current.auroraLayer);
-      S.current.auroraLayer = null;
-    }
     if (!aurora) {
       setAuroraReady(false);
       return;
@@ -804,24 +865,52 @@ export default function MapView({
       try {
         const coords = await fetchAurora();
         if (dead) return;
-        if (S.current.auroraLayer) map.removeLayer(S.current.auroraLayer);
-        S.current.auroraLayer = L.imageOverlay(
-          auroraCanvas(coords), [[-90, -180], [90, 180]],
-          { opacity: 0.85, interactive: false }
-        ).addTo(map);
-        S.current.auroraLayer.bringToFront?.();
-        if (!dead) setAuroraReady(true);
+        S.current.auroraDataUrl = auroraCanvas(coords);
+        setAuroraDataVersion((v) => v + 1);
+        setAuroraReady(true);
       } catch {
         if (!dead) setAuroraReady(false);
       }
     };
     load();
-    S.current.auroraTimer = setInterval(load, 5 * 60 * 1000);
+    const timer = setInterval(load, 5 * 60 * 1000);
     return () => {
       dead = true;
-      clearInterval(S.current.auroraTimer);
+      clearInterval(timer);
     };
   }, [aurora, ready]);
+
+  // Aurora rendering — unlike temp/wind (refetched from the current bounds
+  // on every pan) or radar (a native Leaflet tile layer, which tiles across
+  // world copies on its own), the aurora image is one fixed world-sized
+  // canvas. Anchored just once at [[-90,-180],[90,180]] it only ever showed
+  // on the globe copy it was first drawn on, and vanished as soon as you
+  // panned to a repeated copy. Fix: redraw it as one imageOverlay PER world
+  // copy currently in view, recomputed on every pan/zoom (viewVersion) and
+  // whenever fresh NOAA data lands (auroraDataVersion).
+  useEffect(() => {
+    const { L, map } = S.current;
+    if (!map) return;
+    if (S.current.auroraLayer) {
+      map.removeLayer(S.current.auroraLayer);
+      S.current.auroraLayer = null;
+    }
+    if (!aurora || !S.current.auroraDataUrl) return;
+    const b = map.getBounds();
+    const kMin = Math.floor((b.getWest() + 180) / 360);
+    const kMax = Math.floor((b.getEast() + 180) / 360);
+    const group = L.layerGroup();
+    for (let k = kMin; k <= kMax; k++) {
+      L.imageOverlay(
+        S.current.auroraDataUrl,
+        [[-90, -180 + 360 * k], [90, 180 + 360 * k]],
+        { opacity: 0.55, interactive: false }
+      ).addTo(group);
+    }
+    group.addTo(map);
+    group.eachLayer((l) => l.bringToFront?.());
+    S.current.auroraLayer = group;
+  }, [aurora, ready, viewVersion, auroraDataVersion]);
 
   // Fulmini — DATI SINTETICI (dimostrativi): nessuna fonte gratuita
   // real-time affidabile individuata; struttura pronta per un feed reale
@@ -871,7 +960,7 @@ export default function MapView({
       }).addTo(map);
     }
     Object.entries(radarLayers).forEach(([path, layer]) =>
-      layer.setOpacity(path === f.path ? 0.7 : 0)
+      layer.setOpacity(path === f.path ? 0.5 : 0)
     );
   }, [radar, frameIdx, frames]);
 
@@ -891,27 +980,31 @@ export default function MapView({
   // ── descrizione dichiarativa del chrome ──────────────────────────
   // Nessuno stato nuovo: sono gli stessi toggle di prima, elencati invece
   // che scritti a mano uno per uno dentro il JSX.
+  // `variant` dà a ciascun campo un colore distinto da acceso (vedi
+  // .segbtn.on.v-* in globals.css) — prima solo vento aveva un colore
+  // diverso (alt/teal), tutti gli altri diventavano lo stesso blu accent:
+  // con più campi accesi insieme erano indistinguibili a colpo d'occhio.
   const fields = [
-    { key: "temp", label: "Temp", on: temp, toggle: () => setTemp(!temp) },
-    { key: "wind", label: "Vento", on: wind, toggle: () => setWind(!wind), alt: true },
+    { key: "temp", label: "Temp", on: temp, toggle: () => setTemp(!temp), variant: "temp" },
+    { key: "wind", label: "Vento", on: wind, toggle: () => setWind(!wind), variant: "wind" },
     {
       key: "radar", label: "Pioggia", on: radar, toggle: () => setRadar(!radar),
-      disabled: !frames.length,
+      disabled: !frames.length, variant: "radar",
       title: frames.length ? undefined : "Radar RainViewer non raggiungibile",
     },
-    { key: "uv", label: "UV", on: uv, toggle: () => setUv(!uv) },
-    { key: "clouds", label: "Nuvole", on: clouds, toggle: () => setClouds(!clouds) },
+    { key: "uv", label: "UV", on: uv, toggle: () => setUv(!uv), variant: "uv" },
+    { key: "clouds", label: "Nuvole", on: clouds, toggle: () => setClouds(!clouds), variant: "clouds" },
     {
-      key: "sun", label: "Sole", on: sun, toggle: () => setSun(!sun),
+      key: "sun", label: "Sole", on: sun, toggle: () => setSun(!sun), variant: "sun",
       title: "Terminatore giorno/notte — calcolo astronomico reale",
     },
     {
-      key: "aurora", label: "Aurora", on: aurora, toggle: () => setAurora(!aurora),
+      key: "aurora", label: "Aurora", on: aurora, toggle: () => setAurora(!aurora), variant: "aurora",
       tag: aurora && !auroraReady ? "…" : undefined,
       title: "Probabilità aurora — modello NOAA OVATION",
     },
     {
-      key: "lightning", label: "Fulmini", on: lightning,
+      key: "lightning", label: "Fulmini", on: lightning, variant: "lightning",
       toggle: () => setLightning(!lightning), tag: "demo",
       title: "Dati dimostrativi — nessuna fonte gratuita real-time ancora integrata",
     },
@@ -977,16 +1070,25 @@ export default function MapView({
       <div ref={mapEl} style={{ position: "absolute", inset: 0 }} />
       {children}
 
-      {/* Livelli — cosa è disegnato sulla mappa. Rail sempre visibile. */}
-      <MapRail ready={ready} layers={layers} />
+      {/* Livelli — cosa è disegnato sulla mappa. A scomparsa (railAutoHide). */}
+      <MapRail
+        ready={ready}
+        layers={layers}
+        hidden={railAutoHide.hidden}
+        onMouseEnter={railAutoHide.onMouseEnter}
+        onMouseLeave={railAutoHide.onMouseLeave}
+      />
 
-      {/* Campi meteo + sfondo — come è disegnata la mappa. */}
+      {/* Campi meteo + sfondo — come è disegnata la mappa. A scomparsa (fieldsAutoHide). */}
       <MapFields
         ready={ready}
         fields={fields}
         bases={BASES}
         base={base}
         setBase={setBase}
+        hidden={fieldsAutoHide.hidden}
+        onMouseEnter={fieldsAutoHide.onMouseEnter}
+        onMouseLeave={fieldsAutoHide.onMouseLeave}
       />
 
       {/* Legenda, timeline radar e striscia giorni: un solo sistema di layout. */}
