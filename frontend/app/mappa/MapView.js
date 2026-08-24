@@ -8,7 +8,8 @@ import { API_BASE } from "@/lib/api";
 import { DANGER_COLORS, dangerInk } from "@/lib/wx";
 import { Icon } from "@/app/components/WxIcon";
 import { useAutoHide } from "@/lib/useAutoHide";
-import { MapRail, MapFields, MapDock } from "./MapChrome";
+import { FooterLinks } from "@/app/components/SiteFooter";
+import { MapRail, MapFields, MapTools, MapDock } from "./MapChrome";
 
 // Glifi per i contenuti che Leaflet vuole come STRINGA HTML (divIcon, popup):
 // lì non possiamo montare un componente React, ma il markup SVG è lo stesso
@@ -439,11 +440,13 @@ export default function MapView({
   const [showRoutes, setShowRoutes] = useState(true); // preserva il comportamento attuale (sempre visibili)
   const [showCrags, setShowCrags] = useState(false);
 
-  // Rail (livelli/attività) e campi meteo: a scomparsa dopo qualche secondo
-  // di inattività, tornano visibili a qualunque interazione sulla pagina —
-  // stesso pattern della navbar immersiva (vedi useAutoHide.js).
+  // Rail (livelli/attività), campi meteo e strumenti: a scomparsa dopo
+  // qualche secondo di inattività, tornano visibili a qualunque interazione
+  // sulla pagina — stesso pattern della navbar immersiva (vedi useAutoHide.js).
   const railAutoHide = useAutoHide(ready);
   const fieldsAutoHide = useAutoHide(ready);
+  const toolsAutoHide = useAutoHide(ready);
+  const [locating, setLocating] = useState(false);
 
   useEffect(() => {
     if (!sun) return;
@@ -977,6 +980,52 @@ export default function MapView({
     : "";
   const isForecast = frames[frameIdx] && frames[frameIdx].time * 1000 > Date.now();
 
+  // Messaggio che si pulisce da solo — a differenza del banner "dati non
+  // raggiungibili" (quello resta finché non arriva un fetch buono), un
+  // errore di geolocalizzazione è un evento singolo: non deve restare
+  // appeso per sempre se l'utente non tocca più nulla.
+  const showTransientMsg = (text, ms = 4500) => {
+    setMsg(text);
+    setTimeout(() => setMsg((m) => (m === text ? "" : m)), ms);
+  };
+
+  // Mirino — centra la mappa sulla posizione del browser e ci lascia un
+  // pallino (stesso pulse dei marker gita); niente stato persistito, un
+  // secondo click aggiorna semplicemente pallino e vista.
+  const handleLocate = () => {
+    const { L, map } = S.current;
+    if (!map) return;
+    if (!navigator.geolocation) {
+      showTransientMsg("Geolocalizzazione non supportata da questo browser.");
+      return;
+    }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLocating(false);
+        const { latitude, longitude } = pos.coords;
+        map.flyTo([latitude, longitude], Math.max(map.getZoom(), 12), { duration: 1.2 });
+        if (S.current.geoMarker) map.removeLayer(S.current.geoMarker);
+        S.current.geoMarker = L.marker([latitude, longitude], {
+          interactive: false,
+          icon: L.divIcon({
+            className: "", html: `<span class="geo-dot"></span>`,
+            iconSize: [18, 18], iconAnchor: [9, 9],
+          }),
+        }).addTo(map);
+      },
+      (err) => {
+        setLocating(false);
+        showTransientMsg(
+          err.code === err.PERMISSION_DENIED
+            ? "Permesso di geolocalizzazione negato."
+            : "Posizione non disponibile al momento."
+        );
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
+
   // ── descrizione dichiarativa del chrome ──────────────────────────
   // Nessuno stato nuovo: sono gli stessi toggle di prima, elencati invece
   // che scritti a mano uno per uno dentro il JSX.
@@ -1065,6 +1114,23 @@ export default function MapView({
       ? { frames, frameIdx, setFrameIdx, playing, setPlaying, frameTime, isForecast }
       : null;
 
+  // Contenuto del pulsante "Info" — prima era un paragrafo fisso sotto la
+  // mappa più il footer del sito; la pagina mappa non scrolla più (vedi
+  // globals.css), quindi vivono qui. FooterLinks è lo stesso componente che
+  // usa il footer sulle altre pagine (nessun testo duplicato).
+  const infoContent = (
+    <>
+      <p>
+        Supporto alla decisione, non una raccomandazione. Il bollettino valanghe ufficiale
+        (AINEVA) prevale sempre. Mappa © CARTO / OpenTopoMap / OpenStreetMap contributors ·
+        radar © RainViewer · vento © Open-Meteo · pendenze: elaborazione propria da
+        Copernicus DEM © ESA (30 m, indicative: la risoluzione non vede canali e rocce —
+        la valutazione del terreno resta tua).
+      </p>
+      <p><FooterLinks /></p>
+    </>
+  );
+
   return (
     <div className={`mapshell ${fullscreen ? "full" : ""}`}>
       <div ref={mapEl} style={{ position: "absolute", inset: 0 }} />
@@ -1089,6 +1155,17 @@ export default function MapView({
         hidden={fieldsAutoHide.hidden}
         onMouseEnter={fieldsAutoHide.onMouseEnter}
         onMouseLeave={fieldsAutoHide.onMouseLeave}
+      />
+
+      {/* Impostazioni, info, centra sulla mia posizione. A scomparsa (toolsAutoHide). */}
+      <MapTools
+        ready={ready}
+        hidden={toolsAutoHide.hidden}
+        onMouseEnter={toolsAutoHide.onMouseEnter}
+        onMouseLeave={toolsAutoHide.onMouseLeave}
+        onLocate={handleLocate}
+        locating={locating}
+        infoContent={infoContent}
       />
 
       {/* Legenda, timeline radar e striscia giorni: un solo sistema di layout. */}

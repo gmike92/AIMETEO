@@ -133,6 +133,10 @@ footer.wrap{color:var(--faint);font-size:12px;padding-top:10px;padding-bottom:26
    spazio in flusso: la mappa può occupare l'intero viewport. */
 .mapshell.full{left:50%;transform:translateX(-50%);width:100vw;
   height:100vh;min-height:520px;border-radius:0;border:0;margin-top:0;box-shadow:none}
+/* Pagina mappa: sempre a tutto schermo, mai scrollabile (il footer/
+   disclaimer che prima stava sotto ora vive nel pulsante "Info" — vedi
+   MapChrome.js — quindi non serve più raggiungerli scorrendo). */
+html:has(.mapshell.full),body:has(.mapshell.full){overflow:hidden;height:100%}
 .mapshell .leaflet-container{height:100%;width:100%;background:var(--bg2);font-family:inherit}
 .leaflet-popup-content-wrapper{background:var(--glass);backdrop-filter:var(--blur);
   color:var(--ink);border:1px solid var(--line-strong);border-radius:var(--r-md);
@@ -227,6 +231,13 @@ html:has(.navbar.chrome-hidden) .mapcta{top:16px}
   background:var(--c,#38bdf8);border:2px solid #fff;
   box-shadow:0 1px 6px rgba(11,23,34,.35)}
 @keyframes rtpulse{0%{transform:scale(.6);opacity:.45}70%{transform:scale(1.6);opacity:0}100%{opacity:0}}
+
+/* ── mirino: pallino "la mia posizione" (stesso pulse dei marker gita) ── */
+.geo-dot{position:relative;display:block;width:16px;height:16px}
+.geo-dot::before{content:"";position:absolute;inset:-4px;border-radius:50%;
+  background:var(--accent);opacity:.35;animation:rtpulse 2.2s ease-out infinite}
+.geo-dot::after{content:"";position:absolute;inset:2px;border-radius:50%;
+  background:var(--accent);border:2px solid #fff;box-shadow:0 1px 6px rgba(11,23,34,.35)}
 
 /* ── route marker clusters ─────────────────────────────────── */
 .rt-cluster{display:flex;align-items:center;justify-content:center;
@@ -386,6 +397,25 @@ html:has(.navbar.chrome-hidden) .mapfields{top:16px}
 .segbtn.on.v-lightning{background:#f472b6}
 .segtag{font-size:8.5px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;
   opacity:.7;font-style:normal;margin-left:4px}
+
+/* strumenti — impostazioni/info/mirino, colonna sinistra sotto Attività:
+   stessa logica di comparsa/posizione di rail e campi (vedi sopra). */
+.maptools{position:absolute;left:16px;top:calc(var(--navbar-h) + 130px);z-index:1001;
+  display:flex;flex-direction:column;gap:6px;
+  transition:transform .3s ease,opacity .3s ease,top .32s ease}
+html:has(.navbar.chrome-hidden) .maptools{top:130px}
+.maptools.chrome-hidden{transform:translateX(-14px);opacity:0;pointer-events:none}
+
+/* variante compatta del trigger: solo icona, quadrata invece di pillola —
+   per controlli secondari che non hanno bisogno di un'etichetta sempre
+   visibile (impostazioni, info, mirino). */
+.flyout-trigger.compact{width:38px;height:38px;padding:0;justify-content:center;
+  border-radius:12px;gap:0}
+
+.tool-panel{width:220px}
+.tool-note{font-size:12px;line-height:1.55;color:var(--muted)}
+.tool-panel-info p{font-size:12px;line-height:1.55;color:var(--muted)}
+.tool-panel-info p+p{margin-top:10px;font-size:11px;color:var(--faint)}
 
 /* dock — legenda, timeline radar e striscia giorni in un solo flex */
 .mapdock{position:absolute;left:104px;right:16px;bottom:28px;z-index:1000;

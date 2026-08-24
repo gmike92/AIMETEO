@@ -21,6 +21,10 @@
 //   .maprail    trigger "Attività" + flyout con i livelli
 //   .mapfields  trigger "Meteo" + flyout con i campi, e sfondo mappa sempre
 //               visibile accanto (non è un "campo meteo", resta un tap)
+//   .maptools   impostazioni, info (ex disclaimer/footer, non più
+//               raggiungibili scorrendo: la pagina mappa non scrolla più) e
+//               centra-sulla-mia-posizione — stessi trigger compatti, stessa
+//               logica di comparsa/posizione di rail e campi
 //   .mapdock    legenda + timeline radar + striscia giorni, un solo flex
 //
 // Tutti i controlli sono <button> reali con aria-pressed e focus ring
@@ -40,9 +44,9 @@ const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
    query pointer:fine), click/tocco ovunque (stato React, funziona anche
    da tastiera perché è un <button> vero) — resta aperto finché non si
    clicca altrove o di nuovo sul trigger. */
-function FlyoutGroup({
-  className, trigger, children, ready = true, hidden = false,
-  onMouseEnter, onMouseLeave, ariaLabel,
+export function FlyoutGroup({
+  className, trigger, children, ready = true, hidden = false, compact = false,
+  onMouseEnter, onMouseLeave, ariaLabel, title,
 }) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef(null);
@@ -67,11 +71,12 @@ function FlyoutGroup({
     >
       <button
         type="button"
-        className="flyout-trigger"
+        className={`flyout-trigger ${compact ? "compact" : ""}`}
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-haspopup="true"
         disabled={!ready}
+        title={title}
       >
         {trigger}
       </button>
@@ -184,6 +189,52 @@ export function MapFields({
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+/* ── strumenti: impostazioni, info, centra sulla mia posizione ──────
+   Stessa logica di movimento di rail e campi meteo (stesso useAutoHide,
+   stesso :has() per salire/scendere con la navbar — vedi globals.css),
+   ma pulsanti compatti solo-icona: sono controlli secondari, non hanno
+   bisogno del peso visivo di un'etichetta come Attività/Meteo. */
+export function MapTools({
+  ready = true, hidden = false, onMouseEnter, onMouseLeave,
+  onLocate, locating = false, infoContent,
+}) {
+  return (
+    <div
+      className={`maptools ${hidden ? "chrome-hidden" : ""}`}
+      onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}
+    >
+      <FlyoutGroup
+        className="tool-settings" ariaLabel="Impostazioni" compact
+        ready={ready} title="Impostazioni"
+        trigger={<Icon.Settings size={17} />}
+      >
+        <div className="tool-panel">
+          <p className="tool-note">
+            Impostazioni in arrivo — qui potrai scegliere unità di misura, tema e notifiche.
+          </p>
+        </div>
+      </FlyoutGroup>
+      <FlyoutGroup
+        className="tool-info" ariaLabel="Informazioni" compact
+        ready={ready} title="Info"
+        trigger={<Icon.Info size={17} />}
+      >
+        <div className="tool-panel tool-panel-info">{infoContent}</div>
+      </FlyoutGroup>
+      <button
+        type="button"
+        className="flyout-trigger compact"
+        onClick={onLocate}
+        disabled={!ready || locating}
+        title="Centra sulla mia posizione"
+        aria-label="Centra sulla mia posizione"
+      >
+        <Icon.Crosshair size={17} />
+      </button>
     </div>
   );
 }

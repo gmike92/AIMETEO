@@ -5,6 +5,7 @@ import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import "./globals.css";
 import PwaRegister from "./components/PwaRegister";
 import SiteNav from "./components/SiteNav";
+import SiteFooter from "./components/SiteFooter";
 
 export const metadata = {
   title: "Zerotermico — Il meteo alla tua quota.",
@@ -28,11 +29,7 @@ export default function RootLayout({ children }) {
         <PwaRegister />
         <SiteNav />
         <main className="wrap">{children}</main>
-        <footer className="wrap">
-          Zerotermico · nome di lavoro · Bollettini: fonte ufficiale AINEVA / Meteomont ·{" "}
-          <a href="/fonti" style={{ textDecoration: "underline" }}>Fonti e licenze</a> ·{" "}
-          <a href="/privacy" style={{ textDecoration: "underline" }}>Privacy</a>
-        </footer>
+        <SiteFooter />
       </body>
     </html>
   );
