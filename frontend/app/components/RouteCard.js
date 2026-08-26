@@ -1,9 +1,12 @@
+"use client";
 // Card itinerario — opzione 1c. Sostituisce il blocco <a className="card">
 // e il componente Spark di app/itinerari/page.js, e in più disegna la linea
 // dello zero termico sul profilo.
 //
-// Server component (nessuno stato): il profilo è SVG renderizzato lato
-// server dai punti REALI della traccia, mai da una curva finta.
+// Client component: usa i18n e unità di misura dai Settings (regola 1.9 —
+// il rendering iniziale coincide comunque col server, vedi
+// SettingsProvider). Il profilo resta un SVG puro calcolato dai punti REALI
+// della traccia, mai da una curva finta.
 //
 // Degrada senza lanciare (regola 1.9): senza traccia il posto del profilo
 // mostra un placeholder dichiarato; senza freezingLevel la linea dello zero
@@ -11,27 +14,30 @@
 
 import { Icon } from "./WxIcon";
 import { fmtM, fmtMin, fmtNum } from "@/lib/fmt";
+import { useT } from "@/lib/i18n";
+import { useUnits } from "@/lib/units";
+import { useSettings } from "./SettingsProvider";
 
-const ACT_LABEL = {
-  scialpinismo: "Scialpinismo",
-  alpinismo: "Alpinismo",
-  arrampicata: "Arrampicata",
-  via_ferrata: "Via ferrata",
-  escursionismo: "Escursionismo",
-  trail_running: "Trail running",
-  mtb_alpino: "MTB alpino",
-  volo_libero: "Volo libero",
+const ACT_KEY = {
+  scialpinismo: "act.scialpinismo",
+  alpinismo: "act.alpinismo",
+  arrampicata: "act.arrampicata",
+  via_ferrata: "act.via_ferrata",
+  escursionismo: "act.escursionismo",
+  trail_running: "act.trail_running",
+  mtb_alpino: "act.mtb_alpino",
+  volo_libero: "act.volo_libero",
 };
 
 // Colore del grado: sul BORDO e sul testo, mai come riempimento (regola 1.4).
 // I riempimenti restano ai soli chip EAWS 1–5.
 function gradeColor(grade) {
   const g = (grade || "").toUpperCase();
-  if (g === "T") return "var(--accent2)";
-  if (g === "E") return "var(--accent)";
-  if (g === "EE") return "var(--warn)";
+  if (g === "T") return "var(--accent2-text)";
+  if (g === "E") return "var(--accent-text)";
+  if (g === "EE") return "var(--warn-text)";
   if (g === "EEA" || g.startsWith("F") || g.startsWith("PD") || g.startsWith("AD"))
-    return "var(--danger)";
+    return "var(--danger-text)";
   return "var(--muted)";
 }
 
@@ -39,11 +45,13 @@ const W = 280, H = 76, PAD = 8;
 
 /** Profilo altimetrico + linea dello zero termico. */
 function Profile({ points, freezingLevel, slug }) {
+  const t = useT();
+  const units = useUnits();
   const eles = (points || []).map((p) => p.ele).filter((e) => e != null);
   if (eles.length < 8) {
     return (
       <div className="rcard-profile empty">
-        <span>traccia GPX non ancora ingerita</span>
+        <span>{t("rcard.no_track")}</span>
       </div>
     );
   }
@@ -111,7 +119,7 @@ function Profile({ points, freezingLevel, slug }) {
         )}
       </svg>
       {showFrz && (
-        <span className="rcard-frz tnum">0°C {fmtM(frz)}</span>
+        <span className="rcard-frz tnum">0°C {units.elevation(frz)}</span>
       )}
       <span className="rcard-range tnum">
         {fmtNum(lo)}–{fmtM(hi)}
@@ -121,6 +129,8 @@ function Profile({ points, freezingLevel, slug }) {
 }
 
 export default function RouteCard({ route: r, freezingLevel }) {
+  const t = useT();
+  const units = useUnits();
   // Con una traccia reale il link apre la mappa sulla traccia; senza, la scheda.
   const hasTrack = r.start_lat != null && r.start_lon != null;
   const verified = r.verified_at != null;
@@ -138,7 +148,7 @@ export default function RouteCard({ route: r, freezingLevel }) {
           {/* Attività come kicker testuale: era un'emoji, e un'emoji di
               attività è esattamente il glifo che cambia forma su ogni OS. */}
           <span className="rcard-kicker">
-            {ACT_LABEL[r.activity] || r.activity?.replace("_", " ")}
+            {t(ACT_KEY[r.activity]) || r.activity?.replace("_", " ")}
           </span>
           <h3>{r.name}</h3>
           <p className="rcard-area">{r.area_name}</p>
@@ -148,7 +158,7 @@ export default function RouteCard({ route: r, freezingLevel }) {
         <span
           className="rcard-grade tnum"
           style={{ color: gradeColor(r.diff_grade) }}
-          title={`${r.diff_grade || "difficoltà n.d."}${
+          title={`${r.diff_grade || "n.d."}${
             r.diff_scale ? ` (scala ${r.diff_scale})` : ""
           }`}
         >
@@ -160,18 +170,15 @@ export default function RouteCard({ route: r, freezingLevel }) {
 
       <div className="statgrid tnum">
         <div className="statcell">
-          <span className="k">Tempo</span>
+          <span className="k">{t("rcard.time")}</span>
           <span className="v" title={r.tempi?.metodo || undefined}>{tempo || "—"}</span>
         </div>
         <div className="statcell">
-          <span className="k">Dislivello</span>
-          <span className="v">
-            {fmtNum(r.vertical_gain_m) || "—"}
-            {r.vertical_gain_m != null && <em className="u"> m</em>}
-          </span>
+          <span className="k">{t("rcard.gain")}</span>
+          <span className="v">{units.elevation(r.vertical_gain_m) || "—"}</span>
         </div>
         <div className="statcell">
-          <span className="k">Pendio</span>
+          <span className="k">{t("rcard.slope")}</span>
           <span className="v">{r.max_slope_deg != null ? `${r.max_slope_deg}°` : "—"}</span>
         </div>
       </div>
@@ -179,20 +186,80 @@ export default function RouteCard({ route: r, freezingLevel }) {
       <div className="rcard-foot">
         <span className={verified ? "ok" : "todo"}>
           {verified && <Icon.Check size={13} />}
-          {verified ? "verificato" : "da verificare"}
+          {verified ? t("rcard.verified") : t("rcard.unverified")}
         </span>
-        <span className="go">{hasTrack ? "Traccia sulla mappa →" : "Scheda itinerario →"}</span>
+        <span className="go">{hasTrack ? t("rcard.go_map") : t("rcard.go_route")}</span>
       </div>
     </a>
+  );
+}
+
+/** Variante compatta a riga, per la densità "elenco". Niente profilo (il
+ *  punto dell'elenco è vederne tanti a schermo), stessi dati essenziali. */
+function RouteListRow({ route: r, freezingLevel }) {
+  const t = useT();
+  const units = useUnits();
+  const hasTrack = r.start_lat != null && r.start_lon != null;
+  const verified = r.verified_at != null;
+  const tempo =
+    fmtMin(r.tempi?.totale_min) ||
+    (r.tempi?.salita_min != null ? `~${fmtMin(r.tempi.salita_min)}` : null);
+
+  return (
+    <a className="rrow" href={hasTrack ? `/?route=${encodeURIComponent(r.slug)}` : `/routes/${r.slug}`}>
+      <span
+        className="rrow-grade tnum"
+        style={{ color: gradeColor(r.diff_grade) }}
+        title={`${r.diff_grade || "n.d."}${r.diff_scale ? ` (scala ${r.diff_scale})` : ""}`}
+      >
+        {r.diff_grade || "n.d."}
+      </span>
+      <span className="rrow-name">
+        <strong>{r.name}</strong>
+        <span className="rrow-sub">
+          {t(ACT_KEY[r.activity]) || r.activity} · {r.area_name}
+        </span>
+      </span>
+      <span className="rrow-stat tnum">{tempo || "—"}</span>
+      <span className="rrow-stat tnum">{units.elevation(r.vertical_gain_m) || "—"}</span>
+      <span className={`rrow-verified tnum ${verified ? "ok" : "todo"}`}>
+        {verified && <Icon.Check size={12} />}
+      </span>
+    </a>
+  );
+}
+
+/** Griglia o elenco a seconda della preferenza Settings → densità. Un solo
+ *  punto d'ingresso per la pagina itinerari, così il toggle vale ovunque. */
+export function RouteGrid({ routes = [], freezingLevel = () => null }) {
+  const { settings } = useSettings();
+  const getFrz = typeof freezingLevel === "function" ? freezingLevel : () => freezingLevel;
+
+  if (settings.density === "list") {
+    return (
+      <div className="rlist">
+        {routes.map((r) => (
+          <RouteListRow key={r.slug} route={r} freezingLevel={getFrz(r)} />
+        ))}
+      </div>
+    );
+  }
+  return (
+    <div className="grid">
+      {routes.map((r) => (
+        <RouteCard key={r.slug} route={r} freezingLevel={getFrz(r)} />
+      ))}
+    </div>
   );
 }
 
 /** Filtri attività come tab con conteggio — link veri, non bottoni: il
  *  filtro sopravvive al reload ed è condivisibile. */
 export function ActivityTabs({ activities = [], current = "", counts = {} }) {
+  const t = useT();
   return (
     <div className="acttabs" role="tablist" aria-label="Filtra per attività">
-      {activities.map(([val, label]) => {
+      {activities.map((val) => {
         const on = current === val;
         const n = val ? counts[val] || 0 : counts.__total__ || 0;
         return (
@@ -203,7 +270,7 @@ export function ActivityTabs({ activities = [], current = "", counts = {} }) {
             className={`acttab ${on ? "on" : ""}`}
             href={val ? `/itinerari?activity=${encodeURIComponent(val)}` : "/itinerari"}
           >
-            {label}
+            {t(val ? ACT_KEY[val] : "act.all")}
             <span className="n tnum">{n}</span>
           </a>
         );

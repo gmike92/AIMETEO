@@ -69,7 +69,7 @@ export default function OfflineButton({ slug, trackPoints }) {
       <a
         onClick={state === "saving" ? undefined : save}
         className="note"
-        style={{ color: "var(--accent2)", cursor: "pointer" }}
+        style={{ color: "var(--accent2-text)", cursor: "pointer" }}
         role="button"
       >
         {state === "idle" && "Salva per offline"}
