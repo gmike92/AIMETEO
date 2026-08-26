@@ -46,7 +46,7 @@ export default function WaitlistSignup({ source = "frontend" }) {
       </form>
       {status === "ok" && (
         <p className="note" role="status"
-          style={{ color: "var(--accent2)", display: "flex", alignItems: "center", gap: 7 }}>
+          style={{ color: "var(--accent2-text)", display: "flex", alignItems: "center", gap: 7 }}>
           <Icon.Check size={14} /> Sei in lista!
         </p>
       )}

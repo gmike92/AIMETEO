@@ -5,14 +5,20 @@ import { useEffect, useState } from "react";
 import { API_BASE } from "@/lib/api";
 import { scoreColor } from "@/lib/wx";
 import { WxIcon } from "../components/WxIcon";
+import { useT } from "@/lib/i18n";
+import { useUnits } from "@/lib/units";
+import { useSettings } from "../components/SettingsProvider";
 
-function dayLabel(iso) {
-  return new Date(`${iso}T12:00:00`).toLocaleDateString("it-IT", {
+function dayLabel(iso, lang) {
+  return new Date(`${iso}T12:00:00`).toLocaleDateString(lang === "en" ? "en-US" : "it-IT", {
     weekday: "short", day: "numeric",
   });
 }
 
 export default function Localita() {
+  const t = useT();
+  const units = useUnits();
+  const { settings } = useSettings();
   const [q, setQ] = useState("");
   const [places, setPlaces] = useState(null);
   const [sel, setSel] = useState(null);
@@ -46,7 +52,7 @@ export default function Localita() {
       ]);
       if (w.ok) setWeek(await w.json());
       if (n.ok) setNear(await n.json());
-      if (!w.ok && !n.ok) setError("Dati non disponibili per questa località.");
+      if (!w.ok && !n.ok) setError(t("localita.not_available"));
     } catch (err) { setError(String(err.message || err)); }
   };
 
@@ -59,12 +65,9 @@ export default function Localita() {
 
   return (
     <div>
-      <span className="eyebrow">cerca</span>
-      <h1>La tua <em>località</em>.</h1>
-      <p className="sub">
-        Cerca un paese di montagna: ti diciamo com'è la settimana e cosa c'è
-        da fare nei dintorni — sentieri con traccia reale e falesie.
-      </p>
+      <span className="eyebrow">{t("localita.eyebrow")}</span>
+      <h1>{t("localita.h1_a")} <em>{t("localita.h1_em")}</em>.</h1>
+      <p className="sub">{t("localita.sub")}</p>
 
       <form id="loc-form" onSubmit={search} className="panel"
         style={{ display: "flex", gap: 10, alignItems: "center" }}>
@@ -74,14 +77,14 @@ export default function Localita() {
           style={{ margin: 0 }}
         />
         <button className="btn" type="submit" disabled={busy}>
-          {busy ? "Cerco…" : "Cerca"}
+          {busy ? t("localita.searching") : t("localita.search")}
         </button>
       </form>
 
       {error && <p className="err">{error}</p>}
 
       {places && places.length === 0 && (
-        <p className="note">Nessuna località trovata per «{q}».</p>
+        <p className="note">{t("localita.no_results", { q })}</p>
       )}
       {places && places.length > 1 && !sel && (
         <div className="grid">
@@ -89,9 +92,9 @@ export default function Localita() {
             <button key={i} className="card" onClick={() => pick(p)}
               style={{ textAlign: "left", cursor: "pointer", font: "inherit", color: "inherit" }}>
               <h3>{p.name}</h3>
-              <div className="meta">
+              <div className="meta tnum">
                 {p.admin && <span>{p.admin}</span>}
-                {p.elevation_m != null && <span>{p.elevation_m} m</span>}
+                {p.elevation_m != null && <span>{units.elevation(p.elevation_m)}</span>}
               </div>
             </button>
           ))}
@@ -100,15 +103,15 @@ export default function Localita() {
 
       {sel && (
         <>
-          <h2>{sel.name}{sel.elevation_m != null ? ` · ${sel.elevation_m} m` : ""}</h2>
+          <h2 className="tnum">{sel.name}{sel.elevation_m != null ? ` · ${units.elevation(sel.elevation_m)}` : ""}</h2>
 
           {week && (
             <div className="panel">
-              <span className="eyebrow">la settimana</span>
+              <span className="eyebrow">{t("localita.week")}</span>
               <div className="stats tnum" style={{ marginBottom: 0 }}>
                 {week.giorni.map((g) => (
                   <div className="stat" key={g.data}>
-                    <div className="k">{dayLabel(g.data)}</div>
+                    <div className="k">{dayLabel(g.data, settings.lang)}</div>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                       <span style={{ color: "var(--muted)" }}>
                         <WxIcon precip_mm={g.precip_mm} nuvole_pct={g.nuvole_pct} size={20} />
@@ -118,26 +121,23 @@ export default function Localita() {
                       </span>
                     </div>
                     <div className="k" style={{ textTransform: "none", letterSpacing: 0 }}>
-                      {Math.round(g.temp_min_c)}°/{Math.round(g.temp_max_c)}° ·{" "}
-                      {g.precip_mm > 0 ? `${g.precip_mm} mm` : "asciutto"}
+                      {units.temp(g.temp_min_c)}/{units.temp(g.temp_max_c)} ·{" "}
+                      {g.precip_mm > 0 ? `${g.precip_mm} mm` : t("localita.dry")}
                     </div>
                   </div>
                 ))}
               </div>
               <p className="note" style={{ opacity: 0.75 }}>
-                Punteggio 0–100 (pioggia, vento, nuvole, freddo). Fonte: {week.source}
-                {week.source === "mock" ? " (dati dimostrativi)" : ""}.
+                {t("localita.score_note")} {week.source}
+                {week.source === "mock" && <> {t("route.demo_data")}</>}.
               </p>
             </div>
           )}
 
-          <h2>Nei dintorni</h2>
-          {near === null && <p className="loading">Cerco itinerari e falesie…</p>}
+          <h2>{t("localita.nearby")}</h2>
+          {near === null && <p className="loading">{t("localita.nearby_loading")}</p>}
           {near && near.length === 0 && (
-            <p className="note">
-              Niente nel nostro database entro 25 km — per ora. Le aree crescono
-              con la curatela: se conosci i sentieri di zona, scrivici.
-            </p>
+            <p className="note">{t("localita.nearby_empty")}</p>
           )}
           {near && near.length > 0 && (
             <div className="grid">
@@ -145,12 +145,12 @@ export default function Localita() {
                 <a className="card" key={`${x.kind}-${x.slug}`}
                   href={x.kind === "itinerario" ? `/routes/${x.slug}` : "/falesie"}>
                   <h3>{x.name}</h3>
-                  <div className="meta">
+                  <div className="meta tnum">
                     <span className="pill">{x.kind}</span>
-                    <span>{x.distance_km} km</span>
-                    {x.ele_m != null && <span>{x.ele_m} m</span>}
-                    {x.diff_grade && <span>diff. {x.diff_grade}</span>}
-                    {x.aspect && <span>parete {x.aspect}</span>}
+                    <span>{units.distance(x.distance_km)}</span>
+                    {x.ele_m != null && <span>{units.elevation(x.ele_m)}</span>}
+                    {x.diff_grade && <span>{t("localita.grade")} {x.diff_grade}</span>}
+                    {x.aspect && <span>{t("localita.wall")} {x.aspect}</span>}
                   </div>
                 </a>
               ))}
@@ -159,9 +159,7 @@ export default function Localita() {
         </>
       )}
 
-      <p className="disclaimer">
-        Distanze in linea d'aria dal centro della località. Geocoding: Open-Meteo.
-      </p>
+      <p className="disclaimer">{t("localita.disclaimer")}</p>
     </div>
   );
 }

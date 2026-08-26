@@ -1,7 +1,8 @@
 // Server component: route data and forecast are fetched server-side (ISR,
 // 5 min) so the page — titles included — is fully rendered for SEO. The only
 // interactive part (the AI briefing) lives in the BriefingPanel client
-// component.
+// component. Testo fisso e numeri passano da isole client (T/Measurement)
+// che seguono lingua e unità dei Settings senza perdere il render server.
 import { notFound } from "next/navigation";
 import { serverFetch, API_BASE } from "@/lib/api";
 import BriefingPanel from "./BriefingPanel";
@@ -12,6 +13,8 @@ import OfflineButton from "./OfflineButton";
 import BestWindowCard from "./BestWindowCard";
 import PushButton from "../../components/PushButton";
 import { Icon } from "../../components/WxIcon";
+import T from "../../components/T";
+import Measurement from "../../components/Measurement";
 
 export const revalidate = 300;
 
@@ -64,22 +67,22 @@ export default async function RouteDetail({ params }) {
 
   return (
     <div>
-      <a href="/itinerari" className="note">← Tutti gli itinerari</a>
+      <a href="/itinerari" className="note"><T k="route.back" /></a>
       {hasRealCoords && (
         <>
           <a
             href={`/?route=${encodeURIComponent(params.slug)}`}
             className="note"
-            style={{ marginLeft: 16, color: "var(--accent)" }}
+            style={{ marginLeft: 16, color: "var(--accent-text)" }}
           >
-            Vedi traccia sulla mappa →
+            <T k="route.see_on_map" />
           </a>
           <a
             href={`${API_BASE}/routes/${encodeURIComponent(params.slug)}/gpx`}
             className="note"
-            style={{ marginLeft: 16, color: "var(--accent2)" }}
+            style={{ marginLeft: 16, color: "var(--accent2-text)" }}
           >
-            Scarica GPX <Icon.Download size={12} style={{ display: "inline-block", verticalAlign: "-2px" }} />
+            <T k="route.download_gpx" /> <Icon.Download size={12} style={{ display: "inline-block", verticalAlign: "-2px" }} />
           </a>
           <OfflineButton slug={params.slug} trackPoints={route.track_points} />
           <span style={{ marginLeft: 12 }}><PushButton /></span>
@@ -93,7 +96,7 @@ export default async function RouteDetail({ params }) {
         <p className="note" style={{ marginTop: 2 }}>
           Nella collezione di{" "}
           <a href={`/autori/${route.proposto_da.slug}`}
-            style={{ color: "var(--accent)", textDecoration: "underline" }}>
+            style={{ color: "var(--accent-text)", textDecoration: "underline" }}>
             {route.proposto_da.name}
           </a>
           {route.proposto_da.ruolo ? ` — ${route.proposto_da.ruolo}` : ""}
@@ -104,7 +107,7 @@ export default async function RouteDetail({ params }) {
       <div className="stats tnum">
         {route.tempi?.totale_min != null && (
           <div className="stat" title={`${route.tempi.metodo} · ${route.tempi.parametri}`}>
-            <div className="k">Tempo (no soste)</div>
+            <div className="k"><T k="route.stat_time" /></div>
             <div className="v">
               {Math.floor(route.tempi.totale_min / 60)}h
               {String(route.tempi.totale_min % 60).padStart(2, "0")}
@@ -112,37 +115,44 @@ export default async function RouteDetail({ params }) {
           </div>
         )}
         {route.tempi?.distanza_km != null && (
-          <div className="stat"><div className="k">Distanza</div><div className="v">{route.tempi.distanza_km} km</div></div>
+          <div className="stat"><div className="k"><T k="route.stat_distance" /></div>
+            <div className="v"><Measurement kind="distance" value={route.tempi.distanza_km} /></div></div>
         )}
-        <div className="stat"><div className="k">Difficoltà</div><div className="v">{route.diff_grade}</div></div>
-        <div className="stat"><div className="k">Partenza</div><div className="v">{route.start_altitude_m} m</div></div>
-        <div className="stat"><div className="k">Quota max</div><div className="v">{route.max_altitude_m} m</div></div>
-        <div className="stat"><div className="k">Dislivello</div><div className="v">{route.vertical_gain_m} m</div></div>
-        <div className="stat"><div className="k">Esposizioni</div><div className="v">{(route.primary_aspects || []).join(" ")}</div></div>
-        <div className="stat"><div className="k">Pendio max</div><div className="v">{route.max_slope_deg}°</div></div>
+        <div className="stat"><div className="k"><T k="route.stat_diff" /></div><div className="v">{route.diff_grade}</div></div>
+        <div className="stat"><div className="k"><T k="route.stat_start" /></div>
+          <div className="v"><Measurement kind="elevation" value={route.start_altitude_m} /></div></div>
+        <div className="stat"><div className="k"><T k="route.stat_max" /></div>
+          <div className="v"><Measurement kind="elevation" value={route.max_altitude_m} /></div></div>
+        <div className="stat"><div className="k"><T k="route.stat_gain" /></div>
+          <div className="v"><Measurement kind="elevation" value={route.vertical_gain_m} /></div></div>
+        <div className="stat"><div className="k"><T k="route.stat_aspects" /></div><div className="v">{(route.primary_aspects || []).join(" ")}</div></div>
+        <div className="stat"><div className="k"><T k="route.stat_slope" /></div><div className="v">{route.max_slope_deg}°</div></div>
       </div>
 
       {route.exposure_notes && (
         <p className="note"><strong>Note esposizione:</strong> {route.exposure_notes}</p>
       )}
 
-      <h2>Condizioni sul percorso</h2>
+      <h2><T k="route.conditions_heading" /></h2>
       {forecast ? (
         <div className="panel">
-          <div className="stats" style={{ border: "none", margin: 0, padding: 0 }}>
-            <div className="stat"><div className="k">Zero termico</div><div className="v">{forecast.freezing_level_m} m</div></div>
-            <div className="stat"><div className="k">Vento</div><div className="v">{forecast.wind_avg_kmh} km/h</div></div>
-            <div className="stat"><div className="k">Raffiche</div><div className="v">{forecast.wind_gust_kmh} km/h</div></div>
-            <div className="stat"><div className="k">Temporali</div><div className="v">{Math.round(forecast.thunderstorm_prob * 100)}%</div></div>
+          <div className="stats tnum" style={{ border: "none", margin: 0, padding: 0 }}>
+            <div className="stat"><div className="k"><T k="route.freezing" /></div>
+              <div className="v"><Measurement kind="elevation" value={forecast.freezing_level_m} /></div></div>
+            <div className="stat"><div className="k"><T k="route.wind" /></div>
+              <div className="v"><Measurement kind="speed" value={forecast.wind_avg_kmh} /></div></div>
+            <div className="stat"><div className="k"><T k="route.gust" /></div>
+              <div className="v"><Measurement kind="speed" value={forecast.wind_gust_kmh} /></div></div>
+            <div className="stat"><div className="k"><T k="route.storm" /></div><div className="v">{Math.round(forecast.thunderstorm_prob * 100)}%</div></div>
           </div>
           <p className="note">
-            Zero termico ≈ <strong>limite pioggia/neve</strong>: sopra quella
-            quota le precipitazioni cadono come neve. · Fonte: {forecast.source}
-            {isDemoForecast ? " (dati dimostrativi)" : ""}
+            <T k="route.freezing_note_a" /> <strong><T k="route.freezing_note_b" /></strong>
+            <T k="route.freezing_note_c" /> {forecast.source}
+            {isDemoForecast && <> <T k="route.demo_data" /></>}
           </p>
         </div>
       ) : (
-        <p className="note">Previsioni non disponibili al momento.</p>
+        <p className="note"><T k="route.no_forecast" /></p>
       )}
 
       <BestWindowCard slug={params.slug} />
@@ -164,9 +174,9 @@ export default async function RouteDetail({ params }) {
       <BriefingPanel slug={params.slug} />
 
       <p className="note" style={{ marginTop: 26 }}>
-        Conosci questo sentiero?{" "}
+        <T k="route.report_a" />{" "}
         <a
-          style={{ color: "var(--accent)", textDecoration: "underline" }}
+          style={{ color: "var(--accent-text)", textDecoration: "underline" }}
           href={`mailto:michele.guizzardi@gmail.com?subject=${encodeURIComponent(
             `Zerotermico · segnalazione: ${route.name}`
           )}&body=${encodeURIComponent(
@@ -174,15 +184,12 @@ export default async function RouteDetail({ params }) {
             `Itinerario: ${route.name} (${params.slug})\n`
           )}`}
         >
-          Segnala un errore o le condizioni che hai trovato
+          <T k="route.report_b" />
         </a>{" "}
-        — ogni segnalazione verificata migliora il database per tutti.
+        <T k="route.report_c" />
       </p>
 
-      <p className="disclaimer">
-        Le relazioni sono un <strong>supporto alla decisione</strong>, non una raccomandazione.
-        La responsabilità finale è del capogita; il bollettino ufficiale prevale sempre.
-      </p>
+      <p className="disclaimer"><T k="route.disclaimer" /></p>
     </div>
   );
 }

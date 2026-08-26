@@ -49,6 +49,22 @@ AREAS = {
     "area-ecrins": (44.80, 6.15, 45.05, 6.55),
     "area-vanoise": (45.25, 6.75, 45.50, 7.15),
     "area-mont-blanc-fr": (45.80, 6.70, 45.98, 7.00),
+    # Alpi (IT) — bbox (s, w, n, e)
+    "area-alpi-giulie": (46.35, 13.35, 46.55, 13.65),
+    "area-grigna-resegone": (45.78, 9.35, 45.95, 9.55),
+    "area-alpi-marittime": (44.05, 7.10, 44.25, 7.40),
+    "area-monte-rosa-it": (45.85, 7.85, 46.05, 8.05),
+    "area-adamello-presanella": (46.10, 10.82, 46.35, 11.05),
+    # Centro-sud e isole (IT) — mete di arrampicata note, fuori copertura
+    # AINEVA — bbox (s, w, n, e)
+    "area-apuane": (43.95, 10.15, 44.15, 10.45),
+    "area-pollino": (39.85, 15.95, 40.10, 16.30),
+    "area-finale-ligure": (44.14, 8.28, 44.22, 8.42),
+    "area-sardegna-iglesiente": (39.15, 8.50, 39.35, 8.70),
+    "area-sardegna-supramonte": (40.15, 9.35, 40.35, 9.60),
+    "area-etna": (37.65, 14.95, 37.85, 15.15),
+    "area-san-vito-lo-capo": (38.15, 12.70, 38.22, 12.80),
+    "area-costiera-amalfitana": (40.60, 14.48, 40.68, 14.68),
 }
 
 VALID_ASPECTS = {"N", "NE", "E", "SE", "S", "SW", "W", "NW"}

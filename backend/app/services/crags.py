@@ -50,6 +50,8 @@ class CragSun(BaseModel):
     lon: float
     ele_m: Optional[int] = None
     aspect: Optional[str] = None       # esposizione parete; None = non censita
+    country: Optional[str] = None      # ISO2 — vetrina internazionale (frontend)
+    region: Optional[str] = None
     in_sole_adesso: Optional[bool] = None   # None = non calcolabile
     finestre_sole: list[SunWindow] = []     # oggi, UTC
     nota: Optional[str] = None
@@ -87,6 +89,7 @@ def _to_sun(crag: dict) -> CragSun:
     base = CragSun(
         slug=crag["slug"], name=crag["name"], lat=crag["lat"], lon=crag["lon"],
         ele_m=crag.get("ele_m"), aspect=crag.get("aspect"),
+        country=crag.get("country"), region=crag.get("region"),
         source=crag.get("source"), verified_at=crag.get("verified_at"),
     )
     if not crag.get("aspect"):

@@ -8,6 +8,8 @@ import { API_BASE } from "@/lib/api";
 import { DANGER_COLORS, dangerInk } from "@/lib/wx";
 import { Icon } from "@/app/components/WxIcon";
 import { MapRail, MapFields, MapDock } from "./MapChrome";
+import { useT } from "@/lib/i18n";
+import { useUnits } from "@/lib/units";
 
 // Glifi per i contenuti che Leaflet vuole come STRINGA HTML (divIcon, popup):
 // lì non possiamo montare un componente React, ma il markup SVG è lo stesso
@@ -364,6 +366,8 @@ const BASES = ["chiaro", "terreno", "scuro"];
 export default function MapView({
   fullscreen = false, focusRoute = null, children, days = null,
 }) {
+  const t = useT();
+  const units = useUnits();
   const mapEl = useRef(null);
   const S = useRef({});
   const [ready, setReady] = useState(false);
@@ -892,26 +896,26 @@ export default function MapView({
   // Nessuno stato nuovo: sono gli stessi toggle di prima, elencati invece
   // che scritti a mano uno per uno dentro il JSX.
   const fields = [
-    { key: "temp", label: "Temp", on: temp, toggle: () => setTemp(!temp) },
-    { key: "wind", label: "Vento", on: wind, toggle: () => setWind(!wind), alt: true },
+    { key: "temp", label: t("map.field_temp"), on: temp, toggle: () => setTemp(!temp) },
+    { key: "wind", label: t("map.field_wind"), on: wind, toggle: () => setWind(!wind), alt: true },
     {
-      key: "radar", label: "Pioggia", on: radar, toggle: () => setRadar(!radar),
+      key: "radar", label: t("map.field_rain"), on: radar, toggle: () => setRadar(!radar),
       disabled: !frames.length,
       title: frames.length ? undefined : "Radar RainViewer non raggiungibile",
     },
-    { key: "uv", label: "UV", on: uv, toggle: () => setUv(!uv) },
-    { key: "clouds", label: "Nuvole", on: clouds, toggle: () => setClouds(!clouds) },
+    { key: "uv", label: t("map.field_uv"), on: uv, toggle: () => setUv(!uv) },
+    { key: "clouds", label: t("map.field_clouds"), on: clouds, toggle: () => setClouds(!clouds) },
     {
-      key: "sun", label: "Sole", on: sun, toggle: () => setSun(!sun),
+      key: "sun", label: t("map.field_sun"), on: sun, toggle: () => setSun(!sun),
       title: "Terminatore giorno/notte — calcolo astronomico reale",
     },
     {
-      key: "aurora", label: "Aurora", on: aurora, toggle: () => setAurora(!aurora),
+      key: "aurora", label: t("map.field_aurora"), on: aurora, toggle: () => setAurora(!aurora),
       tag: aurora && !auroraReady ? "…" : undefined,
       title: "Probabilità aurora — modello NOAA OVATION",
     },
     {
-      key: "lightning", label: "Fulmini", on: lightning,
+      key: "lightning", label: t("map.field_lightning"), on: lightning,
       toggle: () => setLightning(!lightning), tag: "demo",
       title: "Dati dimostrativi — nessuna fonte gratuita real-time ancora integrata",
     },
@@ -919,41 +923,44 @@ export default function MapView({
 
   const layers = [
     {
-      key: "rt", label: "Itin.", icon: Icon.Route, on: showRoutes,
+      key: "rt", label: t("map.layer_routes"), icon: Icon.Route, on: showRoutes,
       toggle: () => setShowRoutes(!showRoutes), title: "Itinerari: pin e tracce",
     },
     {
-      key: "fal", label: "Falesie", icon: Icon.Crag, on: showCrags,
+      key: "fal", label: t("map.layer_crags"), icon: Icon.Crag, on: showCrags,
       toggle: () => setShowCrags(!showCrags),
     },
     ...(hasSlope
       ? [{
-          key: "slope", label: "Pendenze", icon: Icon.Slope, on: slope,
+          key: "slope", label: t("map.layer_slope"), icon: Icon.Slope, on: slope,
           toggle: () => setSlope(!slope),
           title: "Pendenze dal DEM Copernicus: giallo ≥30° · arancio ≥35° · rosso ≥40° · viola ≥45° (area pilota)",
         }]
       : []),
     {
-      key: "ski", label: "Piste", icon: Icon.Ski, disabled: true, sep: true,
+      key: "ski", label: t("map.layer_ski"), icon: Icon.Ski, disabled: true, sep: true,
       title: "In arrivo: nessuna fonte dati ancora integrata",
     },
   ];
 
   // La legenda mostra SOLO le scale effettivamente attive: se non ce n'è
-  // nessuna il pannello non viene renderizzato affatto (regola 1.9).
+  // nessuna il pannello non viene renderizzato affatto (regola 1.9). I
+  // min/max passano da lib/units: in imperiale mostrano °F/mph, il colore
+  // del campo (rangeGradient/windGradient) resta calcolato in °C/km/h — la
+  // conversione è solo visuale, mai nei dati.
   const legendRows = [
     temp && tempRange && {
-      key: "temp", label: "Temp",
-      min: `${Math.round(tempRange[0])}°`, max: `${Math.round(tempRange[1])}°`,
+      key: "temp", label: t("map.field_temp"),
+      min: units.temp(tempRange[0]), max: units.temp(tempRange[1]),
       gradient: rangeGradient(tempRange[0], tempRange[1]),
     },
     wind && {
-      key: "wind", label: "Vento", min: "0", max: "58 km/h",
+      key: "wind", label: t("map.field_wind"), min: units.speed(0), max: units.speed(58),
       gradient: windGradient(base === "scuro" || temp),
     },
-    uv && { key: "uv", label: "UV", min: "0", max: "11+", gradient: uvGradient },
-    clouds && { key: "clouds", label: "Nuvole", min: "0%", max: "100%", gradient: CLOUD_GRADIENT },
-    aurora && { key: "aurora", label: "Aurora", min: "bassa", max: "alta", gradient: AURORA_GRADIENT },
+    uv && { key: "uv", label: t("map.field_uv"), min: "0", max: "11+", gradient: uvGradient },
+    clouds && { key: "clouds", label: t("map.field_clouds"), min: "0%", max: "100%", gradient: CLOUD_GRADIENT },
+    aurora && { key: "aurora", label: t("map.field_aurora"), min: t("map.legend_low"), max: t("map.legend_high"), gradient: AURORA_GRADIENT },
   ].filter(Boolean);
 
   // La nota del terminatore ("tutta la vista è di giorno") deve poter
@@ -984,7 +991,7 @@ export default function MapView({
       <MapFields
         ready={ready}
         fields={fields}
-        bases={BASES}
+        bases={BASES.map((k) => ({ key: k, label: t(`map.base_${k}`) }))}
         base={base}
         setBase={setBase}
       />

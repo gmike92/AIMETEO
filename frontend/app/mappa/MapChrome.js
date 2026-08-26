@@ -27,14 +27,14 @@
 
 import { Icon } from "@/app/components/WxIcon";
 import { DANGER_COLORS, dangerInk } from "@/lib/wx";
-
-const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+import { useT } from "@/lib/i18n";
 
 /* ── livelli: cosa è disegnato sulla mappa ─────────────────────────── */
 export function MapRail({ layers = [], ready = true }) {
+  const t = useT();
   if (!layers.length) return null;
   return (
-    <div className="maprail" role="group" aria-label="Livelli della mappa">
+    <div className="maprail" role="group" aria-label={t("map.rail_label")}>
       {layers.map((l) => {
         const Ico = l.icon || Icon.Layers;
         return (
@@ -60,11 +60,12 @@ export function MapRail({ layers = [], ready = true }) {
 
 /* ── campi meteo + sfondo: come è disegnata la mappa ───────────────── */
 export function MapFields({ fields = [], bases = [], base, setBase, ready = true }) {
+  const t = useT();
   if (!fields.length && !bases.length) return null;
   return (
     <div className="mapfields">
       {fields.length > 0 && (
-        <div className="segmented" role="group" aria-label="Campi meteo">
+        <div className="segmented" role="group" aria-label={t("map.field_temp")}>
           {fields.map((f) => (
             <button
               key={f.key}
@@ -85,14 +86,14 @@ export function MapFields({ fields = [], bases = [], base, setBase, ready = true
         <div className="segmented" role="group" aria-label="Sfondo della mappa">
           {bases.map((b) => (
             <button
-              key={b}
+              key={b.key}
               type="button"
-              className={`segbtn ${b === base ? "on light" : ""}`}
-              onClick={() => setBase(b)}
-              aria-pressed={b === base}
+              className={`segbtn ${b.key === base ? "on light" : ""}`}
+              onClick={() => setBase(b.key)}
+              aria-pressed={b.key === base}
               disabled={!ready}
             >
-              {cap(b)}
+              {b.label}
             </button>
           ))}
         </div>
@@ -103,10 +104,11 @@ export function MapFields({ fields = [], bases = [], base, setBase, ready = true
 
 /* ── legenda: le scale attualmente attive ──────────────────────────── */
 function Legend({ rows = [], danger = false, note }) {
+  const t = useT();
   if (!rows.length && !danger && !note) return null;
   return (
     <div className="dockpanel dock-legend">
-      <div className="dockhead">Scala</div>
+      <div className="dockhead">{t("map.legend_scale")}</div>
       {rows.length > 0 && (
         <div className="legendgrid tnum">
           {rows.map((r) => (
@@ -125,7 +127,7 @@ function Legend({ rows = [], danger = false, note }) {
       )}
       {danger && (
         <>
-          <div className="dockhead" style={{ marginTop: 10 }}>Valanghe · EAWS</div>
+          <div className="dockhead" style={{ marginTop: 10 }}>{t("map.legend_avalanche")}</div>
           <div className="eawsrow tnum">
             {[1, 2, 3, 4, 5].map((d) => (
               <span
@@ -149,6 +151,7 @@ function Timeline({
   frames = [], frameIdx = 0, setFrameIdx, playing, setPlaying,
   frameTime, isForecast, intensity = null,
 }) {
+  const t = useT();
   // Senza frame la timeline non esiste: mai una barra vuota disabilitata.
   if (!frames.length) return null;
   // RainViewer non espone un valore di intensità per frame; l'istogramma
@@ -163,7 +166,7 @@ function Timeline({
         type="button"
         className="dockplay"
         onClick={() => setPlaying(!playing)}
-        aria-label={playing ? "Pausa animazione radar" : "Avvia animazione radar"}
+        aria-label={playing ? t("map.radar_pause") : t("map.radar_play")}
       >
         {playing ? <Icon.Pause size={13} /> : <Icon.Play size={13} />}
       </button>
@@ -187,7 +190,7 @@ function Timeline({
           max={frames.length - 1}
           value={frameIdx}
           onChange={(e) => setFrameIdx(Number(e.target.value))}
-          aria-label="Timeline radar"
+          aria-label={t("map.radar_timeline")}
         />
       </div>
       {/* Larghezza fissa + tabular-nums: l'orario che scorre non deve mai

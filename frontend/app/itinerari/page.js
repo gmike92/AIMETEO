@@ -3,7 +3,8 @@
 import { serverFetch } from "@/lib/api";
 import WaitlistSignup from "../components/WaitlistSignup";
 import ConditionsTable from "../components/ConditionsTable";
-import RouteCard, { ActivityTabs } from "../components/RouteCard";
+import { ActivityTabs, RouteGrid } from "../components/RouteCard";
+import T from "../components/T";
 
 export const revalidate = 300;
 
@@ -13,13 +14,7 @@ export const metadata = {
     "Itinerari di scialpinismo, alpinismo, ferrate ed escursionismo con bollettino valanghe ufficiale, meteo sul percorso e relazione di gita AI.",
 };
 
-const ACTIVITIES = [
-  ["", "Tutti"],
-  ["scialpinismo", "Scialpinismo"],
-  ["alpinismo", "Alpinismo"],
-  ["via_ferrata", "Via ferrata"],
-  ["escursionismo", "Escursionismo"],
-];
+const ACTIVITIES = ["", "scialpinismo", "alpinismo", "via_ferrata", "escursionismo"];
 
 export default async function Itinerari({ searchParams }) {
   const activity = searchParams?.activity || "";
@@ -65,28 +60,21 @@ export default async function Itinerari({ searchParams }) {
 
   return (
     <div>
-      <span className="eyebrow">Italia-first · per la montagna</span>
-      <h1>Itinerari e <em>condizioni</em>.</h1>
-      <p className="sub">
-        Sfoglia gli itinerari, controlla le condizioni sul percorso e genera una relazione
-        di gita. Il bollettino valanghe ufficiale è sempre in evidenza.
-      </p>
+      <span className="eyebrow"><T k="itinerari.eyebrow" /></span>
+      <h1><T k="itinerari.h1_a" /> <em><T k="itinerari.h1_em" /></em>.</h1>
+      <p className="sub"><T k="itinerari.sub" /></p>
 
       {/* Tab come link veri: il filtro sopravvive al reload ed è condivisibile. */}
       <ActivityTabs activities={ACTIVITIES} current={activity} counts={counts} />
 
-      {error && <p className="err">Backend non raggiungibile: {error}</p>}
+      {error && <p className="err"><T k="common.backend_down" />: {error}</p>}
 
       <ConditionsTable areas={areas} routes={routes} sort={sort} activity={activity} />
 
-      <h2 style={{ marginTop: 34 }}>Itinerari</h2>
-      <div className="grid">
-        {routes.map((r) => (
-          <RouteCard key={r.slug} route={r} freezingLevel={frzByArea[r.area_id]} />
-        ))}
-      </div>
+      <h2 style={{ marginTop: 34 }}><T k="itinerari.heading" /></h2>
+      <RouteGrid routes={routes} freezingLevel={(r) => frzByArea[r.area_id]} />
       {!error && routes.length === 0 && (
-        <p className="note">Nessun itinerario per questo filtro.</p>
+        <p className="note"><T k="itinerari.empty" /></p>
       )}
 
       <WaitlistSignup source="frontend" />

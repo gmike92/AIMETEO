@@ -10,19 +10,21 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { Icon } from "../components/WxIcon";
+import { useT } from "@/lib/i18n";
 
 const ACTIVITIES = [
-  ["scialpinismo", "Scialpinismo"],
-  ["alpinismo", "Alpinismo"],
-  ["arrampicata", "Arrampicata"],
-  ["via_ferrata", "Via ferrata"],
-  ["escursionismo", "Escursionismo"],
-  ["trail_running", "Trail running"],
-  ["mtb_alpino", "MTB alpino"],
-  ["volo_libero", "Volo libero"],
+  ["scialpinismo", "act.scialpinismo"],
+  ["alpinismo", "act.alpinismo"],
+  ["arrampicata", "act.arrampicata"],
+  ["via_ferrata", "act.via_ferrata"],
+  ["escursionismo", "act.escursionismo"],
+  ["trail_running", "act.trail_running"],
+  ["mtb_alpino", "act.mtb_alpino"],
+  ["volo_libero", "act.volo_libero"],
 ];
 
 export default function Planner() {
+  const t = useT();
   const [intent, setIntent] = useState(
     "Vorrei una gita scialpinistica in Dolomiti questo weekend, livello BSA, mezza giornata."
   );
@@ -84,16 +86,12 @@ export default function Planner() {
     <div>
       <div className="plan2">
         <div className="ask">
-          <span className="eyebrow">Pro · pianificatore AI</span>
-          <h1>Pianifica una <em>gita</em></h1>
-          <p className="sub">
-            Descrivi cosa vorresti fare. I filtri di sicurezza girano{" "}
-            <strong>prima</strong> che l'AI scriva: gli itinerari non sicuri non le
-            vengono mai mostrati.
-          </p>
+          <span className="eyebrow">{t("planner.eyebrow")}</span>
+          <h1>{t("planner.h1_a")} <em>{t("planner.h1_em")}</em></h1>
+          <p className="sub">{t("planner.sub")}</p>
 
           <form onSubmit={run}>
-            <label htmlFor="intent">Cosa vorresti fare?</label>
+            <label htmlFor="intent">{t("planner.label_intent")}</label>
             <textarea
               id="intent"
               rows={3}
@@ -103,9 +101,9 @@ export default function Planner() {
 
             {/* Il <select> diventa una fila di chip: risolve anche il popup
                 nativo bianco che andava corretto con select option{…}. */}
-            <label id="act-label">Attività</label>
+            <label id="act-label">{t("planner.label_activity")}</label>
             <div className="chips" role="group" aria-labelledby="act-label">
-              {ACTIVITIES.map(([val, label]) => (
+              {ACTIVITIES.map(([val, key]) => (
                 <button
                   key={val}
                   type="button"
@@ -113,14 +111,14 @@ export default function Planner() {
                   aria-pressed={activity === val}
                   onClick={() => setActivity(val)}
                 >
-                  {label}
+                  {t(key)}
                 </button>
               ))}
             </div>
 
             <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 9 }}>
               <button className="btn" type="submit" disabled={loading}>
-                {loading ? "Elaboro…" : "Pianifica"}
+                {loading ? t("planner.submitting") : t("planner.submit")}
               </button>
               <button
                 type="button"
@@ -128,29 +126,28 @@ export default function Planner() {
                 onClick={copyLink}
                 style={{ padding: "10px 16px", fontSize: 13 }}
               >
-                {copied ? "Link copiato" : "Condividi col compagno di gita"}
+                {copied ? t("planner.shared") : t("planner.share")}
               </button>
             </div>
           </form>
 
           <p className="note" style={{ marginTop: 16, paddingTop: 14, borderTop: "1px solid var(--line)" }}>
-            Chi apre il link vede il piano <strong>ricalcolato adesso</strong>, con
-            bollettino e meteo aggiornati — mai una copia vecchia.
+            {t("planner.share_note")}
           </p>
         </div>
 
         <div className="out">
-          {error && <p className="err">Errore: {error}</p>}
+          {error && <p className="err">{t("common.error_prefix")}: {error}</p>}
           {!result && !error && !loading && (
-            <p className="note">L'esito del piano compare qui.</p>
+            <p className="note">{t("planner.placeholder")}</p>
           )}
-          {loading && <p className="loading">Elaboro il piano…</p>}
+          {loading && <p className="loading">{t("planner.submitting")}</p>}
 
           {result && (
             <div className="plan-filterbar">
               <Icon.Check size={15} />
-              {result.safe_candidates.length} itinerari passano i filtri
-              <em>{result.blocked.length} esclusi · l'AI non li vede</em>
+              {result.safe_candidates.length} · {t("planner.safe_col").toLowerCase()}
+              <em>{result.blocked.length} · {t("planner.blocked_col").toLowerCase()}</em>
             </div>
           )}
 
@@ -165,7 +162,7 @@ export default function Planner() {
               {plan.allerta_sicurezza && (
                 <div className="bulletin blocked">
                   <strong style={{ display: "inline-flex", alignItems: "center", gap: 7 }}>
-                    <Icon.Warning size={15} /> Allerta sicurezza
+                    <Icon.Warning size={15} /> {t("planner.safety_alert")}
                   </strong>
                   <div className="why">{plan.allerta_sicurezza}</div>
                 </div>
@@ -176,7 +173,7 @@ export default function Planner() {
                   <div className="lvl tnum">
                     Bollettino {plan.bollettino_valanghe.fonte}
                     {plan.bollettino_valanghe.grado_ufficiale != null &&
-                      ` · pericolo ${plan.bollettino_valanghe.grado_ufficiale}`}
+                      ` · ${plan.bollettino_valanghe.grado_ufficiale}`}
                   </div>
                   {plan.bollettino_valanghe.sintesi && (
                     <p className="note">{plan.bollettino_valanghe.sintesi}</p>
@@ -184,7 +181,7 @@ export default function Planner() {
                   {plan.bollettino_valanghe.link && (
                     <a className="note" href={plan.bollettino_valanghe.link}
                       target="_blank" rel="noopener">
-                      Fonte ufficiale →
+                      {t("planner.official_source")}
                     </a>
                   )}
                 </div>
@@ -198,7 +195,7 @@ export default function Planner() {
                     <div className="stat"><div className="k">Alba</div><div className="v">{plan.timing.alba}</div></div>
                   )}
                   {plan.timing.partenza_consigliata && (
-                    <div className="stat"><div className="k">Partenza</div><div className="v" style={{ color: "var(--accent)" }}>{plan.timing.partenza_consigliata}</div></div>
+                    <div className="stat"><div className="k">Partenza</div><div className="v" style={{ color: "var(--accent-text)" }}>{plan.timing.partenza_consigliata}</div></div>
                   )}
                   {plan.timing.vetta_entro && (
                     <div className="stat"><div className="k">Vetta entro</div><div className="v">{plan.timing.vetta_entro}</div></div>
@@ -215,7 +212,7 @@ export default function Planner() {
 
               {(plan.punti_decisionali || []).length > 0 && (
                 <div style={{ marginTop: 16 }}>
-                  <div className="dockhead" style={{ marginBottom: 9 }}>Punti decisionali</div>
+                  <div className="dockhead" style={{ marginBottom: 9 }}>{t("planner.decision_points")}</div>
                   <div className="declist">
                     {plan.punti_decisionali.map((p, i) => (
                       <div className="decrow" key={i}>
@@ -229,7 +226,7 @@ export default function Planner() {
 
               {(plan.equipaggiamento_consigliato || []).length > 0 && (
                 <div style={{ marginTop: 16 }}>
-                  <div className="dockhead" style={{ marginBottom: 9 }}>Equipaggiamento</div>
+                  <div className="dockhead" style={{ marginBottom: 9 }}>{t("planner.gear")}</div>
                   <div className="meta">
                     {plan.equipaggiamento_consigliato.map((item, i) => (
                       <span className="pill" key={i}>{item}</span>
@@ -240,7 +237,7 @@ export default function Planner() {
 
               {plan.piano_b && (
                 <p className="note" style={{ marginTop: 16 }}>
-                  <strong>Piano B:</strong> {plan.piano_b}
+                  <strong>{t("planner.plan_b")}</strong> {plan.piano_b}
                 </p>
               )}
             </div>
@@ -255,9 +252,9 @@ export default function Planner() {
           {result && (result.safe_candidates.length > 0 || result.blocked.length > 0) && (
             <div className="plan-cols">
               <div className="plan-col">
-                <div className="dockhead">Sicuri · {result.safe_candidates.length}</div>
+                <div className="dockhead">{t("planner.safe_col")} · {result.safe_candidates.length}</div>
                 {result.safe_candidates.length === 0 && (
-                  <p className="note" style={{ margin: 0 }}>Nessuno per questa richiesta.</p>
+                  <p className="note" style={{ margin: 0 }}>{t("planner.safe_empty")}</p>
                 )}
                 {result.safe_candidates.map((c) => (
                   <div className="plan-row" key={c.route_id}>
@@ -267,9 +264,9 @@ export default function Planner() {
               </div>
 
               <div className="plan-col no">
-                <div className="dockhead">Esclusi dai filtri · {result.blocked.length}</div>
+                <div className="dockhead">{t("planner.blocked_col")} · {result.blocked.length}</div>
                 {result.blocked.length === 0 && (
-                  <p className="note" style={{ margin: 0 }}>Nessuno escluso.</p>
+                  <p className="note" style={{ margin: 0 }}>{t("planner.blocked_empty")}</p>
                 )}
                 {result.blocked.map((c) => (
                   <div className="plan-row" key={c.route_id} style={{ display: "block" }}>
@@ -280,7 +277,7 @@ export default function Planner() {
                   </div>
                 ))}
                 <p className="note" style={{ marginTop: 10 }}>
-                  L'AI non vede mai questi itinerari, quindi non può proporli.
+                  {t("planner.blocked_note")}
                 </p>
               </div>
             </div>
@@ -288,10 +285,7 @@ export default function Planner() {
         </div>
       </div>
 
-      <p className="disclaimer">
-        Supporto alla decisione, non raccomandazione. Responsabilità finale al capogita;
-        il bollettino ufficiale AINEVA/Meteomont prevale sempre.
-      </p>
+      <p className="disclaimer">{t("planner.disclaimer")}</p>
     </div>
   );
 }
