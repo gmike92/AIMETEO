@@ -233,9 +233,37 @@ const Layers = (p) => (
   </Glyph>
 );
 
+// ── strumenti mappa (settings / info / geolocalizzazione) ──────────
+const Settings = (p) => (
+  <Glyph {...p}>
+    <path d="M4 7h9M17 7h3M4 12h3M9 12h11M4 17h13M19 17h1" />
+    <circle cx="13" cy="7" r="2.1" />
+    <circle cx="7" cy="12" r="2.1" />
+    <circle cx="16" cy="17" r="2.1" />
+  </Glyph>
+);
+
+const Info = (p) => (
+  <Glyph {...p}>
+    <circle cx="12" cy="12" r="8.6" />
+    <path d="M12 11v6M12 7.5v.01" />
+  </Glyph>
+);
+
+// Mirino "centra sulla mia posizione" — stessa sagoma del "locate me"
+// di Google Maps/Leaflet, così è riconoscibile a colpo d'occhio.
+const Crosshair = (p) => (
+  <Glyph {...p}>
+    <circle cx="12" cy="12" r="7.2" />
+    <path d="M12 1.5v3.2M12 19.3v3.2M1.5 12h3.2M19.3 12h3.2" />
+    <circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none" />
+  </Glyph>
+);
+
 export const Icon = {
   Sun, PartlyCloudy, Cloud, Rain, Storm, Snow,
   Freezing, Wind, Drop, Moon, Bolt,
+  Settings, Info, Crosshair,
   Check, Warning, Blocked, Compass, Bell, Search, Download,
   Play, Pause, Cycle,
   Route, Crag, Slope, Ski, Peak, Layers,

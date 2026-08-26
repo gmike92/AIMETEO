@@ -1,114 +1,250 @@
 "use client";
-// Chrome della mappa — opzione 1a.
+// Chrome della mappa — opzione 1b (evoluzione di 1a).
 //
-// Il problema che risolve: oggi MapView ha sei contenitori position:absolute
-// indipendenti (.mapctl, .mapctl-left, .mapsubmenu, .maptimeline, .maplegend,
-// .daystrip). Non condividono nessun sistema di layout, quindi sotto i ~900px
-// si sovrappongono, e i menu a comparsa nascondono la mappa proprio mentre la
-// stai leggendo.
+// Il problema che risolve 1a: oggi MapView ha sei contenitori
+// position:absolute indipendenti. 1a li ordina in tre gruppi (rail, campi,
+// dock), ciascuno UN solo elemento posizionato che dentro usa flex/grid
+// (regola 1.6).
 //
-// 1a tiene la disposizione spaziale attuale ma la ordina in tre gruppi, e
-// ciascun gruppo è UN solo elemento posizionato che dentro usa flex/grid
-// (regola 1.6: l'absolute è per un elemento appuntato al viewport, mai per
-// una fila di elementi):
+// 1b: rail (livelli/attività) e campi meteo erano sempre espansi — corretto
+// per leggibilità, ma due pannelli sempre aperti prendono spazio e non sono
+// esteticamente in linea con una navbar/CTA che ora si ritirano da sole.
+// Diventano un trigger compatto (FlyoutGroup) che si apre al passaggio del
+// mouse su desktop (CSS :hover, gated a `pointer:fine` così il touch non
+// eredita hover fantasma) o al tocco/click ovunque — il click da solo resta
+// aperto finché non si clicca altrove o di nuovo sul trigger, quindi fa già
+// da "pin": niente spillo separato dentro il pannello, sarebbe ridondante.
+// Il trigger porta comunque un contatore di quante voci sono accese, così lo
+// stato resta leggibile a colpo d'occhio anche chiuso — la ragione originale
+// di 1a (regola 1.7) per cui erano sempre espansi.
 //
-//   .maprail    livelli — rail verticale sempre visibile, niente flyout
-//   .mapfields  campi meteo + sfondo — segmented in alto a destra
+//   .maprail    trigger "Attività" + flyout con i livelli
+//   .mapfields  trigger "Meteo" + flyout con i campi, e sfondo mappa sempre
+//               visibile accanto (non è un "campo meteo", resta un tap)
+//   .maptools   impostazioni, info (ex disclaimer/footer, non più
+//               raggiungibili scorrendo: la pagina mappa non scrolla più) e
+//               centra-sulla-mia-posizione — stessi trigger compatti, stessa
+//               logica di comparsa/posizione di rail e campi
 //   .mapdock    legenda + timeline radar + striscia giorni, un solo flex
-//
-// Conseguenza diretta della regola 1.7 (i controlli restano visibili):
-// useFlyoutMenu, meteoOpen e layersOpen non servono più — sono cancellati,
-// non ristilizzati.
 //
 // Tutti i controlli sono <button> reali con aria-pressed e focus ring
 // visibile (regola 1.8), e ogni pezzo degrada da solo: senza legenda, senza
 // frame radar o senza striscia giorni il dock semplicemente si accorcia, e
 // se non resta niente non viene renderizzato affatto (regola 1.9).
 
+import { useEffect, useRef, useState } from "react";
 import { Icon } from "@/app/components/WxIcon";
 import { DANGER_COLORS, dangerInk } from "@/lib/wx";
-import { useT } from "@/lib/i18n";
 
-/* ── livelli: cosa è disegnato sulla mappa ─────────────────────────── */
-export function MapRail({ layers = [], ready = true }) {
-  const t = useT();
-  if (!layers.length) return null;
+const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+
+/* ── trigger compatto + pannello a comparsa ─────────────────────────
+   Un solo elemento posizionato (className, dal chiamante) che al suo
+   interno apre/chiude un pannello: hover su desktop (CSS puro, media
+   query pointer:fine), click/tocco ovunque (stato React, funziona anche
+   da tastiera perché è un <button> vero) — resta aperto finché non si
+   clicca altrove o di nuovo sul trigger. */
+export function FlyoutGroup({
+  className, trigger, children, ready = true, hidden = false, compact = false,
+  onMouseEnter, onMouseLeave, ariaLabel, title,
+}) {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef(null);
+
+  // Fuori dal gruppo chiude — su touch non esiste "mouseleave" che lo
+  // segnali da solo.
+  useEffect(() => {
+    if (!open) return;
+    const onDocPointerDown = (e) => {
+      if (!rootRef.current?.contains(e.target)) setOpen(false);
+    };
+    document.addEventListener("pointerdown", onDocPointerDown);
+    return () => document.removeEventListener("pointerdown", onDocPointerDown);
+  }, [open]);
+
   return (
-    <div className="maprail" role="group" aria-label={t("map.rail_label")}>
-      {layers.map((l) => {
-        const Ico = l.icon || Icon.Layers;
-        return (
-          <div key={l.key} className="railitem">
-            {l.sep && <span className="railsep" aria-hidden />}
-            <button
-              type="button"
-              className={`railbtn ${l.on ? "on" : ""}`}
-              onClick={l.toggle}
-              aria-pressed={!!l.on}
-              disabled={!ready || l.disabled}
-              title={l.title}
-            >
-              <Ico size={19} />
-              <span className="rl">{l.label}</span>
-            </button>
-          </div>
-        );
-      })}
+    <div
+      ref={rootRef}
+      className={`flyout ${className} ${open ? "expanded" : ""} ${hidden ? "chrome-hidden" : ""}`}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+    >
+      <button
+        type="button"
+        className={`flyout-trigger ${compact ? "compact" : ""}`}
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        aria-haspopup="true"
+        disabled={!ready}
+        title={title}
+      >
+        {trigger}
+      </button>
+      <div className="flyout-panel" role="group" aria-label={ariaLabel}>
+        {children}
+      </div>
     </div>
   );
 }
 
-/* ── campi meteo + sfondo: come è disegnata la mappa ───────────────── */
-export function MapFields({ fields = [], bases = [], base, setBase, ready = true }) {
-  const t = useT();
-  if (!fields.length && !bases.length) return null;
+/* ── livelli: cosa è disegnato sulla mappa ─────────────────────────── */
+export function MapRail({
+  layers = [], ready = true, hidden = false, onMouseEnter, onMouseLeave,
+}) {
+  if (!layers.length) return null;
+  const activeCount = layers.filter((l) => l.on && !l.disabled).length;
   return (
-    <div className="mapfields">
+    <FlyoutGroup
+      className="maprail" ariaLabel="Livelli della mappa"
+      ready={ready} hidden={hidden}
+      onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}
+      trigger={
+        <>
+          <Icon.Layers size={18} />
+          <span className="flyout-label">Attività</span>
+          {activeCount > 0 && <em className="flyout-badge">{activeCount}</em>}
+        </>
+      }
+    >
+      <div className="flyout-rail">
+        {layers.map((l) => {
+          const Ico = l.icon || Icon.Layers;
+          return (
+            <div key={l.key} className="railitem">
+              {l.sep && <span className="railsep" aria-hidden />}
+              <button
+                type="button"
+                className={`railbtn ${l.on ? "on" : ""}`}
+                onClick={l.toggle}
+                aria-pressed={!!l.on}
+                disabled={!ready || l.disabled}
+                title={l.title}
+              >
+                <Ico size={19} />
+                <span className="rl">{l.label}</span>
+              </button>
+            </div>
+          );
+        })}
+      </div>
+    </FlyoutGroup>
+  );
+}
+
+/* ── campi meteo + sfondo: come è disegnata la mappa ───────────────── */
+export function MapFields({
+  fields = [], bases = [], base, setBase, ready = true,
+  hidden = false, onMouseEnter, onMouseLeave,
+}) {
+  if (!fields.length && !bases.length) return null;
+  const activeCount = fields.filter((f) => f.on && !f.disabled).length;
+  return (
+    <div
+      className={`mapfields ${hidden ? "chrome-hidden" : ""}`}
+      onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}
+    >
       {fields.length > 0 && (
-        <div className="segmented" role="group" aria-label={t("map.field_temp")}>
-          {fields.map((f) => (
-            <button
-              key={f.key}
-              type="button"
-              className={`segbtn ${f.on ? (f.alt ? "on alt" : "on") : ""}`}
-              onClick={f.toggle}
-              aria-pressed={!!f.on}
-              disabled={!ready || f.disabled}
-              title={f.title}
-            >
-              {f.label}
-              {f.tag && <em className="segtag">{f.tag}</em>}
-            </button>
-          ))}
-        </div>
+        <FlyoutGroup
+          className="mapfields-flyout" ariaLabel="Campi meteo"
+          ready={ready}
+          trigger={
+            <>
+              <Icon.Cloud size={18} />
+              <span className="flyout-label">Meteo</span>
+              {activeCount > 0 && <em className="flyout-badge">{activeCount}</em>}
+            </>
+          }
+        >
+          <div className="segmented segmented-flyout" role="group" aria-label="Campi meteo">
+            {fields.map((f) => (
+              <button
+                key={f.key}
+                type="button"
+                className={`segbtn ${f.on ? `on ${f.variant ? `v-${f.variant}` : ""}` : ""}`}
+                onClick={f.toggle}
+                aria-pressed={!!f.on}
+                disabled={!ready || f.disabled}
+                title={f.title}
+              >
+                {f.label}
+                {f.tag && <em className="segtag">{f.tag}</em>}
+              </button>
+            ))}
+          </div>
+        </FlyoutGroup>
       )}
       {bases.length > 0 && (
         <div className="segmented" role="group" aria-label="Sfondo della mappa">
           {bases.map((b) => (
             <button
-              key={b.key}
+              key={b}
               type="button"
-              className={`segbtn ${b.key === base ? "on light" : ""}`}
-              onClick={() => setBase(b.key)}
-              aria-pressed={b.key === base}
+              className={`segbtn ${b === base ? "on light" : ""}`}
+              onClick={() => setBase(b)}
+              aria-pressed={b === base}
               disabled={!ready}
             >
-              {b.label}
+              {cap(b)}
             </button>
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+/* ── strumenti: impostazioni, info, centra sulla mia posizione ──────
+   Stessa logica di movimento di rail e campi meteo (stesso useAutoHide,
+   stesso :has() per salire/scendere con la navbar — vedi globals.css),
+   ma pulsanti compatti solo-icona: sono controlli secondari, non hanno
+   bisogno del peso visivo di un'etichetta come Attività/Meteo. */
+export function MapTools({
+  ready = true, hidden = false, onMouseEnter, onMouseLeave,
+  onLocate, locating = false, infoContent,
+}) {
+  return (
+    <div
+      className={`maptools ${hidden ? "chrome-hidden" : ""}`}
+      onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}
+    >
+      <FlyoutGroup
+        className="tool-settings" ariaLabel="Impostazioni" compact
+        ready={ready} title="Impostazioni"
+        trigger={<Icon.Settings size={17} />}
+      >
+        <div className="tool-panel">
+          <p className="tool-note">
+            Impostazioni in arrivo — qui potrai scegliere unità di misura, tema e notifiche.
+          </p>
+        </div>
+      </FlyoutGroup>
+      <FlyoutGroup
+        className="tool-info" ariaLabel="Informazioni" compact
+        ready={ready} title="Info"
+        trigger={<Icon.Info size={17} />}
+      >
+        <div className="tool-panel tool-panel-info">{infoContent}</div>
+      </FlyoutGroup>
+      <button
+        type="button"
+        className="flyout-trigger compact"
+        onClick={onLocate}
+        disabled={!ready || locating}
+        title="Centra sulla mia posizione"
+        aria-label="Centra sulla mia posizione"
+      >
+        <Icon.Crosshair size={17} />
+      </button>
     </div>
   );
 }
 
 /* ── legenda: le scale attualmente attive ──────────────────────────── */
 function Legend({ rows = [], danger = false, note }) {
-  const t = useT();
   if (!rows.length && !danger && !note) return null;
   return (
     <div className="dockpanel dock-legend">
-      <div className="dockhead">{t("map.legend_scale")}</div>
+      <div className="dockhead">Scala</div>
       {rows.length > 0 && (
         <div className="legendgrid tnum">
           {rows.map((r) => (
@@ -127,7 +263,7 @@ function Legend({ rows = [], danger = false, note }) {
       )}
       {danger && (
         <>
-          <div className="dockhead" style={{ marginTop: 10 }}>{t("map.legend_avalanche")}</div>
+          <div className="dockhead" style={{ marginTop: 10 }}>Valanghe · EAWS</div>
           <div className="eawsrow tnum">
             {[1, 2, 3, 4, 5].map((d) => (
               <span
@@ -151,7 +287,6 @@ function Timeline({
   frames = [], frameIdx = 0, setFrameIdx, playing, setPlaying,
   frameTime, isForecast, intensity = null,
 }) {
-  const t = useT();
   // Senza frame la timeline non esiste: mai una barra vuota disabilitata.
   if (!frames.length) return null;
   // RainViewer non espone un valore di intensità per frame; l'istogramma
@@ -166,7 +301,7 @@ function Timeline({
         type="button"
         className="dockplay"
         onClick={() => setPlaying(!playing)}
-        aria-label={playing ? t("map.radar_pause") : t("map.radar_play")}
+        aria-label={playing ? "Pausa animazione radar" : "Avvia animazione radar"}
       >
         {playing ? <Icon.Pause size={13} /> : <Icon.Play size={13} />}
       </button>
@@ -190,7 +325,7 @@ function Timeline({
           max={frames.length - 1}
           value={frameIdx}
           onChange={(e) => setFrameIdx(Number(e.target.value))}
-          aria-label={t("map.radar_timeline")}
+          aria-label="Timeline radar"
         />
       </div>
       {/* Larghezza fissa + tabular-nums: l'orario che scorre non deve mai
