@@ -795,12 +795,26 @@ export default function MapView({
   useEffect(() => {
     const { L, map, grid } = S.current;
     if (!map) return;
-    if (S.current.velocity) {
-      map.removeLayer(S.current.velocity);
-      S.current.velocity = null;
+    if (!wind || !grid) {
+      if (S.current.velocity) {
+        map.removeLayer(S.current.velocity);
+        S.current.velocity = null;
+      }
+      return;
     }
-    if (!wind || !grid) return;
     const scale = windColorScale(base === "scuro" || temp);
+    if (S.current.velocity) {
+      // Aggiorna dati/colore sul layer già in mappa invece di ricrearlo ad
+      // ogni pan/zoom (gridVersion cambia in continuazione): oltre a essere
+      // più leggero, evita un bug noto di leaflet-velocity — il vecchio
+      // layer ha un requestAnimationFrame di disegno già schedulato, e se
+      // arriva DOPO la rimozione (Leaflet azzera _map in removeLayer)
+      // crasha su this._map.getSize(). Ricreare il layer solo quando serve
+      // davvero (vento appena acceso) tiene questa corsa rara invece che
+      // su ogni singolo movimento della mappa.
+      S.current.velocity.setOptions({ data: grid.wind, colorScale: scale });
+      return;
+    }
     S.current.velocity = L.velocityLayer({
       data: grid.wind,
       displayValues: true,
@@ -815,6 +829,18 @@ export default function MapView({
       particleMultiplier: 1 / 260, lineWidth: 1.3, particleAge: 55,
       colorScale: scale,
     }).addTo(map);
+    // Rete di sicurezza residua per lo stesso bug: se il layer viene
+    // acceso e spento di scatto (toggle rapido), resta comunque una
+    // finestra minima prima che il primo frame parta. Un guard sull'istanza
+    // (non sul prototipo — non tocca node_modules, sopravvive a npm
+    // install) rende il vecchio frame un no-op invece di un crash.
+    const canvasLayer = S.current.velocity._canvasLayer;
+    if (canvasLayer && typeof canvasLayer.drawLayer === "function") {
+      const drawOriginal = canvasLayer.drawLayer.bind(canvasLayer);
+      canvasLayer.drawLayer = () => {
+        if (canvasLayer._map) drawOriginal();
+      };
+    }
   }, [wind, temp, base, ready, gridVersion]);
 
   // Day/night terminator — real solar-elevation shading. Computed from the
