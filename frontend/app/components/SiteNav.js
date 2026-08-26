@@ -11,6 +11,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTopEdgeAutoHide } from "@/lib/useAutoHide";
+import { Icon } from "./WxIcon";
 
 export default function SiteNav() {
   const pathname = usePathname();
@@ -44,6 +45,13 @@ export default function SiteNav() {
             <Link href="/itinerari">Itinerari</Link>
             <Link href="/falesie">Falesie</Link>
             <Link href="/planner">Pianifica</Link>
+            {/* Sulla mappa ("/") le impostazioni si aprono dal pulsante
+                ingranaggio di MapChrome (MapTools) — qui serve solo per le
+                altre pagine, dove quel chrome non esiste. */}
+            <Link href="/impostazioni" className="navgear" aria-label="Impostazioni"
+              title="Impostazioni">
+              <Icon.Settings size={18} />
+            </Link>
           </div>
         </nav>
       </div>

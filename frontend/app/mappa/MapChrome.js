@@ -33,6 +33,7 @@
 // se non resta niente non viene renderizzato affatto (regola 1.9).
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { Icon } from "@/app/components/WxIcon";
 import { DANGER_COLORS, dangerInk } from "@/lib/wx";
 
@@ -207,17 +208,17 @@ export function MapTools({
       className={`maptools ${hidden ? "chrome-hidden" : ""}`}
       onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}
     >
-      <FlyoutGroup
-        className="tool-settings" ariaLabel="Impostazioni" compact
-        ready={ready} title="Impostazioni"
-        trigger={<Icon.Settings size={17} />}
+      {/* Non un altro FlyoutGroup: /impostazioni esiste già (unità, tema,
+          lingua, densità elenchi), quindi il trigger porta lì direttamente
+          invece di aprire un pannello con testo segnaposto. */}
+      <Link
+        href="/impostazioni"
+        className="flyout-trigger compact"
+        title="Impostazioni"
+        aria-label="Impostazioni"
       >
-        <div className="tool-panel">
-          <p className="tool-note">
-            Impostazioni in arrivo — qui potrai scegliere unità di misura, tema e notifiche.
-          </p>
-        </div>
-      </FlyoutGroup>
+        <Icon.Settings size={17} />
+      </Link>
       <FlyoutGroup
         className="tool-info" ariaLabel="Informazioni" compact
         ready={ready} title="Info"
