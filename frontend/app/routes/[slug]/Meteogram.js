@@ -13,7 +13,10 @@
 // Stessa chiamata Open-Meteo di prima e stesso fallback offline.
 
 import { useEffect, useState } from "react";
-import { fmtNum, fmtM } from "@/lib/fmt";
+import { fmtNum } from "@/lib/fmt";
+import { useT } from "@/lib/i18n";
+import { useUnits } from "@/lib/units";
+import { useSettings } from "../../components/SettingsProvider";
 
 const W = 720, H = 260, L = 54, R = 18, TOP = 18, B = 46;
 const PLOT_H = H - TOP - B;
@@ -27,6 +30,9 @@ function niceStep(span) {
 }
 
 export default function Meteogram({ lat, lon, name, startAltitude, maxAltitude }) {
+  const t = useT();
+  const units = useUnits();
+  const { settings } = useSettings();
   const [data, setData] = useState(null);
   const [err, setErr] = useState(null);
 
@@ -39,12 +45,14 @@ export default function Meteogram({ lat, lon, name, startAltitude, maxAltitude }
     fetch(url)
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
       .then((d) => setData(d.hourly))
-      .catch(() => setErr("Meteogramma non disponibile (offline o servizio non raggiungibile)."));
-  }, [lat, lon]);
+      .catch(() => setErr(t("meteogram.offline")));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lat, lon]); // "t" cambia identità a ogni render (vedi useT): tenerlo
+  // fuori dalle dep evita di rifare la fetch a ogni switch di lingua.
 
   if (lat == null || lon == null) return null;
   if (err) return <p className="note">{err}</p>;
-  if (!data) return <p className="note">Carico il meteogramma…</p>;
+  if (!data) return <p className="note">{t("meteogram.loading")}</p>;
 
   const n = data.time.length;
   const frz = data.freezing_level_height;
@@ -82,23 +90,24 @@ export default function Meteogram({ lat, lon, name, startAltitude, maxAltitude }
   for (let i = 0; i < n; i += 24) {
     days.push({
       i,
-      label: new Date(data.time[i]).toLocaleDateString("it-IT", { weekday: "short" }),
+      label: new Date(data.time[i]).toLocaleDateString(settings.lang === "en" ? "en-US" : "it-IT",
+        { weekday: "short" }),
     });
   }
 
   // Un aria-label che dice davvero l'intervallo, a parole.
   const aria =
-    `Zero termico sui prossimi 7 giorni a ${name}: quota tra ` +
-    `${fmtNum(Math.min(...frz))} e ${fmtNum(Math.max(...frz))} metri` +
+    `${t("meteogram.title")} ${name}: ` +
+    `${units.elevation(Math.min(...frz))} – ${units.elevation(Math.max(...frz))}` +
     (hasBand
-      ? `; l'itinerario va da ${fmtNum(start)} a ${fmtNum(top)} metri.`
+      ? `. ${t("meteogram.start")} ${units.elevation(start)} · ${t("meteogram.summit")} ${units.elevation(top)}.`
       : ".");
 
   return (
     <div className="panel mg">
       <div className="mg-head">
-        <strong>Zero termico sul percorso — {name}</strong>
-        <span className="note">Open-Meteo · 7 giorni</span>
+        <strong>{t("meteogram.title")} {name}</strong>
+        <span className="note">{t("meteogram.source")}</span>
       </div>
 
       <svg viewBox={`0 0 ${W} ${H}`} className="mg-svg" role="img" aria-label={aria}>
@@ -108,7 +117,7 @@ export default function Meteogram({ lat, lon, name, startAltitude, maxAltitude }
             <line x1={L} y1={y(m)} x2={W - R} y2={y(m)} stroke="var(--line)" />
             <text x={L - 8} y={y(m) + 3.5} textAnchor="end" fontSize="10.5"
               fill="var(--faint)" className="tnum">
-              {fmtNum(m)}
+              {units.elevationValue(m)}
             </text>
           </g>
         ))}
@@ -124,11 +133,11 @@ export default function Meteogram({ lat, lon, name, startAltitude, maxAltitude }
               stroke="var(--muted)" strokeWidth="1.3" strokeDasharray="5 4" />
             <text x={L + 7} y={y(start) - 6} fontSize="9.5" fontWeight="800"
               letterSpacing=".6" fill="var(--muted)" className="tnum">
-              {`PARTENZA ${fmtM(start)}`}
+              {`${t("meteogram.start")} ${units.elevation(start)}`}
             </text>
             <text x={L + 7} y={y(top) + 13} fontSize="9.5" fontWeight="800"
               letterSpacing=".6" fill="var(--muted)" className="tnum">
-              {`VETTA ${fmtM(top)}`}
+              {`${t("meteogram.summit")} ${units.elevation(top)}`}
             </text>
           </g>
         )}
@@ -159,15 +168,13 @@ export default function Meteogram({ lat, lon, name, startAltitude, maxAltitude }
       </svg>
 
       <div className="mg-legend">
-        <span><i style={{ background: "var(--accent)" }} />quota zero termico</span>
-        <span><i style={{ background: "var(--accent2)" }} />precipitazioni (mm/h)</span>
-        {hasBand && <span><i className="dash" />fascia dell'itinerario</span>}
+        <span><i style={{ background: "var(--accent)" }} />{t("meteogram.legend_freezing")}</span>
+        <span><i style={{ background: "var(--accent2)" }} />{t("meteogram.legend_precip")}</span>
+        {hasBand && <span><i className="dash" />{t("meteogram.legend_band")}</span>}
       </div>
 
       <p className="note">
-        Sopra la linea nevica, sotto piove. Modello Open-Meteo al punto di partenza
-        ({Number(lat).toFixed(3)}, {Number(lon).toFixed(3)}): dati indicativi, per la
-        decisione finale contano bollettino e osservazione sul posto.
+        {t("meteogram.note")} ({Number(lat).toFixed(3)}, {Number(lon).toFixed(3)}){t("meteogram.note_end")}
       </p>
     </div>
   );

@@ -3,8 +3,11 @@ import "leaflet-velocity/dist/leaflet-velocity.min.css";
 import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import "./globals.css";
-import Link from "next/link";
+import { SettingsProvider } from "./components/SettingsProvider";
+import Nav from "./components/Nav";
 import PwaRegister from "./components/PwaRegister";
+import T from "./components/T";
+import { STORAGE_KEY, DEFAULTS } from "@/lib/settings";
 
 export const metadata = {
   title: "Zerotermico — Il meteo alla tua quota.",
@@ -16,52 +19,43 @@ export const metadata = {
 
 export const viewport = { themeColor: "#0a1420" };
 
-function Nav() {
-  return (
-    <header className="navbar">
-      <div className="wrap">
-        <nav className="nav">
-          <Link href="/" className="logo" aria-label="Zerotermico">
-            <svg width="24" height="24" viewBox="0 0 32 32" aria-hidden>
-              <ellipse cx="14" cy="17" rx="9" ry="12" fill="none"
-                stroke="var(--accent)" strokeWidth="3.4" />
-              <line x1="7.5" y1="17" x2="20.5" y2="17"
-                stroke="var(--accent2)" strokeWidth="2.6" />
-              <circle cx="27.5" cy="6" r="3" fill="none"
-                stroke="var(--accent)" strokeWidth="2.4" />
-            </svg>
-            zero<span>°termico</span>
-          </Link>
-          <div>
-            <Link href="/">Mappa</Link>
-            <Link href="/localita">Cerca</Link>
-            <Link href="/itinerari">Itinerari</Link>
-            <Link href="/falesie">Falesie</Link>
-            <Link href="/planner">Pianifica</Link>
-          </div>
-        </nav>
-      </div>
-    </header>
-  );
-}
+// Applica il tema salvato PRIMA che React idrati: il tema è un attributo del
+// DOM (data-theme), non testo React, quindi cambiarlo qui non causa nessun
+// hydration mismatch — evita solo il lampo del tema di default per chi ha
+// già scelto "chiaro" o "sistema" in una visita precedente. Stringa
+// letterale (non un file esterno): deve eseguire prima di qualunque altro
+// script, incluso next/script.
+const THEME_INIT = `(function(){try{
+  var raw = localStorage.getItem(${JSON.stringify(STORAGE_KEY)});
+  var theme = (raw && JSON.parse(raw).theme) || ${JSON.stringify(DEFAULTS.theme)};
+  if (theme === "system") {
+    theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  }
+  document.documentElement.dataset.theme = theme;
+} catch (e) {}})();`;
 
 export default function RootLayout({ children }) {
   return (
     <html lang="it">
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT }} />
+      </head>
       <body>
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
           href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap"
           rel="stylesheet"
         />
-        <PwaRegister />
-        <Nav />
-        <main className="wrap">{children}</main>
-        <footer className="wrap">
-          Zerotermico · nome di lavoro · Bollettini: fonte ufficiale AINEVA / Meteomont ·{" "}
-          <a href="/fonti" style={{ textDecoration: "underline" }}>Fonti e licenze</a> ·{" "}
-          <a href="/privacy" style={{ textDecoration: "underline" }}>Privacy</a>
-        </footer>
+        <SettingsProvider>
+          <PwaRegister />
+          <Nav />
+          <main className="wrap">{children}</main>
+          <footer className="wrap">
+            <T k="footer.credit" /> ·{" "}
+            <a href="/fonti" style={{ textDecoration: "underline" }}><T k="footer.fonti" /></a> ·{" "}
+            <a href="/privacy" style={{ textDecoration: "underline" }}><T k="footer.privacy" /></a>
+          </footer>
+        </SettingsProvider>
       </body>
     </html>
   );

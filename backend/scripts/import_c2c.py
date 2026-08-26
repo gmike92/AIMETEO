@@ -59,6 +59,24 @@ AREAS: dict[str, tuple[float, float, float, float]] = {
     "area-ecrins": (44.80, 45.05, 6.15, 6.55),
     "area-vanoise": (45.25, 45.50, 6.75, 7.15),
     "area-mont-blanc-fr": (45.80, 45.98, 6.70, 7.00),
+    # Alpi (IT) — copertura AINEVA reale, zone verificate in connectors/aineva.py.
+    "area-alpi-giulie": (46.35, 46.55, 13.35, 13.65),
+    "area-grigna-resegone": (45.78, 45.95, 9.35, 9.55),
+    "area-alpi-marittime": (44.05, 44.25, 7.10, 7.40),
+    "area-monte-rosa-it": (45.85, 46.05, 7.85, 8.05),
+    "area-adamello-presanella": (46.10, 46.35, 10.82, 11.05),
+    # Centro-sud e isole (IT) — fuori copertura AINEVA, vedi area._note in
+    # seed_routes.json. Solo escursionismo/via_ferrata (niente scialpinismo/
+    # alpinismo atteso: il c2c ACTIVITY_MAP li mapperebbe comunque se presenti,
+    # ma il planner li bloccherebbe fail-closed senza bollettino).
+    "area-apuane": (43.95, 44.15, 10.15, 10.45),
+    "area-pollino": (39.85, 40.10, 15.95, 16.30),
+    "area-finale-ligure": (44.14, 44.22, 8.28, 8.42),
+    "area-sardegna-iglesiente": (39.15, 39.35, 8.50, 8.70),
+    "area-sardegna-supramonte": (40.15, 40.35, 9.35, 9.60),
+    "area-etna": (37.65, 37.85, 14.95, 15.15),
+    "area-san-vito-lo-capo": (38.15, 38.22, 12.70, 12.80),
+    "area-costiera-amalfitana": (40.60, 40.68, 14.48, 14.68),
 }
 
 #: Camptocamp activity -> our activity. Anything else (rock_climbing, ...) is ignored.

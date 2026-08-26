@@ -4,6 +4,8 @@
 import { serverFetch } from "@/lib/api";
 import { scoreColor } from "@/lib/wx";
 import { WxIcon } from "@/app/components/WxIcon";
+import T from "@/app/components/T";
+import Measurement from "@/app/components/Measurement";
 
 function dayLabel(iso) {
   return new Date(`${iso}T12:00:00`).toLocaleDateString("it-IT", {
@@ -25,7 +27,7 @@ export default async function BestWindowCard({ slug }) {
 
   return (
     <div className="panel">
-      <span className="eyebrow">finestra migliore della settimana</span>
+      <span className="eyebrow"><T k="bestwindow.eyebrow" /></span>
       <div style={{ display: "flex", alignItems: "baseline", gap: 14, marginTop: 10, flexWrap: "wrap" }}>
         <strong style={{ fontSize: 22, letterSpacing: "-.4px" }}>
           {dayLabel(fw.giorno)} · {fw.dalle}–{fw.alle}
@@ -53,17 +55,18 @@ export default async function BestWindowCard({ slug }) {
                 </span>
               </div>
               <div className="k" style={{ textTransform: "none", letterSpacing: 0 }}>
-                {Math.round(g.temp_min_c)}°/{Math.round(g.temp_max_c)}° ·{" "}
-                {g.precip_mm > 0 ? `${g.precip_mm} mm` : "asciutto"} · {g.vento_max_kmh} km/h
+                <Measurement kind="temp" value={g.temp_min_c} />/<Measurement kind="temp" value={g.temp_max_c} /> ·{" "}
+                {g.precip_mm > 0 ? `${g.precip_mm} mm` : <T k="bestwindow.dry" />} ·{" "}
+                <Measurement kind="speed" value={g.vento_max_kmh} />
               </div>
             </div>
           );
         })}
       </div>
       <p className="note" style={{ opacity: 0.75 }}>
-        Punteggio 0–100 a quota {fw.quota_riferimento_m} m: precipitazioni, vento,
-        nuvole, freddo e zero termico. Fonte: {fw.source}
-        {demo ? " (dati dimostrativi)" : ""}.
+        <T k="bestwindow.note_a" /> <Measurement kind="elevation" value={fw.quota_riferimento_m} />
+        <T k="bestwindow.note_b" /> {fw.source}
+        {demo && <T k="route.demo_data" />}.
       </p>
     </div>
   );

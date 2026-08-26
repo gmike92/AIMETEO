@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { API_BASE } from "@/lib/api";
 import { scoreColor } from "@/lib/wx";
 import { WxIcon } from "./WxIcon";
+import { useUnits } from "@/lib/units";
 
 export function MapSearch() {
   const [q, setQ] = useState("");
@@ -30,6 +31,7 @@ export function MapSearch() {
 }
 
 export function DayStrip() {
+  const units = useUnits();
   const [week, setWeek] = useState(null);
   const timer = useRef(null);
   const ctrl = useRef(null);
@@ -69,7 +71,7 @@ export function DayStrip() {
           <span className="i">
             <WxIcon precip_mm={g.precip_mm} nuvole_pct={g.nuvole_pct} size={17} />
           </span>
-          <span className="t">{Math.round(g.temp_max_c)}°</span>
+          <span className="t">{units.temp(g.temp_max_c)}</span>
           <span className="s" style={{ background: scoreColor(g.punteggio) }} />
         </div>
       ))}

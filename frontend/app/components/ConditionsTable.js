@@ -1,3 +1,4 @@
+"use client";
 // Tabella condizioni — opzione 1d. Prende il posto di ConditionsBoard e
 // fonde le due chiamate che prima si facevano separatamente: /conditions
 // (bollettino ufficiale + meteo per area) e /routes (gli itinerari).
@@ -5,26 +6,20 @@
 // Per chi confronta dieci gite prima del weekend, una griglia densa e
 // ordinabile batte dieci card: le colonne si leggono in verticale.
 //
-// L'ordinamento passa dalla querystring (?sort=vento), non da uno stato
-// client: così il componente resta un server component e l'ISR a 5 minuti
-// continua a valere. Nessun "use client", nessun useState.
+// L'ordinamento passa dalla querystring (?sort=vento): il valore iniziale
+// arriva dalla pagina server (ISR 5 minuti intatta), il click cambia solo
+// l'URL — nessuno stato di ordinamento locale. Client component per via di
+// i18n/unità (regola 1.9: il rendering iniziale coincide col server, vedi
+// SettingsProvider), non per l'ordinamento.
 //
 // Header e righe condividono una sola subgrid, quindi le colonne non
 // possono scollarsi tra loro.
 
 import { Icon } from "./WxIcon";
-import { DANGER_COLORS, DANGER_LABELS, dangerInk } from "@/lib/wx";
-import { fmtNum, fmtMin } from "@/lib/fmt";
-
-const COLS = [
-  { key: "nome", label: "Itinerario" },
-  { key: "diff", label: "Diff." },
-  { key: "prof", label: "Profilo", cls: "c-prof", sortable: false },
-  { key: "valanghe", label: "Valanghe" },
-  { key: "zero", label: "0°C", cls: "c-frz" },
-  { key: "vento", label: "Vento" },
-  { key: "tempo", label: "Tempo", cls: "c-end" },
-];
+import { DANGER_COLORS, dangerInk } from "@/lib/wx";
+import { fmtMin } from "@/lib/fmt";
+import { useT } from "@/lib/i18n";
+import { useUnits } from "@/lib/units";
 
 /** Chiave di ordinamento per riga; null/undefined vanno sempre in fondo. */
 function sortValue(row, key) {
@@ -56,8 +51,9 @@ function sortRows(rows, key) {
 
 /** Mini profilo dai punti reali della traccia; senza traccia, testo onesto. */
 function MiniProfile({ points }) {
+  const t = useT();
   const eles = (points || []).map((p) => p.ele).filter((e) => e != null);
-  if (eles.length < 8) return <span className="c-none">no traccia</span>;
+  if (eles.length < 8) return <span className="c-none">{t("conditions.no_track")}</span>;
   const step = Math.max(1, Math.floor(eles.length / 24));
   const ys = eles.filter((_, i) => i % step === 0);
   const lo = Math.min(...ys), hi = Math.max(...ys);
@@ -75,13 +71,14 @@ function MiniProfile({ points }) {
 }
 
 function DangerCell({ bulletin }) {
+  const t = useT();
   if (bulletin?.status === "in_vigore") {
     const lvl = bulletin.danger_level;
     return (
       <span className="dangerchip tnum"
         style={{ background: DANGER_COLORS[lvl], color: dangerInk(lvl) }}
-        title={`${bulletin.service || "bollettino ufficiale"} · grado ${lvl}/5`}>
-        {lvl} · {DANGER_LABELS[lvl] || ""}
+        title={`${bulletin.service || "bollettino ufficiale"} · ${lvl}/5`}>
+        {lvl} · {t(`danger.${lvl}`)}
       </span>
     );
   }
@@ -90,7 +87,7 @@ function DangerCell({ bulletin }) {
     // riesce a verificare. Non si nasconde e non si declassa a "nessun pericolo".
     return (
       <span className="c-warn">
-        <Icon.Warning size={13} /> non verif.
+        <Icon.Warning size={13} /> {t("conditions.unverifiable")}
       </span>
     );
   }
@@ -98,6 +95,19 @@ function DangerCell({ bulletin }) {
 }
 
 export default function ConditionsTable({ areas = [], routes = [], sort = "nome", activity = "" }) {
+  const t = useT();
+  const units = useUnits();
+
+  const COLS = [
+    { key: "nome", label: t("conditions.col_route") },
+    { key: "diff", label: t("conditions.col_diff") },
+    { key: "prof", label: t("conditions.col_profile"), cls: "c-prof", sortable: false },
+    { key: "valanghe", label: t("conditions.col_danger") },
+    { key: "zero", label: t("conditions.col_freezing"), cls: "c-frz" },
+    { key: "vento", label: t("conditions.col_wind") },
+    { key: "tempo", label: t("conditions.col_time"), cls: "c-end" },
+  ];
+
   if (!routes.length) return null;
 
   const byArea = Object.fromEntries(areas.map((a) => [a.area_id, a]));
@@ -115,11 +125,9 @@ export default function ConditionsTable({ areas = [], routes = [], sort = "nome"
     <section id="condizioni" style={{ marginTop: 34 }}>
       <div className="ctable-top">
         <div>
-          <h2 style={{ margin: 0 }}>Condizioni adesso</h2>
+          <h2 style={{ margin: 0 }}>{t("conditions.title")}</h2>
           <p className="note" style={{ marginTop: 4 }}>
-            {inSeason
-              ? "Bollettino valanghe ufficiale per area e meteo al punto di partenza."
-              : "Meteo al punto di partenza per area."}
+            {inSeason ? t("conditions.sub_season") : t("conditions.sub_noseason")}
           </p>
         </div>
       </div>
@@ -151,19 +159,19 @@ export default function ConditionsTable({ areas = [], routes = [], sort = "nome"
                 </span>
               </span>
               <span className="c-grade"
-                title={`${r.diff_grade || "difficoltà n.d."}${r.diff_scale ? ` (scala ${r.diff_scale})` : ""}`}>
+                title={`${r.diff_grade || "n.d."}${r.diff_scale ? ` (scala ${r.diff_scale})` : ""}`}>
                 {r.diff_grade || "n.d."}
               </span>
               <span className="c-prof"><MiniProfile points={r.track_points} /></span>
               <span><DangerCell bulletin={area?.bulletin} /></span>
               <span className="c-frz">
                 {area?.forecast?.freezing_level_m != null
-                  ? fmtNum(area.forecast.freezing_level_m)
+                  ? units.elevation(area.forecast.freezing_level_m)
                   : <span className="c-none">—</span>}
               </span>
               <span>
                 {area?.forecast?.wind_avg_kmh != null
-                  ? area.forecast.wind_avg_kmh
+                  ? units.speed(area.forecast.wind_avg_kmh)
                   : <span className="c-none">—</span>}
               </span>
               <span className="c-end">
@@ -177,9 +185,8 @@ export default function ConditionsTable({ areas = [], routes = [], sort = "nome"
       </div>
 
       <p className="ctable-note">
-        Il bollettino ufficiale {areas[0]?.bulletin?.service || "AINEVA"} / Meteomont prevale
-        sempre. Supporto alla decisione, non una raccomandazione.
-        {anyDemo && " Meteo dimostrativo: nessuna chiave API configurata."}
+        {areas[0]?.bulletin?.service || "AINEVA"} / Meteomont {t("conditions.prevails")}
+        {anyDemo && ` ${t("conditions.demo_note")}`}
       </p>
     </section>
   );
