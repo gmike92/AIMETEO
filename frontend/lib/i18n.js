@@ -249,6 +249,8 @@ const it = {
   "settings.theme": "Tema",
   "settings.theme_dark": "Scuro",
   "settings.theme_light": "Chiaro",
+  "settings.theme_bosco": "Bosco",
+  "settings.theme_mare": "Mare",
   "settings.theme_system": "Segui il sistema",
   "settings.lang": "Lingua dell'interfaccia",
   "settings.lang_note":
@@ -257,6 +259,15 @@ const it = {
   "settings.density": "Visualizzazione elenchi",
   "settings.density_grid": "Griglia",
   "settings.density_list": "Elenco",
+  "settings.map_layers": "Attività visualizzabili sulla mappa",
+  "settings.map_layers_note":
+    "Quali pulsanti mostrare nel pannello Attività della mappa — non accende o " +
+    "spegne nulla da qui, decide solo cosa offrire.",
+  "layer.rt": "Itinerari",
+  "layer.fal": "Falesie",
+  "layer.mtb": "MTB",
+  "layer.skifondo": "Sci di fondo",
+  "layer.ski": "Piste",
   "settings.reset": "Ripristina i valori predefiniti",
 };
 
@@ -496,6 +507,8 @@ const en = {
   "settings.theme": "Theme",
   "settings.theme_dark": "Dark",
   "settings.theme_light": "Light",
+  "settings.theme_bosco": "Forest",
+  "settings.theme_mare": "Sea",
   "settings.theme_system": "Follow system",
   "settings.lang": "Interface language",
   "settings.lang_note":
@@ -504,6 +517,15 @@ const en = {
   "settings.density": "List display",
   "settings.density_grid": "Grid",
   "settings.density_list": "List",
+  "settings.map_layers": "Activities shown on the map",
+  "settings.map_layers_note":
+    "Which buttons to offer in the map's Activity panel — doesn't turn anything " +
+    "on or off from here, just what's available.",
+  "layer.rt": "Routes",
+  "layer.fal": "Crags",
+  "layer.mtb": "MTB",
+  "layer.skifondo": "Cross-country skiing",
+  "layer.ski": "Ski slopes",
   "settings.reset": "Reset to defaults",
 };
 

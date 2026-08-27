@@ -230,10 +230,13 @@ function RouteListRow({ route: r, freezingLevel }) {
 }
 
 /** Griglia o elenco a seconda della preferenza Settings → densità. Un solo
- *  punto d'ingresso per la pagina itinerari, così il toggle vale ovunque. */
-export function RouteGrid({ routes = [], freezingLevel = () => null }) {
+ *  punto d'ingresso per la pagina itinerari, così il toggle vale ovunque.
+ *  freezingLevelByArea è una mappa area_id → quota (oggetto semplice, non
+ *  una funzione: page.js è un Server Component e non può passare funzioni
+ *  a un Client Component — "Functions cannot be passed directly..."). */
+export function RouteGrid({ routes = [], freezingLevelByArea = {} }) {
   const { settings } = useSettings();
-  const getFrz = typeof freezingLevel === "function" ? freezingLevel : () => freezingLevel;
+  const getFrz = (r) => freezingLevelByArea[r.area_id] ?? null;
 
   if (settings.density === "list") {
     return (

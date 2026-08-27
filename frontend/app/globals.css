@@ -50,6 +50,44 @@
   --accent-text:#0369a1; --accent2-text:#0f766e;
   --warn-text:#b45309; --danger-text:#be123c;
 }
+
+/* ── tema bosco ───────────────────────────────────────────────────
+   Come il tema scuro (fondo profondo, testo chiaro) ma la tinta cambia:
+   verde foglia al posto del ciano, legno caldo come secondo accento.
+   accent/accent2 SONO ridefiniti qui (a differenza di chiaro/scuro, che
+   li tengono identici): un tema "bosco" senza verde non sarebbe
+   riconoscibile. Scelti abbastanza chiari da restare leggibili col testo
+   scuro fisso (#04121f) dei riempimenti pieni (.chip.on, .segbtn.on…). */
+:root[data-theme="bosco"]{
+  --bg:#101c13; --bg2:#16241a; --bg3:#1d2f21;
+  --ink:#eef4ea; --muted:#9fb391; --faint:#69805f;
+  --accent:#84cc16; --accent-soft:rgba(132,204,22,.14);
+  --accent2:#c08552;
+  --line:rgba(170,196,150,.14); --line-strong:rgba(170,196,150,.28);
+  --card:rgba(255,255,255,.03); --card-hover:rgba(132,204,22,.06);
+  --glass:rgba(16,28,19,.72);
+  --shadow:0 10px 40px rgba(3,8,4,.5);
+  --accent-text:var(--accent); --accent2-text:var(--accent2);
+  --warn-text:var(--warn); --danger-text:var(--danger);
+}
+
+/* ── tema mare ────────────────────────────────────────────────────
+   Come il tema chiaro (fondo quasi bianco, testo scuro) ma la tinta è
+   il turchese del mare invece del ciano neutro, blu profondo come
+   secondo accento. accent-text/accent2-text scuriti per il contrasto
+   su fondo chiaro, stessa logica del tema chiaro sopra. */
+:root[data-theme="mare"]{
+  --bg:#eef8fb; --bg2:#ffffff; --bg3:#e2f1f6;
+  --ink:#082430; --muted:#3c6270; --faint:#5c7f8c;
+  --accent:#22d3ee; --accent-soft:rgba(34,211,238,.10);
+  --accent2:#0ea5e9;
+  --line:rgba(8,60,75,.09); --line-strong:rgba(8,60,75,.18);
+  --card:rgba(8,60,75,.025); --card-hover:rgba(34,211,238,.07);
+  --glass:rgba(255,255,255,.78);
+  --shadow:0 10px 30px rgba(10,50,65,.10);
+  --accent-text:#0e7490; --accent2-text:#075985;
+  --warn-text:#b45309; --danger-text:#be123c;
+}
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 html,body{background:var(--bg);color:var(--ink);
@@ -184,10 +222,16 @@ html:has(.mapshell.full),body:has(.mapshell.full){overflow:hidden;height:100%}
 .leaflet-container .leaflet-control-attribution{background:rgba(252,254,255,.75);
   color:#5a6d80;font-size:10px;backdrop-filter:blur(6px)}
 .leaflet-container .leaflet-control-attribution a{color:#5a6d80}
-.leaflet-bar{border:1px solid var(--line-on-l)!important;border-radius:12px!important;
-  overflow:hidden;box-shadow:0 3px 14px rgba(11,23,34,.18)!important}
+/* Zoom come due pulsanti tondi separati (stile .flyout-trigger.compact),
+   non più la barra unita di default di Leaflet: overflow visibile e
+   niente bordo/ombra sul contenitore, che diventano dei singoli <a>. */
+.leaflet-bar{display:flex!important;flex-direction:column;gap:6px;
+  border:0!important;border-radius:0!important;overflow:visible!important;
+  box-shadow:none!important;background:transparent!important}
 .leaflet-bar a{background:var(--glass-l);backdrop-filter:var(--blur);color:var(--ink-on-l);
-  border-bottom:1px solid var(--line-on-l);width:34px;height:34px;line-height:34px}
+  border:1px solid var(--line-on-l);border-radius:12px!important;
+  width:38px!important;height:38px!important;line-height:38px!important;
+  box-shadow:0 3px 14px rgba(11,23,34,.18)}
 .leaflet-bar a:hover{background:rgba(56,189,248,.2)}
 .leaflet-control-velocity{background:var(--glass)!important;color:var(--muted)!important;
   border:1px solid var(--line);border-radius:8px;padding:3px 9px;font-size:11px;
@@ -219,8 +263,6 @@ html:has(.navbar.chrome-hidden) .mapcta{top:16px}
   font-weight:700;color:var(--ink-on-l);transition:border-color .2s,transform .14s;
   box-shadow:0 3px 14px rgba(11,23,34,.18)}
 .mapcta a:hover{border-color:var(--accent);transform:translateY(-1px)}
-.mapcta a.primary{background:var(--accent);color:#04121f;border-color:var(--accent);
-  box-shadow:0 4px 18px rgba(56,189,248,.4)}
 
 /* search bar sulla mappa (dentro .mapcta) */
 .mapsearch input{width:190px;background:var(--glass-l);border:1px solid var(--line-on-l);
@@ -340,12 +382,18 @@ html:has(.navbar.chrome-hidden) .mapcta{top:16px}
    — funziona anche da tastiera). Un pin, in piccolo, per tenerlo aperto
    senza doverci restare sopra. */
 .flyout{position:relative}
-.flyout-trigger{display:flex;align-items:center;gap:7px;padding:9px 14px;
+.flyout-trigger{display:flex;align-items:center;justify-content:center;gap:7px;
+  padding:9px 14px;
   border:1px solid var(--line-strong);border-radius:999px;cursor:pointer;
   background:var(--glass);backdrop-filter:var(--blur);box-shadow:var(--shadow);
   color:var(--muted);font-family:inherit;font-size:12.5px;font-weight:700;
   letter-spacing:.2px;white-space:nowrap;
   transition:color .18s,background .18s,border-color .18s}
+/* Meteo e Attività sono impilati nella stessa colonna (destra): stessa
+   larghezza fissa così i due pillole si allineano, invece di ciascuna
+   stringersi sulla propria etichetta ("Meteo" più corto di "Attività"). */
+.mapfields-flyout .flyout-trigger,
+.maprail .flyout-trigger{width:120px}
 .flyout-trigger:hover:not(:disabled){color:var(--ink);border-color:var(--accent)}
 .flyout.expanded .flyout-trigger{color:var(--ink);border-color:var(--accent);
   background:var(--accent-soft)}
@@ -354,33 +402,49 @@ html:has(.navbar.chrome-hidden) .mapcta{top:16px}
   background:var(--accent);color:#04121f;font-size:10px;font-weight:800;
   font-style:normal;font-variant-numeric:tabular-nums}
 
-.flyout-panel{position:absolute;left:0;top:calc(100% + 8px);z-index:1002;
+/* Di lato invece che sotto: rail (Attività) e strumenti (Impostazioni,
+   Info, Mirino) sono impilati in colonna — un pannello che si aprisse in
+   basso coprirebbe proprio i controlli sotto di lui nella stessa colonna.
+   Aprendosi di lato non copre mai un vicino, qualunque sia la colonna. */
+.flyout-panel{position:absolute;top:0;left:calc(100% + 8px);z-index:1002;
   padding:10px;border-radius:16px;
   background:var(--glass);border:1px solid var(--line-strong);
   backdrop-filter:var(--blur);box-shadow:var(--shadow);
-  visibility:hidden;opacity:0;transform:translateY(-6px);pointer-events:none;
+  visibility:hidden;opacity:0;transform:translateX(-6px);pointer-events:none;
   transition:opacity .18s ease,transform .18s ease,visibility .18s}
 @media (hover:hover) and (pointer:fine){
   .flyout:hover .flyout-panel{visibility:visible;opacity:1;transform:none;pointer-events:auto}
 }
 .flyout.expanded .flyout-panel{visibility:visible;opacity:1;transform:none;pointer-events:auto}
-/* il trigger dei campi meteo sta a destra: il pannello si apre verso
-   sinistra, non verso il bordo dello schermo. Larghezza esplicita: uno
-   shrink-to-fit su un right:0 assoluto con dentro un figlio flex-wrap è
-   ambiguo nei motori di rendering e collassava a una singola colonna
-   invece di andare a capo su più righe. */
-.mapfields-flyout .flyout-panel{left:auto;right:0;width:264px}
+/* Esclusività: quando un flyout è fissato aperto (click — vedi MapView.js,
+   activeFlyout), passare col mouse su un ALTRO trigger non deve più
+   sovrapporgli sopra il suo pannello. Solo il click esplicito (che sposta
+   quale sia il fissato) può cambiare quale pannello si vede. */
+html.flyout-pinned .flyout:not(.expanded):hover .flyout-panel{
+  visibility:hidden;opacity:0;transform:translateX(-6px);pointer-events:none}
+/* il trigger dei campi meteo sta nella colonna di destra, con lo sfondo
+   mappa subito sotto: il pannello si apre verso sinistra invece che in
+   basso, altrimenti coprirebbe il selettore sfondo. Larghezza esplicita:
+   uno shrink-to-fit su un solo offset assoluto con dentro un figlio
+   flex-wrap è ambiguo nei motori di rendering e collassava a una singola
+   colonna invece di andare a capo su più righe. */
+.mapfields-flyout .flyout-panel{left:auto;right:calc(100% + 8px);width:264px}
+/* Attività e strumenti sono ora anche loro nella colonna di destra (sotto
+   Meteo): stesso motivo di sopra, il pannello si apre verso sinistra. */
+.maprail .flyout-panel,
+.tool-settings .flyout-panel,
+.tool-info .flyout-panel{left:auto;right:calc(100% + 8px)}
 
-/* livelli — trigger "Attività" in colonna sinistra, sotto lo zoom Leaflet:
-   il più in alto possibile, ma deve restare sotto lo zoom (regola 1.6bis:
-   vedi --navbar-h in :root e .leaflet-top più sotto — stessa logica di
-   mapcta, così quando la navbar riappare tutto scende in blocco, coerente). */
-.maprail{position:absolute;left:16px;top:calc(var(--navbar-h) + 82px);z-index:1001;
+/* livelli — trigger "Attività" in colonna destra, sotto il pannello Meteo
+   (.mapfields: sfondo + trigger Meteo, 87px di altezza + 10px di margine —
+   vedi --navbar-h in :root, stessa logica di mapcta così quando la navbar
+   riappare tutto scende in blocco, coerente). */
+.maprail{position:absolute;right:16px;top:calc(var(--navbar-h) + 113px);z-index:1001;
   transition:transform .3s ease,opacity .3s ease,top .32s ease}
-html:has(.navbar.chrome-hidden) .maprail{top:82px}
+html:has(.navbar.chrome-hidden) .maprail{top:113px}
 /* A scomparsa dopo qualche secondo di inattività (vedi useAutoHide) —
    torna visibile a qualunque interazione sulla pagina/mappa. */
-.maprail.chrome-hidden{transform:translateX(-14px);opacity:0;pointer-events:none}
+.maprail.chrome-hidden{transform:translateX(14px);opacity:0;pointer-events:none}
 .flyout-rail{display:flex;flex-direction:column;gap:2px}
 .railitem{display:flex;flex-direction:column}
 .railsep{height:1px;background:var(--line-strong);margin:5px 6px}
@@ -433,13 +497,13 @@ html:has(.navbar.chrome-hidden) .mapfields{top:16px}
 .segtag{font-size:8.5px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;
   opacity:.7;font-style:normal;margin-left:4px}
 
-/* strumenti — impostazioni/info/mirino, colonna sinistra sotto Attività:
+/* strumenti — impostazioni/info/mirino, colonna destra sotto Attività:
    stessa logica di comparsa/posizione di rail e campi (vedi sopra). */
-.maptools{position:absolute;left:16px;top:calc(var(--navbar-h) + 130px);z-index:1001;
+.maptools{position:absolute;right:16px;top:calc(var(--navbar-h) + 161px);z-index:1001;
   display:flex;flex-direction:column;gap:6px;
   transition:transform .3s ease,opacity .3s ease,top .32s ease}
-html:has(.navbar.chrome-hidden) .maptools{top:130px}
-.maptools.chrome-hidden{transform:translateX(-14px);opacity:0;pointer-events:none}
+html:has(.navbar.chrome-hidden) .maptools{top:161px}
+.maptools.chrome-hidden{transform:translateX(14px);opacity:0;pointer-events:none}
 
 /* variante compatta del trigger: solo icona, quadrata invece di pillola —
    per controlli secondari che non hanno bisogno di un'etichetta sempre
@@ -448,13 +512,20 @@ html:has(.navbar.chrome-hidden) .maptools{top:130px}
   border-radius:12px;gap:0}
 
 .tool-panel{width:220px}
+/* Impostazioni ha 4 gruppi di chip (unità/tema/lingua/densità) — un filo
+   più largo del pannello info per non far andare a capo i gruppi da 3. */
+.tool-settings .tool-panel{width:250px}
 .tool-note{font-size:12px;line-height:1.55;color:var(--muted)}
 .tool-panel-info p{font-size:12px;line-height:1.55;color:var(--muted)}
 .tool-panel-info p+p{margin-top:10px;font-size:11px;color:var(--faint)}
 
-/* dock — legenda, timeline radar e striscia giorni in un solo flex */
+/* dock — legenda, timeline radar e striscia giorni in un solo flex.
+   align-items:center invece di flex-end: la legenda (senza più
+   l'etichetta "Scala") e la striscia giorni hanno altezze simili ma non
+   identiche (righe attive variabili) — centrarle le fa leggere come
+   allineate anche quando differiscono di qualche pixel. */
 .mapdock{position:absolute;left:104px;right:16px;bottom:28px;z-index:1000;
-  display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap}
+  display:flex;gap:12px;align-items:center;flex-wrap:wrap}
 .dockpanel{background:var(--glass);border:1px solid var(--line-strong);
   backdrop-filter:var(--blur);box-shadow:var(--shadow);color:var(--ink);
   border-radius:16px}
@@ -464,19 +535,48 @@ html:has(.navbar.chrome-hidden) .maptools{top:130px}
   max-width:210px;line-height:1.45}
 
 .dock-legend{flex:none;width:236px;padding:14px 16px}
-.legendgrid{display:flex;flex-direction:column;gap:8px;margin-top:10px}
-.legendrow2{display:grid;grid-template-columns:40px 1fr;gap:9px;align-items:center}
-.legendrow2 .legendlabel{min-width:0;font-size:10px;font-weight:700;letter-spacing:.4px;
+/* niente più margin-top: prima separava le righe dall'etichetta "Scala",
+   rimossa — senza altezza in eccesso il pannello torna vicino a quella
+   di dock-days, con cui condivide la riga del dock. */
+.legendgrid{display:flex;flex-direction:column;gap:8px}
+/* Due righe di grid, non una: la label va centrata sulla SOLA barra, non
+   sul blocco barra+numeri (prima "align-items:center" centrava l'intero
+   blocco, e visivamente la label finiva allineata ai numeri sotto, più
+   vicini al centro geometrico, non alla barra sopra). Riga 1 = label+barra
+   (le uniche due qui, si centrano a vicenda); riga 2 = solo i numeri. */
+.legendrow2{display:grid;grid-template-columns:40px 1fr;grid-template-rows:auto auto;
+  column-gap:9px;row-gap:3px}
+.legendrow2 .legendlabel{grid-column:1;grid-row:1;align-self:center;min-width:0;
+  font-size:10px;font-weight:700;letter-spacing:.4px;
   text-transform:uppercase;color:var(--muted);opacity:1}
-.legendrow2 .legendbar{display:block;width:100%;min-width:0;height:7px;border-radius:4px}
+.legendrow2 .legendbar{grid-column:2;grid-row:1;align-self:center;display:block;
+  width:100%;min-width:0;height:7px;border-radius:4px;
+  /* Bordo sempre visibile (stesso tono usato dal pannello giorni a fianco,
+     var(--line-strong)): senza, l'estremità chiara di alcuni gradienti
+     (es. il bianco iniziale della scala vento) si perdeva nel vetro scuro
+     del pannello. */
+  border:1px solid var(--line-strong)}
+.legendrow2 .legendends{grid-column:2;grid-row:2}
 .legendends{display:flex;justify-content:space-between;font-size:9.5px;
-  font-weight:600;color:var(--faint);margin-top:3px}
+  font-weight:600;color:var(--faint)}
 .eawsrow{display:flex;gap:5px;margin-top:8px}
 .eawschip{flex:1;height:20px;border-radius:5px;display:flex;align-items:center;
   justify-content:center;font-size:10px;font-weight:800}
 
+/* Comparendo/scomparendo (radar o nuvole accesi/spenti) sposta la striscia
+   giorni a fianco — corretto, ma di scatto. Un'animazione (non transition:
+   il pannello monta/smonta, non c'è uno stato "prima" da cui partire) su
+   max-width fa crescere il pannello un po' alla volta, così il vicino
+   scivola invece di saltare. Rilascia da sola a fine corsa (nessun
+   fill-mode) e lascia il flex normale prendere il sopravvento — ma il tetto
+   d'arrivo deve restare SEMPRE più largo della larghezza naturale (qui
+   flex:1 può arrivare oltre 480px su schermi larghi): se il vincolo era
+   ancora quello a stringere all'ultimo fotogramma, al rilascio la scatola
+   saltava di colpo alla sua vera larghezza — da cui lo scatto finale. */
+@keyframes dockTimelineGrow{from{max-width:0;opacity:0}to{max-width:1400px;opacity:1}}
 .dock-timeline{flex:1 1 260px;min-width:0;display:flex;align-items:center;gap:12px;
-  padding:9px 14px 9px 9px;border-radius:999px}
+  padding:9px 14px 9px 9px;border-radius:999px;overflow:hidden;
+  animation:dockTimelineGrow .4s ease}
 .dockplay{width:34px;height:34px;border-radius:50%;border:0;cursor:pointer;flex:none;
   background:var(--accent);color:#04121f;display:flex;align-items:center;
   justify-content:center;transition:filter .2s}
@@ -520,7 +620,6 @@ html:has(.navbar.chrome-hidden) .maptools{top:130px}
 .mapcta{left:60px}
 .mapcta a{background:var(--glass);border-color:var(--line-strong);
   color:var(--ink);box-shadow:var(--shadow)}
-.mapcta a.primary{background:var(--accent);color:#04121f;border-color:var(--accent)}
 .mapsearch input{background:var(--glass);border-color:var(--line-strong);
   color:var(--ink);box-shadow:var(--shadow)}
 .mapsearch input::placeholder{color:var(--muted)}
@@ -531,15 +630,18 @@ html:has(.navbar.chrome-hidden) .maptools{top:130px}
 /* Lo zoom (topleft) sta riservato sotto la fascia navbar, sempre — anche
    quando la navbar è nascosta — così quando riappare (overlay flottante,
    vedi .navbar-immersive) non lo copre mai. */
-.mapshell.full .leaflet-top{top:var(--navbar-h);transition:top .32s ease}
-html:has(.navbar.chrome-hidden) .mapshell.full .leaflet-top{top:0}
+/* +6px: il margine interno di Leaflet sui suoi controlli (~10px) non
+   combacia col padding della ricerca/CTA a fianco (~16px) — misurato e
+   corretto così i due centri verticali coincidono. */
+.mapshell.full .leaflet-top{top:calc(var(--navbar-h) + 6px);transition:top .32s ease}
+html:has(.navbar.chrome-hidden) .mapshell.full .leaflet-top{top:6px}
 .mapshell .leaflet-bottom{bottom:0}
 .mapshell .leaflet-control-attribution{margin:0}
-.mapshell .leaflet-control-velocity{margin:0 0 3px 3px!important}
-.mapshell .leaflet-bar{border-color:var(--line-strong)!important;
-  box-shadow:var(--shadow)!important}
+/* bottomright, impilato sopra l'attribuzione Leaflet che occupa lo stesso
+   angolo (~24px): margine inferiore abbondante per non sovrapporla mai. */
+.mapshell .leaflet-control-velocity{margin:0 3px 32px 0!important}
 .mapshell .leaflet-bar a{background:var(--glass);color:var(--ink);
-  border-bottom:1px solid var(--line-strong)}
+  border-color:var(--line-strong);box-shadow:var(--shadow)}
 .mapshell .leaflet-bar a:hover{background:var(--accent-soft);color:var(--accent-text)}
 
 /* ── mappa · quattro larghezze ─────────────────────────────────── */
@@ -550,12 +652,16 @@ html:has(.navbar.chrome-hidden) .mapshell.full .leaflet-top{top:0}
 }
 @media (max-width:640px){
   .mapcta{left:16px;right:16px}
-  /* .mapcta va a capo su due righe sotto i ~640px: trigger più in basso
-     per non finirci sotto, sia a navbar visibile che nascosta. */
-  .maprail{top:calc(var(--navbar-h) + 124px)}
-  html:has(.navbar.chrome-hidden) .maprail{top:124px}
+  /* .mapcta va a capo su due righe sotto i ~640px: tutta la colonna destra
+     (Meteo/Attività/Strumenti) più in basso per non finirci sotto, sia a
+     navbar visibile che nascosta — stessi 97px/145px di distacco del
+     desktop, solo il punto di partenza (.mapfields) si abbassa. */
   .mapfields{top:calc(var(--navbar-h) + 124px)}
   html:has(.navbar.chrome-hidden) .mapfields{top:124px}
+  .maprail{top:calc(var(--navbar-h) + 221px)}
+  html:has(.navbar.chrome-hidden) .maprail{top:221px}
+  .maptools{top:calc(var(--navbar-h) + 269px)}
+  html:has(.navbar.chrome-hidden) .maptools{top:269px}
   .mapdock{left:76px;right:10px;bottom:22px;gap:8px}
   .dock-timeline{flex:1 1 100%}
   .dock-days{flex:1 1 100%}

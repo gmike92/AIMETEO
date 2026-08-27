@@ -13,6 +13,11 @@ giudicare la stima):
   scialpinismo    5.0 km/h  400 m/h   700 m/h  (discesa in sci)
   alpinismo       3.5 km/h  350 m/h   450 m/h
   via_ferrata     3.0 km/h  250 m/h   400 m/h
+  mtb_alpino     12.0 km/h  300 m/h   800 m/h  (salita spesso a spinta, discesa in sella)
+
+Senza una voce dichiarata qui, la stima ricadrebbe silenziosamente sui tempi
+dell'escursionismo (vedi DEFAULT_ACTIVITY) — sbagliato per un'attività con
+andatura diversa, quindi ogni attività instradabile sulla mappa ha la sua riga.
 
 Le SOSTE non sono incluse (dichiarato). Senza traccia reale la stima usa il
 solo dislivello ed è marcata come parziale — mai spacciata per completa.
@@ -28,6 +33,7 @@ PARAMS: dict[str, tuple[float, float, float]] = {
     "scialpinismo": (5.0, 400.0, 700.0),
     "alpinismo": (3.5, 350.0, 450.0),
     "via_ferrata": (3.0, 250.0, 400.0),
+    "mtb_alpino": (12.0, 300.0, 800.0),
 }
 DEFAULT_ACTIVITY = "escursionismo"
 

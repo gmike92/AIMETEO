@@ -77,15 +77,25 @@ AREAS: dict[str, tuple[float, float, float, float]] = {
     "area-etna": (37.65, 37.85, 14.95, 15.15),
     "area-san-vito-lo-capo": (38.15, 38.22, 12.70, 12.80),
     "area-costiera-amalfitana": (40.60, 40.68, 14.48, 14.68),
+    # Alpi svizzere (CH) / austriache (AT) / slovene (SI) — connettore
+    # bollettino non ancora integrato (placeholder, vedi area._note).
+    "area-zermatt-ch": (45.95, 46.05, 7.65, 7.85),
+    "area-engadin-ch": (46.40, 46.60, 9.80, 10.10),
+    "area-jungfrau-ch": (46.50, 46.70, 7.85, 8.10),
+    "area-oetztal-at": (46.80, 47.05, 10.75, 11.05),
+    "area-zillertal-at": (47.00, 47.20, 11.70, 12.00),
+    "area-triglav-si": (46.28, 46.45, 13.70, 13.95),
 }
 
-#: Camptocamp activity -> our activity. Anything else (rock_climbing, ...) is ignored.
+#: Camptocamp activity -> our activity. Anything else (rock_climbing,
+#: paragliding, ...) is ignored — non richiesto, resta fuori scope qui.
 ACTIVITY_MAP = {
     "skitouring": "scialpinismo",
     "snow_ice_mixed": "alpinismo",
     "mountain_climbing": "alpinismo",
     "via_ferrata": "via_ferrata",
     "hiking": "escursionismo",
+    "mountain_biking": "mtb_alpino",
 }
 
 #: Activities for which empty "orientations" is NOT acceptable (snow terrain).
@@ -101,7 +111,7 @@ RATING_FIELDS = (
 )
 
 #: Locale preference for the route title.
-LOCALE_PREF = ("it", "fr", "en")
+LOCALE_PREF = ("it", "fr", "en", "de", "sl")
 
 
 # ── projections ─────────────────────────────────────────────────────────────

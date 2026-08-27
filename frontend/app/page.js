@@ -20,7 +20,7 @@ export default function Home({ searchParams }) {
     <MapView fullscreen focusRoute={focusRoute} days={<DayStrip />}>
       <div className="mapcta">
         <MapSearch />
-        <a href="/itinerari" className="primary">Itinerari →</a>
+        <a href="/itinerari">Itinerari</a>
         <a href="/planner">Pianifica gita</a>
       </div>
     </MapView>

@@ -226,6 +226,25 @@ const Peak = (p) => (
   </Glyph>
 );
 
+// MTB — due ruote + telaio a diamante, sagoma astratta come le altre icone
+// attività (Crag, Slope) piuttosto che una bici realistica.
+const Bike = (p) => (
+  <Glyph {...p}>
+    <circle cx="5.5" cy="17" r="3.2" />
+    <circle cx="18.5" cy="17" r="3.2" />
+    <path d="M5.5 17L9 9l4 8H5.5M9 9h3.5M13 17l3-8.5M13 17h5.5" />
+  </Glyph>
+);
+
+// Sci di fondo — sci paralleli (a differenza di Ski, incrociati: quella è
+// la discesa) più un accenno di racchetta, per distinguerle a colpo d'occhio.
+const CrossCountrySki = (p) => (
+  <Glyph {...p}>
+    <path d="M3 20l7-15M8 20l7-15" />
+    <path d="M13 7.5l4-2.2M15.5 10l3.5 7" />
+  </Glyph>
+);
+
 const Layers = (p) => (
   <Glyph {...p}>
     <path d="M12 3l9 5-9 5-9-5z" />
@@ -234,12 +253,12 @@ const Layers = (p) => (
 );
 
 // ── strumenti mappa (settings / info / geolocalizzazione) ──────────
+// Ingranaggio vero (non lo slider/equalizzatore di prima) — otto denti
+// arrotondati attorno a un foro centrale, la sagoma standard "settings".
 const Settings = (p) => (
   <Glyph {...p}>
-    <path d="M4 7h9M17 7h3M4 12h3M9 12h11M4 17h13M19 17h1" />
-    <circle cx="13" cy="7" r="2.1" />
-    <circle cx="7" cy="12" r="2.1" />
-    <circle cx="16" cy="17" r="2.1" />
+    <circle cx="12" cy="12" r="3" />
+    <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82A1.65 1.65 0 003.09 14H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
   </Glyph>
 );
 
@@ -266,7 +285,7 @@ export const Icon = {
   Settings, Info, Crosshair,
   Check, Warning, Blocked, Compass, Bell, Search, Download,
   Play, Pause, Cycle,
-  Route, Crag, Slope, Ski, Peak, Layers,
+  Route, Crag, Slope, Ski, Peak, Layers, Bike, CrossCountrySki,
 };
 
 // Stesse identiche regole di lib/wx.js (precipitazioni > nuvole > sereno),

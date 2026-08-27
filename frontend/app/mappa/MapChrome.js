@@ -32,10 +32,10 @@
 // frame radar o senza striscia giorni il dock semplicemente si accorcia, e
 // se non resta niente non viene renderizzato affatto (regola 1.9).
 
-import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import { useEffect, useRef } from "react";
 import { Icon } from "@/app/components/WxIcon";
 import { DANGER_COLORS, dangerInk } from "@/lib/wx";
+import SettingsFields from "@/app/components/SettingsFields";
 
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -44,12 +44,18 @@ const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
    interno apre/chiude un pannello: hover su desktop (CSS puro, media
    query pointer:fine), click/tocco ovunque (stato React, funziona anche
    da tastiera perché è un <button> vero) — resta aperto finché non si
-   clicca altrove o di nuovo sul trigger. */
+   clicca altrove o di nuovo sul trigger.
+   Esclusivo tra tutti i FlyoutGroup della mappa: activeFlyout/setActiveFlyout
+   arrivano da MapView (un solo stato condiviso, non uno stato locale a
+   testa) — className fa da id, sono già tutti diversi (maprail,
+   mapfields-flyout, tool-settings, tool-info). Aprirne uno chiude
+   automaticamente qualunque altro fosse fissato, invece di sovrapporsi. */
 export function FlyoutGroup({
   className, trigger, children, ready = true, hidden = false, compact = false,
   onMouseEnter, onMouseLeave, ariaLabel, title,
+  activeFlyout, setActiveFlyout,
 }) {
-  const [open, setOpen] = useState(false);
+  const open = activeFlyout === className;
   const rootRef = useRef(null);
 
   // Fuori dal gruppo chiude — su touch non esiste "mouseleave" che lo
@@ -57,11 +63,11 @@ export function FlyoutGroup({
   useEffect(() => {
     if (!open) return;
     const onDocPointerDown = (e) => {
-      if (!rootRef.current?.contains(e.target)) setOpen(false);
+      if (!rootRef.current?.contains(e.target)) setActiveFlyout(null);
     };
     document.addEventListener("pointerdown", onDocPointerDown);
     return () => document.removeEventListener("pointerdown", onDocPointerDown);
-  }, [open]);
+  }, [open, setActiveFlyout]);
 
   return (
     <div
@@ -73,7 +79,7 @@ export function FlyoutGroup({
       <button
         type="button"
         className={`flyout-trigger ${compact ? "compact" : ""}`}
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => setActiveFlyout(open ? null : className)}
         aria-expanded={open}
         aria-haspopup="true"
         disabled={!ready}
@@ -91,6 +97,7 @@ export function FlyoutGroup({
 /* ── livelli: cosa è disegnato sulla mappa ─────────────────────────── */
 export function MapRail({
   layers = [], ready = true, hidden = false, onMouseEnter, onMouseLeave,
+  activeFlyout, setActiveFlyout,
 }) {
   if (!layers.length) return null;
   const activeCount = layers.filter((l) => l.on && !l.disabled).length;
@@ -98,10 +105,11 @@ export function MapRail({
     <FlyoutGroup
       className="maprail" ariaLabel="Livelli della mappa"
       ready={ready} hidden={hidden}
+      activeFlyout={activeFlyout} setActiveFlyout={setActiveFlyout}
       onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}
       trigger={
         <>
-          <Icon.Layers size={18} />
+          <Icon.Peak size={18} />
           <span className="flyout-label">Attività</span>
           {activeCount > 0 && <em className="flyout-badge">{activeCount}</em>}
         </>
@@ -136,6 +144,7 @@ export function MapRail({
 export function MapFields({
   fields = [], bases = [], base, setBase, ready = true,
   hidden = false, onMouseEnter, onMouseLeave,
+  activeFlyout, setActiveFlyout,
 }) {
   if (!fields.length && !bases.length) return null;
   const activeCount = fields.filter((f) => f.on && !f.disabled).length;
@@ -144,10 +153,33 @@ export function MapFields({
       className={`mapfields ${hidden ? "chrome-hidden" : ""}`}
       onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}
     >
+      {/* Sfondo mappa PRIMA del trigger Meteo: il pannello Meteo si apre di
+          lato (regola generale, vedi .flyout-panel) ma è più alto di questa
+          singola riga, e la fila sfondo è più larga del trigger — se stesse
+          sotto, il pannello la coprirebbe comunque nonostante si apra "di
+          lato" (le due aree si intersecano lo stesso). Da ultima riga della
+          colonna non ha più nulla sotto da coprire. */}
+      {bases.length > 0 && (
+        <div className="segmented" role="group" aria-label="Sfondo della mappa">
+          {bases.map((b) => (
+            <button
+              key={b}
+              type="button"
+              className={`segbtn ${b === base ? "on light" : ""}`}
+              onClick={() => setBase(b)}
+              aria-pressed={b === base}
+              disabled={!ready}
+            >
+              {cap(b)}
+            </button>
+          ))}
+        </div>
+      )}
       {fields.length > 0 && (
         <FlyoutGroup
           className="mapfields-flyout" ariaLabel="Campi meteo"
           ready={ready}
+          activeFlyout={activeFlyout} setActiveFlyout={setActiveFlyout}
           trigger={
             <>
               <Icon.Cloud size={18} />
@@ -174,22 +206,6 @@ export function MapFields({
           </div>
         </FlyoutGroup>
       )}
-      {bases.length > 0 && (
-        <div className="segmented" role="group" aria-label="Sfondo della mappa">
-          {bases.map((b) => (
-            <button
-              key={b}
-              type="button"
-              className={`segbtn ${b === base ? "on light" : ""}`}
-              onClick={() => setBase(b)}
-              aria-pressed={b === base}
-              disabled={!ready}
-            >
-              {cap(b)}
-            </button>
-          ))}
-        </div>
-      )}
     </div>
   );
 }
@@ -202,26 +218,32 @@ export function MapFields({
 export function MapTools({
   ready = true, hidden = false, onMouseEnter, onMouseLeave,
   onLocate, locating = false, infoContent,
+  activeFlyout, setActiveFlyout,
 }) {
   return (
     <div
       className={`maptools ${hidden ? "chrome-hidden" : ""}`}
       onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}
     >
-      {/* Non un altro FlyoutGroup: /impostazioni esiste già (unità, tema,
-          lingua, densità elenchi), quindi il trigger porta lì direttamente
-          invece di aprire un pannello con testo segnaposto. */}
-      <Link
-        href="/impostazioni"
-        className="flyout-trigger compact"
-        title="Impostazioni"
-        aria-label="Impostazioni"
+      {/* Pannello sovrapposto alla mappa, non un link a /impostazioni —
+          quella pagina resta per chi ci arriva da altre pagine, ma sulla
+          mappa una navigazione via pagina interromperebbe la vista. Stesso
+          SettingsFields, stesso stato (SettingsProvider): nessun testo o
+          logica duplicati tra le due. */}
+      <FlyoutGroup
+        className="tool-settings" ariaLabel="Impostazioni" compact
+        ready={ready} title="Impostazioni"
+        activeFlyout={activeFlyout} setActiveFlyout={setActiveFlyout}
+        trigger={<Icon.Settings size={17} />}
       >
-        <Icon.Settings size={17} />
-      </Link>
+        <div className="tool-panel">
+          <SettingsFields compact />
+        </div>
+      </FlyoutGroup>
       <FlyoutGroup
         className="tool-info" ariaLabel="Informazioni" compact
         ready={ready} title="Info"
+        activeFlyout={activeFlyout} setActiveFlyout={setActiveFlyout}
         trigger={<Icon.Info size={17} />}
       >
         <div className="tool-panel tool-panel-info">{infoContent}</div>
@@ -245,19 +267,16 @@ function Legend({ rows = [], danger = false, note }) {
   if (!rows.length && !danger && !note) return null;
   return (
     <div className="dockpanel dock-legend">
-      <div className="dockhead">Scala</div>
       {rows.length > 0 && (
         <div className="legendgrid tnum">
           {rows.map((r) => (
             <div key={r.key} className="legendrow2">
               <span className="legendlabel">{r.label}</span>
-              <div>
-                <span className="legendbar" style={{ background: r.gradient }} />
-                <span className="legendends">
-                  <span>{r.min}</span>
-                  <span>{r.max}</span>
-                </span>
-              </div>
+              <span className="legendbar" style={{ background: r.gradient }} />
+              <span className="legendends">
+                <span>{r.min}</span>
+                <span>{r.max}</span>
+              </span>
             </div>
           ))}
         </div>
@@ -347,9 +366,9 @@ export function MapDock({ legend = null, radar = null, days = null }) {
   if (!legendEl && !timelineEl && !daysEl) return null;
   return (
     <div className="mapdock">
+      {daysEl}
       {legendEl}
       {timelineEl}
-      {daysEl}
     </div>
   );
 }

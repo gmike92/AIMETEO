@@ -14,7 +14,7 @@ export const metadata = {
     "Itinerari di scialpinismo, alpinismo, ferrate ed escursionismo con bollettino valanghe ufficiale, meteo sul percorso e relazione di gita AI.",
 };
 
-const ACTIVITIES = ["", "scialpinismo", "alpinismo", "via_ferrata", "escursionismo"];
+const ACTIVITIES = ["", "scialpinismo", "alpinismo", "via_ferrata", "escursionismo", "mtb_alpino"];
 
 export default async function Itinerari({ searchParams }) {
   const activity = searchParams?.activity || "";
@@ -72,7 +72,7 @@ export default async function Itinerari({ searchParams }) {
       <ConditionsTable areas={areas} routes={routes} sort={sort} activity={activity} />
 
       <h2 style={{ marginTop: 34 }}><T k="itinerari.heading" /></h2>
-      <RouteGrid routes={routes} freezingLevel={(r) => frzByArea[r.area_id]} />
+      <RouteGrid routes={routes} freezingLevelByArea={frzByArea} />
       {!error && routes.length === 0 && (
         <p className="note"><T k="itinerari.empty" /></p>
       )}

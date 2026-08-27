@@ -9,6 +9,8 @@ import { DANGER_COLORS, dangerInk } from "@/lib/wx";
 import { Icon } from "@/app/components/WxIcon";
 import { useAutoHide } from "@/lib/useAutoHide";
 import { FooterLinks } from "@/app/components/SiteFooter";
+import { useSettings } from "@/app/components/SettingsProvider";
+import { ACTIVITY_KEYS } from "@/lib/settings";
 import { MapRail, MapFields, MapTools, MapDock } from "./MapChrome";
 
 // Glifi per i contenuti che Leaflet vuole come STRINGA HTML (divIcon, popup):
@@ -29,6 +31,12 @@ const GLYPH = {
   bolt: svg('<path d="M13.2 2L5.5 13.2H11l-1 8.8 7.7-11.4H12z"/>',
     { size: 20, fill: true, stroke: "var(--warn)" }),
 };
+
+// Zoom +/- di Leaflet: sostituisce il carattere di sistema (bruttino, mai
+// centrato bene) con un segno vettoriale — stesso stroke arrotondato delle
+// altre icone dell'app, solo un filo più spesso per restare leggibile a 18px.
+const ZOOM_IN_SVG = svg('<path d="M12 5v14M5 12h14"/>', { size: 18, extra: "stroke-width:2.4;" });
+const ZOOM_OUT_SVG = svg('<path d="M5 12h14"/>', { size: 18, extra: "stroke-width:2.4;" });
 // Fixed point budget (~200 pts) resampled from the CURRENT map bounds on every
 // pan/zoom (debounced) — the weather field always covers whatever is on
 // screen, anywhere in the world, not just a hardcoded Alps box.
@@ -400,6 +408,36 @@ function popupHtmlCrag(c) {
   </div>`;
 }
 
+//: colore pista da sci — scala alpina standard (verde/blu/rosso/nero) per
+//  discesa; il fondo non segue quella scala (tecnica libera/classica, non
+//  difficoltà), un solo colore lo distingue a colpo d'occhio dalle piste da
+//  discesa. difficulty assente/non riconosciuta → grigio neutro (mai un
+//  colore di difficoltà inventato).
+const PISTE_COLOR = {
+  novice: "#22c55e", easy: "#3b82f6", intermediate: "#ef4444",
+  advanced: "#111827", expert: "#111827", freeride: "#f97316",
+};
+const NORDIC_COLOR = "#06b6d4";
+
+function pisteColor(p) {
+  if (p.kind === "nordic") return NORDIC_COLOR;
+  return PISTE_COLOR[p.difficulty] || "#94a3b8";
+}
+
+const PISTE_DIFFICULTY_LABEL = {
+  novice: "Molto facile", easy: "Facile", intermediate: "Media difficoltà",
+  advanced: "Difficile", expert: "Molto difficile", freeride: "Fuoripista",
+};
+
+function popupHtmlPiste(p) {
+  const diff = p.kind === "nordic"
+    ? "Sci di fondo"
+    : PISTE_DIFFICULTY_LABEL[p.difficulty] || "Difficoltà non censita";
+  return `<div style="min-width:180px;line-height:1.55">
+    <b style="font-size:14px">${p.name}</b><br/><span style="font-size:12px;opacity:.7">${diff}</span>
+  </div>`;
+}
+
 // useFlyoutMenu è stato cancellato, non ristilizzato (regola 1.7): livelli e
 // campi meteo sono rail e segmented sempre visibili, e un menu che si apre
 // sopra la mappa nasconde proprio la cosa che stai guardando mentre cambi
@@ -437,8 +475,13 @@ export default function MapView({
   const [auroraDataVersion, setAuroraDataVersion] = useState(0); // bump → nuovo fetch NOAA disegnato
   const [lightning, setLightning] = useState(false);
 
-  const [showRoutes, setShowRoutes] = useState(true); // preserva il comportamento attuale (sempre visibili)
+  const [showRoutes, setShowRoutes] = useState(false); // nessuna attività attiva di default
   const [showCrags, setShowCrags] = useState(false);
+  const [showMtb, setShowMtb] = useState(false); // come Falesie: attività specifica, opt-in
+  const [showSki, setShowSki] = useState(false);
+  const [showSkifondo, setShowSkifondo] = useState(false);
+
+  const { settings } = useSettings();
 
   // Rail (livelli/attività), campi meteo e strumenti: a scomparsa dopo
   // qualche secondo di inattività, tornano visibili a qualunque interazione
@@ -447,6 +490,16 @@ export default function MapView({
   const fieldsAutoHide = useAutoHide(ready);
   const toolsAutoHide = useAutoHide(ready);
   const [locating, setLocating] = useState(false);
+
+  // Un solo pannello a comparsa aperto alla volta su tutta la mappa (Attività,
+  // Meteo, Impostazioni, Info): senza, fissandone uno con un click e poi
+  // passando sopra un altro (hover) si sovrapponevano, illeggibili.
+  // className del FlyoutGroup fa da id — vedi MapChrome.js.
+  const [activeFlyout, setActiveFlyout] = useState(null);
+  useEffect(() => {
+    document.documentElement.classList.toggle("flyout-pinned", !!activeFlyout);
+    return () => document.documentElement.classList.remove("flyout-pinned");
+  }, [activeFlyout]);
 
   useEffect(() => {
     if (!sun) return;
@@ -476,7 +529,12 @@ export default function MapView({
           fadeAnimation: true, zoomAnimation: true,
           minZoom: 2,
         }).setView([46.1, 10.4], 7);
-        L.control.zoom({ position: "topleft" }).addTo(map);
+        const zoomCtl = L.control.zoom({ position: "topleft" }).addTo(map);
+        // Leaflet disegna +/- col carattere di sistema (bruttino, spesso non
+        // centrato verticalmente): un segno vettoriale coerente col resto
+        // delle icone dell'app (stesso stroke arrotondato di WxIcon.Glyph).
+        if (zoomCtl._zoomInButton) zoomCtl._zoomInButton.innerHTML = ZOOM_IN_SVG;
+        if (zoomCtl._zoomOutButton) zoomCtl._zoomOutButton.innerHTML = ZOOM_OUT_SVG;
         setTimeout(() => map.invalidateSize(), 50);
 
         const bases = {
@@ -583,19 +641,42 @@ export default function MapView({
         // hidden via the Livelli menu, same as any other layer.
         const routeTracks = L.layerGroup();
         S.current.routeTracks = routeTracks;
+
+        // MTB in un gruppo a parte, con un suo pulsante "MTB" nel rail
+        // indipendente da "Itinerari": non è un'attività da neve (niente
+        // bollettino valanghe, vedi backend/app/safety_filters.py
+        // SNOW_ACTIVITIES), quindi niente colore-pericolo sui marker — un
+        // solo colore fisso, distinto dal blu delle altre attività.
+        const MTB_COLOR = "#f59e0b";
+        const mtbClusters = L.markerClusterGroup({
+          maxClusterRadius: 55, disableClusteringAtZoom: 15, spiderfyOnMaxZoom: true,
+          showCoverageOnHover: false,
+          iconCreateFunction: (cluster) => L.divIcon({
+            className: "",
+            html: `<span class="rt-cluster" style="--c:${MTB_COLOR}">${cluster.getChildCount()}</span>`,
+            iconSize: [38, 38], iconAnchor: [19, 19],
+          }),
+        });
+        S.current.mtbClusters = mtbClusters;
+        const mtbTracks = L.layerGroup();
+        S.current.mtbTracks = mtbTracks;
+
         let focusTarget = null; // { marker, pts } of the route to open on load
         for (const r of routes) {
           if (r.start_lat == null) continue;
+          const isMtb = r.activity === "mtb_alpino";
           const area = byArea[r.area_id];
-          // Danger color only when a bulletin is actually in force.
-          const dangerLevel = area?.bulletin?.status === "in_vigore" ? area.bulletin.danger_level : 0;
-          const color = dangerLevel > 0 ? DANGER_COLORS[dangerLevel] || "#38bdf8" : "#38bdf8";
+          // Danger color only when a bulletin is actually in force (MTB has
+          // none to check — not a snow activity).
+          const dangerLevel = !isMtb && area?.bulletin?.status === "in_vigore" ? area.bulletin.danger_level : 0;
+          const color = isMtb ? MTB_COLOR : (dangerLevel > 0 ? DANGER_COLORS[dangerLevel] || "#38bdf8" : "#38bdf8");
           const detail = await fetch(`${API_BASE}/routes/${encodeURIComponent(r.slug)}`)
             .then((x) => (x.ok ? x.json() : null)).catch(() => null);
           const pts = (detail?.track_points || []).map((p) => [p.lat, p.lon]);
+          const tracksGroup = isMtb ? mtbTracks : routeTracks;
           if (pts.length > 1) {
-            L.polyline(pts, { color: "#0b1722", weight: 5, opacity: 0.25 }).addTo(routeTracks);
-            L.polyline(pts, { color: "#1272d3", weight: 2.5, opacity: 0.95 }).addTo(routeTracks);
+            L.polyline(pts, { color: "#0b1722", weight: 5, opacity: 0.25 }).addTo(tracksGroup);
+            L.polyline(pts, { color: "#1272d3", weight: 2.5, opacity: 0.95 }).addTo(tracksGroup);
           }
           const m = L.marker([r.start_lat, r.start_lon], {
             dangerLevel,
@@ -607,14 +688,18 @@ export default function MapView({
           });
           m.bindTooltip(r.name, { direction: "top", offset: [0, -10] });
           m.bindPopup(popupHtml(area, r));
-          clusters.addLayer(m);
+          (isMtb ? mtbClusters : clusters).addLayer(m);
           if (focusRoute && r.slug === focusRoute) focusTarget = { marker: m, pts };
         }
-        // Initial add matches showRoutes' default (true); the dedicated
-        // effect below (keyed on showRoutes) handles it from here on.
+        // Initial add matches showRoutes/showMtb defaults; the dedicated
+        // effects below (keyed on showRoutes/showMtb) handle it from here on.
         if (showRoutes) {
           map.addLayer(clusters);
           map.addLayer(routeTracks);
+        }
+        if (showMtb) {
+          map.addLayer(mtbClusters);
+          map.addLayer(mtbTracks);
         }
 
         // Deep link: /?route=<slug> → zoom to that track and open its popup
@@ -677,6 +762,18 @@ export default function MapView({
     });
   }, [showRoutes, ready]);
 
+  // MTB: stesso pattern di "Itinerari", ma gruppo e toggle indipendenti
+  // (vedi il commento sul mount — niente colore-pericolo, non è un'attività
+  // da neve).
+  useEffect(() => {
+    const { map, mtbClusters, mtbTracks } = S.current;
+    if (!map || !mtbClusters || !mtbTracks) return;
+    [mtbClusters, mtbTracks].forEach((layer) => {
+      if (showMtb) map.addLayer(layer);
+      else map.removeLayer(layer);
+    });
+  }, [showMtb, ready]);
+
   // Falesie: fetched lazily on first toggle-on (small dataset, but no point
   // paying for it if the layer is never opened), then just shown/hidden.
   useEffect(() => {
@@ -718,6 +815,47 @@ export default function MapView({
     })();
     return () => { dead = true; };
   }, [showCrags, ready]);
+
+  // Piste (discesa + fondo): stesso pattern lazy di Falesie — un solo fetch
+  // condiviso da /pistes, split per kind in due layer indipendenti così i
+  // due toggle del rail (Piste/Sci fondo) restano liberi l'uno dall'altro.
+  useEffect(() => {
+    const { L, map } = S.current;
+    if (!map) return;
+    if (!showSki && !showSkifondo) {
+      if (S.current.skiLayer) map.removeLayer(S.current.skiLayer);
+      if (S.current.skifondoLayer) map.removeLayer(S.current.skifondoLayer);
+      return;
+    }
+    let dead = false;
+    (async () => {
+      if (!S.current.skiLayer || !S.current.skifondoLayer) {
+        const pistes = await fetch(`${API_BASE}/pistes`)
+          .then((r) => (r.ok ? r.json() : []))
+          .catch(() => []);
+        if (dead) return;
+        const downhill = L.layerGroup();
+        const nordic = L.layerGroup();
+        for (const p of pistes) {
+          if (!Array.isArray(p.coords) || p.coords.length < 2) continue;
+          const line = L.polyline(p.coords, {
+            color: pisteColor(p), weight: 3, opacity: 0.85,
+          });
+          line.bindTooltip(p.name, { sticky: true });
+          line.bindPopup(popupHtmlPiste(p));
+          (p.kind === "nordic" ? nordic : downhill).addLayer(line);
+        }
+        S.current.skiLayer = downhill;
+        S.current.skifondoLayer = nordic;
+      }
+      if (dead) return;
+      if (showSki) map.addLayer(S.current.skiLayer);
+      else map.removeLayer(S.current.skiLayer);
+      if (showSkifondo) map.addLayer(S.current.skifondoLayer);
+      else map.removeLayer(S.current.skifondoLayer);
+    })();
+    return () => { dead = true; };
+  }, [showSki, showSkifondo, ready]);
 
   // temperature color field
   useEffect(() => {
@@ -819,10 +957,10 @@ export default function MapView({
       data: grid.wind,
       displayValues: true,
       displayOptions: {
-        // bottomleft: il dock occupa la fascia bassa da 104px in poi, e
-        // l'attribuzione Leaflet sta in basso a destra — il readout del vento
-        // è l'unico che può stare nell'angolo rimasto libero.
-        velocityType: "vento 10 m", position: "bottomleft",
+        // bottomright: impilato sopra l'attribuzione Leaflet, che sta nello
+        // stesso angolo appena sotto (vedi margine in .mapshell
+        // .leaflet-control-velocity).
+        velocityType: "vento 10 m", position: "bottomright",
         emptyString: "", speedUnit: "m/s",
       },
       minVelocity: 0, maxVelocity: 16, velocityScale: 0.008,
@@ -1085,27 +1223,45 @@ export default function MapView({
     },
   ];
 
-  const layers = [
+  const allLayers = [
     {
-      key: "rt", label: "Itin.", icon: Icon.Route, on: showRoutes,
+      key: "rt", label: "Itin.", icon: Icon.Route, on: showRoutes, group: "estive",
       toggle: () => setShowRoutes(!showRoutes), title: "Itinerari: pin e tracce",
     },
     {
-      key: "fal", label: "Falesie", icon: Icon.Crag, on: showCrags,
+      key: "fal", label: "Falesie", icon: Icon.Crag, on: showCrags, group: "estive",
       toggle: () => setShowCrags(!showCrags),
+    },
+    {
+      key: "mtb", label: "MTB", icon: Icon.Bike, on: showMtb, group: "bici",
+      toggle: () => setShowMtb(!showMtb), title: "Itinerari MTB: pin e tracce",
     },
     ...(hasSlope
       ? [{
-          key: "slope", label: "Pendenze", icon: Icon.Slope, on: slope,
+          key: "slope", label: "Pendenze", icon: Icon.Slope, on: slope, group: "terreno",
           toggle: () => setSlope(!slope),
           title: "Pendenze dal DEM Copernicus: giallo ≥30° · arancio ≥35° · rosso ≥40° · viola ≥45° (area pilota)",
         }]
       : []),
     {
-      key: "ski", label: "Piste", icon: Icon.Ski, disabled: true, sep: true,
-      title: "In arrivo: nessuna fonte dati ancora integrata",
+      key: "skifondo", label: "Sci fondo", icon: Icon.CrossCountrySki, on: showSkifondo, group: "invernali",
+      toggle: () => setShowSkifondo(!showSkifondo), title: "Piste da fondo: geometria reale da OpenStreetMap",
+    },
+    {
+      key: "ski", label: "Piste", icon: Icon.Ski, on: showSki, group: "invernali",
+      toggle: () => setShowSki(!showSki), title: "Piste da discesa: geometria e difficoltà reale da OpenStreetMap",
     },
   ];
+  // Impostazioni → "attività visualizzabili": decide quali di queste voci
+  // offrire nel rail (non le accende/spegne, solo se compaiono). "Pendenze"
+  // non è un'attività (è la conditional sopra, niente chiave in
+  // ACTIVITY_KEYS) e resta sempre visibile quando c'è.
+  // Un separatore compare all'inizio di ogni nuovo gruppo (estive/bici/
+  // terreno/invernali), ma solo tra voci effettivamente visibili — così un
+  // gruppo nascosto da Impostazioni non lascia una linea orfana.
+  const layers = allLayers
+    .filter((l) => !ACTIVITY_KEYS.includes(l.key) || settings.visibleActivities.includes(l.key))
+    .map((l, i, arr) => ({ ...l, sep: i > 0 && l.group !== arr[i - 1].group }));
 
   // La legenda mostra SOLO le scale effettivamente attive: se non ce n'è
   // nessuna il pannello non viene renderizzato affatto (regola 1.9).
@@ -1134,9 +1290,12 @@ export default function MapView({
       : null;
 
   // Senza frame il pannello timeline non esiste — mai una barra vuota
-  // disabilitata al posto suo.
+  // disabilitata al posto suo. Compare anche con "Nuvole" attivo (non solo
+  // "Pioggia"): i frame restano quelli del radar RainViewer — nuvole è un
+  // campo statico, senza una sua sequenza — ma la richiesta era la
+  // comparsa/posizione coerente del pannello, non una seconda animazione.
   const radarProps =
-    radar && frames.length
+    (radar || clouds) && frames.length
       ? { frames, frameIdx, setFrameIdx, playing, setPlaying, frameTime, isForecast }
       : null;
 
@@ -1169,6 +1328,8 @@ export default function MapView({
         hidden={railAutoHide.hidden}
         onMouseEnter={railAutoHide.onMouseEnter}
         onMouseLeave={railAutoHide.onMouseLeave}
+        activeFlyout={activeFlyout}
+        setActiveFlyout={setActiveFlyout}
       />
 
       {/* Campi meteo + sfondo — come è disegnata la mappa. A scomparsa (fieldsAutoHide). */}
@@ -1181,6 +1342,8 @@ export default function MapView({
         hidden={fieldsAutoHide.hidden}
         onMouseEnter={fieldsAutoHide.onMouseEnter}
         onMouseLeave={fieldsAutoHide.onMouseLeave}
+        activeFlyout={activeFlyout}
+        setActiveFlyout={setActiveFlyout}
       />
 
       {/* Impostazioni, info, centra sulla mia posizione. A scomparsa (toolsAutoHide). */}
@@ -1189,6 +1352,8 @@ export default function MapView({
         hidden={toolsAutoHide.hidden}
         onMouseEnter={toolsAutoHide.onMouseEnter}
         onMouseLeave={toolsAutoHide.onMouseLeave}
+        activeFlyout={activeFlyout}
+        setActiveFlyout={setActiveFlyout}
         onLocate={handleLocate}
         locating={locating}
         infoContent={infoContent}

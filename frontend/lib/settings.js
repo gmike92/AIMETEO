@@ -13,18 +13,26 @@
 
 export const STORAGE_KEY = "zt-settings-v1";
 
+// Voci del rail "Attività" della mappa che l'utente può nascondere dalle
+// Impostazioni (decluttering — non è lo stato acceso/spento sulla mappa,
+// quello resta nel rail stesso; qui si decide solo quali pulsanti offrire).
+// Solo le attività con dati reali: esporre un toggle per qualcosa che non fa
+// mai nulla (0 itinerari) sarebbe fuorviante.
+export const ACTIVITY_KEYS = ["rt", "fal", "mtb", "skifondo", "ski"];
+
 export const DEFAULTS = Object.freeze({
   units: "metric", // metric | imperial
-  theme: "dark", // dark | light | system
+  theme: "dark", // dark | light | bosco | mare | system
   lang: "it", // it | en — SOLO l'interfaccia: nomi di itinerari/falesie e
   // testi generati dall'AI restano nella lingua originale (mai tradotti a
   // macchina senza dirlo all'utente).
   density: "grid", // grid | list — solo per gli elenchi (itinerari, falesie)
+  visibleActivities: ACTIVITY_KEYS, // quali voci del rail Attività mostrare
 });
 
 const VALID = {
   units: new Set(["metric", "imperial"]),
-  theme: new Set(["dark", "light", "system"]),
+  theme: new Set(["dark", "light", "bosco", "mare", "system"]),
   lang: new Set(["it", "en"]),
   density: new Set(["grid", "list"]),
 };
@@ -39,8 +47,14 @@ export function readSettings() {
     if (!raw) return { ...DEFAULTS };
     const parsed = JSON.parse(raw);
     const out = { ...DEFAULTS };
-    for (const key of Object.keys(DEFAULTS)) {
+    for (const key of Object.keys(VALID)) {
       if (VALID[key].has(parsed?.[key])) out[key] = parsed[key];
+    }
+    // Array, non uno scalare: VALID (Set di un solo valore) non si applica —
+    // si tengono solo le chiavi ancora note, non l'intero campo in blocco.
+    if (Array.isArray(parsed?.visibleActivities)) {
+      const known = new Set(ACTIVITY_KEYS);
+      out.visibleActivities = parsed.visibleActivities.filter((k) => known.has(k));
     }
     return out;
   } catch {
