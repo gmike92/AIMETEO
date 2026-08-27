@@ -30,6 +30,10 @@ from .crags import load_crags
 router = APIRouter(prefix="/localita", tags=["localita"])
 
 GEOCODING_API = "https://geocoding-api.open-meteo.com/v1/search"
+REVERSE_GEOCODING_API = "https://nominatim.openstreetmap.org/reverse"
+#: Nominatim policy richiede uno User-Agent identificabile (mai un browser
+#: finto) — niente email personale qui dentro, solo il repo del progetto.
+REVERSE_UA = "AIMETEO-Zerotermico/1.0 (+https://github.com/gmike92/AIMETEO)"
 
 
 class Place(BaseModel):
@@ -39,6 +43,15 @@ class Place(BaseModel):
     lon: float
     elevation_m: Optional[int] = None
     source: str                      # "open-meteo geocoding" | "mock"
+
+
+class ReverseGeo(BaseModel):
+    name: Optional[str] = None   # nome del centro abitato SOLO se il punto ci
+    # cade dentro (city/town/village/hamlet di Nominatim) — mai un nome di
+    # feature naturale o di via presi a caso: se non c'è un vero centro
+    # abitato resta None e il frontend degrada a lat/lon (mai inventato).
+    admin: Optional[str] = None
+    source: str
 
 
 class NearItem(BaseModel):
@@ -121,6 +134,29 @@ def search(q: str = Query(min_length=2, max_length=80)) -> list[Place]:
         for x in results
         if x.get("latitude") is not None and x.get("longitude") is not None
     ]
+
+
+@router.get("/reverse", response_model=ReverseGeo)
+def reverse(lat: float, lon: float) -> ReverseGeo:
+    """Nome del centro abitato sotto un punto (spillo piazzato con un click
+    sulla mappa) — o niente, se il punto è su terreno non abitato: non è un
+    errore, è l'esito onesto (il frontend mostra lat/lon in quel caso)."""
+    try:
+        r = httpx.get(REVERSE_GEOCODING_API, params={
+            "format": "jsonv2", "lat": lat, "lon": lon, "zoom": 14, "addressdetails": 1,
+        }, headers={"User-Agent": REVERSE_UA}, timeout=8.0)
+        r.raise_for_status()
+        addr = (r.json() or {}).get("address") or {}
+    except Exception:  # noqa: BLE001
+        return ReverseGeo(source="nominatim")
+    # SOLO un vero centro abitato (city/town/village/hamlet — nodi OSM
+    # place=*): niente "municipality", che è il comune amministrativo che
+    # contiene il punto ed esiste per QUALSIASI coordinata in Italia, anche
+    # in mezzo a un ghiacciaio — userebbe il suo nome ovunque, non solo
+    # sopra un paese vero.
+    name = addr.get("city") or addr.get("town") or addr.get("village") or addr.get("hamlet")
+    admin = addr.get("state") or addr.get("county")
+    return ReverseGeo(name=name, admin=admin, source="nominatim")
 
 
 @router.get("/settimana", response_model=WeekResponse)

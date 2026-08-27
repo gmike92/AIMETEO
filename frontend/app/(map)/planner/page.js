@@ -9,7 +9,8 @@
 // di errori.
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
-import { Icon } from "../components/WxIcon";
+import { Icon } from "../../components/WxIcon";
+import OverlayPanel from "../../components/OverlayPanel";
 import { useT } from "@/lib/i18n";
 
 const ACTIVITIES = [
@@ -53,6 +54,37 @@ export default function Planner() {
     execute(intent, activity);
   };
 
+  // Spilli sulla mappa per i candidati sicuri: il planner non restituisce
+  // lat/lon (solo route_id/nome, vedi backend/app/models.py PlanCandidate),
+  // quindi li recupera qui da /routes/{slug} — in parallelo, i primi 6 per
+  // non affollare la mappa di popup aperti insieme. MapView.js (sempre
+  // montata, vedi app/(map)/layout.js) ascolta l'evento e disegna i pin.
+  useEffect(() => {
+    const candidates = result?.safe_candidates || [];
+    if (!candidates.length) {
+      window.dispatchEvent(new CustomEvent("zt-result-pins", { detail: { places: [] } }));
+      return;
+    }
+    let dead = false;
+    (async () => {
+      const top = candidates.slice(0, 6);
+      const details = await Promise.all(
+        top.map((c) => api.getRoute(c.route_id).catch(() => null))
+      );
+      if (dead) return;
+      const places = top
+        .map((c, i) => {
+          const d = details[i];
+          const lat = d?.start_lat ?? d?.track_points?.[0]?.lat;
+          const lon = d?.start_lon ?? d?.track_points?.[0]?.lon;
+          return lat != null && lon != null ? { name: c.name, lat, lon } : null;
+        })
+        .filter(Boolean);
+      window.dispatchEvent(new CustomEvent("zt-result-pins", { detail: { places } }));
+    })();
+    return () => { dead = true; };
+  }, [result]);
+
   // Link condiviso: /planner?i=<richiesta>&a=<attività> → precompila ed
   // esegue subito il piano (ricalcolato ORA, con bollettino e meteo attuali —
   // mai un piano "congelato" potenzialmente scaduto).
@@ -83,7 +115,7 @@ export default function Planner() {
   const plan = result?.plan;
 
   return (
-    <div>
+    <OverlayPanel>
       <div className="plan2">
         <div className="ask">
           <span className="eyebrow">{t("planner.eyebrow")}</span>
@@ -286,6 +318,6 @@ export default function Planner() {
       </div>
 
       <p className="disclaimer">{t("planner.disclaimer")}</p>
-    </div>
+    </OverlayPanel>
   );
 }

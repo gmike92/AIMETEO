@@ -1,10 +1,13 @@
-// Route browser + tabella condizioni (spostati qui quando la mappa è
-// diventata la landing page). Server component, ISR 5 min, metadata SEO.
+// Route browser + tabella condizioni. Server component, ISR 5 min, metadata
+// SEO — il contenuto vive dentro OverlayPanel: la mappa (route group "(map)",
+// vedi layout.js) resta visibile sotto/ai lati invece di sparire dietro una
+// pagina a parte.
 import { serverFetch } from "@/lib/api";
-import WaitlistSignup from "../components/WaitlistSignup";
-import ConditionsTable from "../components/ConditionsTable";
-import { ActivityTabs, RouteGrid } from "../components/RouteCard";
-import T from "../components/T";
+import OverlayPanel from "../../components/OverlayPanel";
+import WaitlistSignup from "../../components/WaitlistSignup";
+import ConditionsTable from "../../components/ConditionsTable";
+import { ActivityTabs, RouteGrid } from "../../components/RouteCard";
+import T from "../../components/T";
 
 export const revalidate = 300;
 
@@ -59,7 +62,7 @@ export default async function Itinerari({ searchParams }) {
   );
 
   return (
-    <div>
+    <OverlayPanel>
       <span className="eyebrow"><T k="itinerari.eyebrow" /></span>
       <h1><T k="itinerari.h1_a" /> <em><T k="itinerari.h1_em" /></em>.</h1>
       <p className="sub"><T k="itinerari.sub" /></p>
@@ -78,6 +81,6 @@ export default async function Itinerari({ searchParams }) {
       )}
 
       <WaitlistSignup source="frontend" />
-    </div>
+    </OverlayPanel>
   );
 }

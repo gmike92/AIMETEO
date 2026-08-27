@@ -9,6 +9,7 @@
 // markup) — è il codice ISO2 in un chip monospace, deterministico su ogni
 // sistema operativo.
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { Icon } from "./WxIcon";
 import { useT } from "@/lib/i18n";
 import { useUnits } from "@/lib/units";
@@ -30,7 +31,7 @@ function CragCard({ c, lang }) {
   const t = useT();
   const units = useUnits();
   return (
-    <div className="card" style={{ cursor: "default" }}>
+    <Link className="card" href={`/?crag=${encodeURIComponent(c.slug)}`}>
       <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "flex-start" }}>
         <h3 style={{ marginBottom: 2 }}>{c.name}</h3>
         <CountryChip country={c.country} />
@@ -62,7 +63,7 @@ function CragCard({ c, lang }) {
       {c.verified_at == null && (
         <p className="note" style={{ opacity: 0.7 }}>{t("falesie.to_verify")} · {c.source}</p>
       )}
-    </div>
+    </Link>
   );
 }
 
@@ -70,7 +71,7 @@ function CragRow({ c, lang }) {
   const t = useT();
   const units = useUnits();
   return (
-    <div className="crow">
+    <Link className="crow" href={`/?crag=${encodeURIComponent(c.slug)}`}>
       <CountryChip country={c.country} />
       <span className="crow-name">
         <strong>{c.name}</strong>
@@ -80,7 +81,7 @@ function CragRow({ c, lang }) {
       <span className={`crow-sun ${c.in_sole_adesso ? "on" : ""}`}>
         {c.in_sole_adesso != null && (c.in_sole_adesso ? <Icon.Sun size={13} /> : <Icon.Moon size={13} />)}
       </span>
-    </div>
+    </Link>
   );
 }
 

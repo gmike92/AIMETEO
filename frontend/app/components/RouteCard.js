@@ -12,11 +12,19 @@
 // mostra un placeholder dichiarato; senza freezingLevel la linea dello zero
 // termico semplicemente non c'è; senza tempi la cella dice "—".
 
+import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Icon } from "./WxIcon";
 import { fmtM, fmtMin, fmtNum } from "@/lib/fmt";
 import { useT } from "@/lib/i18n";
 import { useUnits } from "@/lib/units";
 import { useSettings } from "./SettingsProvider";
+
+//: pagina client-side, non server: il filtro attività/ordinamento resta
+// nell'URL (regola 1c), qui si decide solo quanti dei risultati filtrati
+// mostrare subito — con centinaia di itinerari (espansione internazionale)
+// renderizzarli tutti insieme è la "wall of text" da cui nasce questo limite.
+const PAGE_SIZE = 24;
 
 const ACT_KEY = {
   scialpinismo: "act.scialpinismo",
@@ -139,7 +147,7 @@ export default function RouteCard({ route: r, freezingLevel }) {
     (r.tempi?.salita_min != null ? `~${fmtMin(r.tempi.salita_min)}` : null);
 
   return (
-    <a
+    <Link
       className="rcard"
       href={hasTrack ? `/?route=${encodeURIComponent(r.slug)}` : `/routes/${r.slug}`}
     >
@@ -190,7 +198,7 @@ export default function RouteCard({ route: r, freezingLevel }) {
         </span>
         <span className="go">{hasTrack ? t("rcard.go_map") : t("rcard.go_route")}</span>
       </div>
-    </a>
+    </Link>
   );
 }
 
@@ -206,7 +214,7 @@ function RouteListRow({ route: r, freezingLevel }) {
     (r.tempi?.salita_min != null ? `~${fmtMin(r.tempi.salita_min)}` : null);
 
   return (
-    <a className="rrow" href={hasTrack ? `/?route=${encodeURIComponent(r.slug)}` : `/routes/${r.slug}`}>
+    <Link className="rrow" href={hasTrack ? `/?route=${encodeURIComponent(r.slug)}` : `/routes/${r.slug}`}>
       <span
         className="rrow-grade tnum"
         style={{ color: gradeColor(r.diff_grade) }}
@@ -225,7 +233,7 @@ function RouteListRow({ route: r, freezingLevel }) {
       <span className={`rrow-verified tnum ${verified ? "ok" : "todo"}`}>
         {verified && <Icon.Check size={12} />}
       </span>
-    </a>
+    </Link>
   );
 }
 
@@ -236,23 +244,46 @@ function RouteListRow({ route: r, freezingLevel }) {
  *  a un Client Component — "Functions cannot be passed directly..."). */
 export function RouteGrid({ routes = [], freezingLevelByArea = {} }) {
   const { settings } = useSettings();
+  const t = useT();
   const getFrz = (r) => freezingLevelByArea[r.area_id] ?? null;
 
-  if (settings.density === "list") {
-    return (
+  const [visible, setVisible] = useState(PAGE_SIZE);
+  // Un nuovo set di risultati (cambio tab attività, o sort) riparte dalla
+  // prima pagina — altrimenti un filtro più corto del contatore attuale
+  // lascerebbe il bottone "mostra altri" a sommare oltre quanto esiste.
+  useEffect(() => setVisible(PAGE_SIZE), [routes]);
+
+  const shown = routes.slice(0, visible);
+  const remaining = routes.length - shown.length;
+
+  const list =
+    settings.density === "list" ? (
       <div className="rlist">
-        {routes.map((r) => (
+        {shown.map((r) => (
           <RouteListRow key={r.slug} route={r} freezingLevel={getFrz(r)} />
         ))}
       </div>
+    ) : (
+      <div className="grid">
+        {shown.map((r) => (
+          <RouteCard key={r.slug} route={r} freezingLevel={getFrz(r)} />
+        ))}
+      </div>
     );
-  }
+
   return (
-    <div className="grid">
-      {routes.map((r) => (
-        <RouteCard key={r.slug} route={r} freezingLevel={getFrz(r)} />
-      ))}
-    </div>
+    <>
+      {list}
+      {remaining > 0 && (
+        <button
+          type="button"
+          className="btn ghost loadmore"
+          onClick={() => setVisible((v) => v + PAGE_SIZE)}
+        >
+          {t("rcard.load_more")} ({remaining})
+        </button>
+      )}
+    </>
   );
 }
 
@@ -266,7 +297,7 @@ export function ActivityTabs({ activities = [], current = "", counts = {} }) {
         const on = current === val;
         const n = val ? counts[val] || 0 : counts.__total__ || 0;
         return (
-          <a
+          <Link
             key={val || "all"}
             role="tab"
             aria-selected={on}
@@ -275,7 +306,7 @@ export function ActivityTabs({ activities = [], current = "", counts = {} }) {
           >
             {t(val ? ACT_KEY[val] : "act.all")}
             <span className="n tnum">{n}</span>
-          </a>
+          </Link>
         );
       })}
     </div>

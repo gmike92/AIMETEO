@@ -58,6 +58,7 @@ const it = {
   "act.volo_libero": "Volo libero",
 
   "conditions.title": "Condizioni adesso",
+  "conditions.load_more": "Mostra altre righe",
   "conditions.sub_season": "Bollettino valanghe ufficiale per area e meteo al punto di partenza.",
   "conditions.sub_noseason": "Meteo al punto di partenza per area.",
   "conditions.col_route": "Itinerario",
@@ -85,6 +86,7 @@ const it = {
   "rcard.time": "Tempo",
   "rcard.gain": "Dislivello",
   "rcard.slope": "Pendio",
+  "rcard.load_more": "Mostra altri itinerari",
 
   "falesie.eyebrow": "arrampicata",
   "falesie.h1_a": "Falesie:",
@@ -316,6 +318,7 @@ const en = {
   "act.volo_libero": "Paragliding",
 
   "conditions.title": "Conditions right now",
+  "conditions.load_more": "Show more rows",
   "conditions.sub_season": "Official avalanche bulletin per area and forecast at the trailhead.",
   "conditions.sub_noseason": "Forecast at the trailhead per area.",
   "conditions.col_route": "Route",
@@ -343,6 +346,7 @@ const en = {
   "rcard.time": "Time",
   "rcard.gain": "Elevation gain",
   "rcard.slope": "Slope",
+  "rcard.load_more": "Show more routes",
 
   "falesie.eyebrow": "climbing",
   "falesie.h1_a": "Crags:",

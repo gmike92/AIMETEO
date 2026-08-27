@@ -37,6 +37,22 @@ const GLYPH = {
 // altre icone dell'app, solo un filo più spesso per restare leggibile a 18px.
 const ZOOM_IN_SVG = svg('<path d="M12 5v14M5 12h14"/>', { size: 18, extra: "stroke-width:2.4;" });
 const ZOOM_OUT_SVG = svg('<path d="M5 12h14"/>', { size: 18, extra: "stroke-width:2.4;" });
+
+// Casa (posizione di riferimento del riepilogo meteo) e spillo (punto
+// cliccato sulla mappa): marker vettoriali, non i pin bitmap di default di
+// Leaflet — viewBox/fill propri, non lo stesso stroke a 24x24 di GLYPH.
+const HOME_MARKER_HTML =
+  `<span class="home-marker"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ` +
+  `stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">` +
+  `<path d="M4 11.5L12 4l8 7.5"/><path d="M6 10v9h5v-5h2v5h5v-9"/></svg></span>`;
+// --marker-pin invece di un colore fisso: lo spillo cambia "skin" col tema
+// (bosco → marrone, mare → blu profondo, chiaro → blu notte scuro apposta —
+// vedi le 4 palette marker in :root/[data-theme] sopra, una per ogni tipo
+// di pin: casa/spillo/falesia/pianifica, sempre diverse tra loro).
+const PIN_MARKER_HTML =
+  `<svg class="pin-marker" width="26" height="34" viewBox="0 0 26 34" aria-hidden="true">` +
+  `<path d="M13 2C6.9 2 2 6.9 2 13c0 8.5 11 19 11 19s11-10.5 11-19c0-6.1-4.9-11-11-11z" ` +
+  `fill="var(--marker-pin)" stroke="#fff" stroke-width="2"/><circle cx="13" cy="13" r="4.2" fill="#fff"/></svg>`;
 // Fixed point budget (~200 pts) resampled from the CURRENT map bounds on every
 // pan/zoom (debounced) — the weather field always covers whatever is on
 // screen, anywhere in the world, not just a hardcoded Alps box.
@@ -408,6 +424,26 @@ function popupHtmlCrag(c) {
   </div>`;
 }
 
+// Spillo di un risultato "Pianifica gita": niente icone meteo qui (sarebbe
+// la stessa logica di WxIcon duplicata a mano in stringa HTML per un
+// popup) — giorno + temperatura massima bastano per un riepilogo al volo,
+// il dettaglio vero resta nel pannello Pianifica stesso.
+function popupHtmlPlan(place, week) {
+  const days = (week?.giorni || []).slice(0, 4)
+    .map((g) => `<span style="display:inline-flex;flex-direction:column;align-items:center;gap:2px;min-width:38px">
+        <b style="font-size:9px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;opacity:.65">${
+          new Date(`${g.data}T12:00:00`).toLocaleDateString("it-IT", { weekday: "short" })
+        }</b>
+        <span style="font-size:13px;font-weight:800">${Math.round(g.temp_max_c)}°</span>
+      </span>`)
+    .join("");
+  return `<div style="min-width:190px;line-height:1.55">
+    <b style="font-size:14px">${place.name}</b>
+    ${days ? `<div style="display:flex;gap:8px;margin-top:8px">${days}</div>`
+           : `<div style="margin-top:6px;font-size:12px;opacity:.7">Meteo non disponibile</div>`}
+  </div>`;
+}
+
 //: colore pista da sci — scala alpina standard (verde/blu/rosso/nero) per
 //  discesa; il fondo non segue quella scala (tecnica libera/classica, non
 //  difficoltà), un solo colore lo distingue a colpo d'occhio dalle piste da
@@ -446,7 +482,7 @@ function popupHtmlPiste(p) {
 const BASES = ["chiaro", "terreno", "scuro"];
 
 export default function MapView({
-  fullscreen = false, focusRoute = null, children, days = null,
+  fullscreen = false, focusRoute = null, focusCrag = null, children, days = null,
 }) {
   const mapEl = useRef(null);
   const S = useRef({});
@@ -557,11 +593,63 @@ export default function MapView({
           .then((r) => !dead && setHasSlope(r.ok))
           .catch(() => {});
 
-        // Notifica il centro mappa agli overlay (striscia giorni weather-app).
-        const emitCenter = () =>
-          window.dispatchEvent(new CustomEvent("zt-map-center", { detail: map.getCenter() }));
-        map.on("moveend", emitCenter);
-        setTimeout(emitCenter, 400);
+        // Riepilogo meteo (striscia giorni): non segue più il pan della
+        // mappa (regola di questa modifica — un giro sulla mappa non deve
+        // stravolgere "le previsioni di casa"), segue invece un riferimento
+        // esplicito: casa (geolocalizzazione) o lo spillo dell'ultimo click.
+        const emitLocation = (lat, lng, source, name) =>
+          window.dispatchEvent(new CustomEvent("zt-map-center", { detail: { lat, lng, source, name } }));
+
+        const placeHomeMarker = (lat, lng) => {
+          if (S.current.homeMarker) map.removeLayer(S.current.homeMarker);
+          S.current.homeMarker = L.marker([lat, lng], {
+            interactive: false, zIndexOffset: 500,
+            icon: L.divIcon({ className: "", html: HOME_MARKER_HTML, iconSize: [30, 30], iconAnchor: [15, 15] }),
+          }).addTo(map);
+        };
+        S.current.placeHomeMarker = placeHomeMarker;
+
+        // Un click vero — non un pan: Leaflet non emette "click" dopo un
+        // drag, quindi qui dentro non serve distinguere i due gesti a mano.
+        S.current.pinClickId = 0;
+        map.on("click", (e) => {
+          const { lat, lng } = e.latlng;
+          if (S.current.pinMarker) map.removeLayer(S.current.pinMarker);
+          S.current.pinMarker = L.marker([lat, lng], {
+            interactive: false, zIndexOffset: 500,
+            icon: L.divIcon({ className: "", html: PIN_MARKER_HTML, iconSize: [26, 34], iconAnchor: [13, 32] }),
+          }).addTo(map);
+          emitLocation(lat, lng, "pin"); // subito lat/lon, il nome (se c'è) arriva dopo
+          const clickId = ++S.current.pinClickId;
+          fetch(`${API_BASE}/localita/reverse?lat=${lat}&lon=${lng}`)
+            .then((r) => (r.ok ? r.json() : null))
+            .then((place) => {
+              // Un click più recente ha già sostituito questo spillo: il nome
+              // arrivato in ritardo non deve rimettere sotto il badge vecchio.
+              if (place?.name && S.current.pinClickId === clickId) emitLocation(lat, lng, "pin", place.name);
+            })
+            .catch(() => {}); // niente nome → resta lat/lon, mai inventato
+        });
+
+        // Casa al mount: SOLO se il permesso è già stato concesso in una
+        // visita precedente (Permissions API, non richiede mai il prompt da
+        // sola) — la prima volta la posizione arriva solo dal Mirino
+        // (gesto esplicito dell'utente, vedi handleLocate più sotto).
+        if (navigator.geolocation && navigator.permissions?.query) {
+          navigator.permissions.query({ name: "geolocation" }).then((status) => {
+            if (dead || status.state !== "granted") return;
+            navigator.geolocation.getCurrentPosition(
+              (pos) => {
+                if (dead) return;
+                const { latitude, longitude } = pos.coords;
+                placeHomeMarker(latitude, longitude);
+                emitLocation(latitude, longitude, "home");
+              },
+              () => {},
+              { timeout: 10000 }
+            );
+          }).catch(() => {});
+        }
 
         // Live model grid (temperature + wind), resampled from whatever is
         // on screen — refetched (debounced) on every pan/zoom so it always
@@ -661,17 +749,33 @@ export default function MapView({
         const mtbTracks = L.layerGroup();
         S.current.mtbTracks = mtbTracks;
 
-        let focusTarget = null; // { marker, pts } of the route to open on load
-        for (const r of routes) {
-          if (r.start_lat == null) continue;
+        // Un fetch per route IN PARALLELO, non in sequenza: con centinaia di
+        // itinerari (espansione internazionale) un await per giro dentro il
+        // for avrebbe tenuto la mappa su "Carico…" per lo stesso numero di
+        // round-trip, uno via l'altro — qui il tempo totale è quello del più
+        // lento dei fetch, non la somma di tutti.
+        const eligible = routes.filter((r) => r.start_lat != null);
+        const details = await Promise.all(
+          eligible.map((r) =>
+            fetch(`${API_BASE}/routes/${encodeURIComponent(r.slug)}`)
+              .then((x) => (x.ok ? x.json() : null)).catch(() => null)
+          )
+        );
+        // slug → { marker, pts, isMtb, lat, lon, name }: usata sotto per il
+        // deep link iniziale E da un effect separato per riaprire un
+        // itinerario diverso senza dover ricreare tutti i marker da capo
+        // (la mappa ora resta viva passando da Itinerari a "/", niente più
+        // remount — vedi app/(map)/layout.js).
+        const routeMarkers = {};
+        S.current.routeMarkers = routeMarkers;
+        eligible.forEach((r, i) => {
+          const detail = details[i];
           const isMtb = r.activity === "mtb_alpino";
           const area = byArea[r.area_id];
           // Danger color only when a bulletin is actually in force (MTB has
           // none to check — not a snow activity).
           const dangerLevel = !isMtb && area?.bulletin?.status === "in_vigore" ? area.bulletin.danger_level : 0;
           const color = isMtb ? MTB_COLOR : (dangerLevel > 0 ? DANGER_COLORS[dangerLevel] || "#38bdf8" : "#38bdf8");
-          const detail = await fetch(`${API_BASE}/routes/${encodeURIComponent(r.slug)}`)
-            .then((x) => (x.ok ? x.json() : null)).catch(() => null);
           const pts = (detail?.track_points || []).map((p) => [p.lat, p.lon]);
           const tracksGroup = isMtb ? mtbTracks : routeTracks;
           if (pts.length > 1) {
@@ -689,8 +793,8 @@ export default function MapView({
           m.bindTooltip(r.name, { direction: "top", offset: [0, -10] });
           m.bindPopup(popupHtml(area, r));
           (isMtb ? mtbClusters : clusters).addLayer(m);
-          if (focusRoute && r.slug === focusRoute) focusTarget = { marker: m, pts };
-        }
+          routeMarkers[r.slug] = { marker: m, pts, isMtb, lat: r.start_lat, lon: r.start_lon, name: r.name };
+        });
         // Initial add matches showRoutes/showMtb defaults; the dedicated
         // effects below (keyed on showRoutes/showMtb) handle it from here on.
         if (showRoutes) {
@@ -700,17 +804,6 @@ export default function MapView({
         if (showMtb) {
           map.addLayer(mtbClusters);
           map.addLayer(mtbTracks);
-        }
-
-        // Deep link: /?route=<slug> → zoom to that track and open its popup
-        // (zoomToShowLayer breaks the marker out of its cluster first).
-        if (focusTarget) {
-          if (focusTarget.pts.length > 1) {
-            map.fitBounds(focusTarget.pts, { padding: [70, 70], maxZoom: 13 });
-            setTimeout(() => focusTarget.marker.openPopup(), 350);
-          } else {
-            clusters.zoomToShowLayer(focusTarget.marker, () => focusTarget.marker.openPopup());
-          }
         }
 
         try {
@@ -773,6 +866,114 @@ export default function MapView({
       else map.removeLayer(layer);
     });
   }, [showMtb, ready]);
+
+  // Deep link /?route=<slug> (Itinerari → click un itinerario con traccia):
+  // reattivo, non solo al mount — la mappa ora resta viva passando da
+  // Itinerari a "/" (route group "(map)", niente remount), quindi un
+  // secondo itinerario scelto più tardi deve poter riaprire un marker
+  // diverso senza un reload. Il marker è già lì (S.current.routeMarkers,
+  // costruito una volta sola al mount): qui si accende solo il layer giusto
+  // (se non lo era già) e si centra/apre il popup su quello scelto.
+  useEffect(() => {
+    if (!ready || !focusRoute) return;
+    const { map, clusters, routeTracks, mtbClusters, mtbTracks, routeMarkers } = S.current;
+    const entry = routeMarkers?.[focusRoute];
+    if (!map || !entry) return;
+    const { marker, isMtb, lat, lon, name } = entry;
+    const group = isMtb ? mtbClusters : clusters;
+    const tracks = isMtb ? mtbTracks : routeTracks;
+    if (!map.hasLayer(group)) map.addLayer(group);
+    if (!map.hasLayer(tracks)) map.addLayer(tracks);
+    if (isMtb) setShowMtb(true); else setShowRoutes(true);
+    // Solo pan, mai un nuovo livello di zoom — l'utente decide se e quanto
+    // zoomare, qui si centra soltanto (stesso zoom di quando ha cliccato).
+    map.panTo([lat, lon], { animate: true });
+    setTimeout(() => marker.openPopup(), 350);
+    window.dispatchEvent(new CustomEvent("zt-map-center",
+      { detail: { lat, lng: lon, source: "route", name } }));
+  }, [focusRoute, ready]);
+
+  // Deep link /?crag=<slug> (Falesie → click una falesia): stessa idea di
+  // focusRoute sopra, ma la falesia non ha un marker preesistente (il layer
+  // Falesie si carica lazy solo al primo toggle-on, vedi sotto) — un marker
+  // dedicato, indipendente da quel layer, così funziona anche a Falesie spento.
+  useEffect(() => {
+    if (!ready || !focusCrag) return;
+    const { L, map } = S.current;
+    if (!map) return;
+    let dead = false;
+    fetch(`${API_BASE}/falesie/${encodeURIComponent(focusCrag)}/sole`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((c) => {
+        if (dead || !c || c.lat == null) return;
+        if (S.current.cragFocusMarker) map.removeLayer(S.current.cragFocusMarker);
+        const m = L.marker([c.lat, c.lon], {
+          icon: L.divIcon({
+            className: "", html: `<span class="crag-dot"></span>`,
+            iconSize: [16, 16], iconAnchor: [8, 8], popupAnchor: [0, -8],
+          }),
+        }).addTo(map);
+        m.bindPopup(popupHtmlCrag(c));
+        S.current.cragFocusMarker = m;
+        // Solo pan: stesso zoom di prima, mai uno automatico (vedi focusRoute sopra).
+        map.panTo([c.lat, c.lon], { animate: true });
+        setTimeout(() => m.openPopup(), 350);
+        window.dispatchEvent(new CustomEvent("zt-map-center",
+          { detail: { lat: c.lat, lng: c.lon, source: "crag", name: c.name } }));
+      })
+      .catch(() => {});
+    return () => { dead = true; };
+  }, [focusCrag, ready]);
+
+  // Risultati "Pianifica gita": zero coordinate nella risposta del planner
+  // (solo route_id/nome, vedi backend/app/models.py PlanCandidate) — la
+  // pagina Planner recupera lat/lon di ogni candidato sicuro via
+  // /routes/{slug} e le manda qui con un evento, uno spillo numerato per
+  // posto con la sua mini-previsione già aperta (non un click alla volta:
+  // "per ogni pin" nella richiesta era esplicito). Ascolto sempre attivo
+  // (mount-once): la mappa persiste tra le pagine, l'evento può arrivare
+  // in qualunque momento dopo il primo submit del planner.
+  useEffect(() => {
+    const onPins = (e) => {
+      const { L, map } = S.current;
+      if (!map) return;
+      if (S.current.planPinsLayer) map.removeLayer(S.current.planPinsLayer);
+      const places = (e.detail?.places || []).filter((p) => p.lat != null && p.lon != null);
+      if (!places.length) return;
+      const group = L.layerGroup().addTo(map);
+      S.current.planPinsLayer = group;
+      (async () => {
+        const bounds = [];
+        for (const [i, p] of places.entries()) {
+          const m = L.marker([p.lat, p.lon], {
+            icon: L.divIcon({
+              className: "", html: `<span class="plan-pin">${i + 1}</span>`,
+              iconSize: [26, 26], iconAnchor: [13, 13], popupAnchor: [0, -13],
+            }),
+          });
+          m.addTo(group);
+          bounds.push([p.lat, p.lon]);
+          const week = await fetch(
+            `${API_BASE}/localita/settimana?lat=${p.lat.toFixed(3)}&lon=${p.lon.toFixed(3)}&ele=0`
+          ).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+          if (S.current.planPinsLayer !== group) return; // risultati sostituiti nel frattempo
+          m.bindPopup(popupHtmlPlan(p, week), { autoClose: false, closeOnClick: false });
+          m.openPopup();
+        }
+        // Solo pan al centroide, mai un nuovo zoom (vedi focusRoute sopra —
+        // stessa regola: l'unico zoom che conta è quello che sceglie l'utente).
+        if (bounds.length > 0) {
+          const centroid = [
+            bounds.reduce((s, b) => s + b[0], 0) / bounds.length,
+            bounds.reduce((s, b) => s + b[1], 0) / bounds.length,
+          ];
+          map.panTo(centroid, { animate: true });
+        }
+      })();
+    };
+    window.addEventListener("zt-result-pins", onPins);
+    return () => window.removeEventListener("zt-result-pins", onPins);
+  }, []);
 
   // Falesie: fetched lazily on first toggle-on (small dataset, but no point
   // paying for it if the layer is never opened), then just shown/hidden.
@@ -1153,11 +1354,13 @@ export default function MapView({
     setTimeout(() => setMsg((m) => (m === text ? "" : m)), ms);
   };
 
-  // Mirino — centra la mappa sulla posizione del browser e ci lascia un
-  // pallino (stesso pulse dei marker gita); niente stato persistito, un
-  // secondo click aggiorna semplicemente pallino e vista.
+  // Mirino — centra la mappa sulla posizione del browser, ci lascia la
+  // casina (vedi placeHomeMarker in S.current) e la rende di nuovo il
+  // riferimento del riepilogo meteo, anche se nel frattempo c'era uno
+  // spillo piazzato con un click. Un secondo click aggiorna semplicemente
+  // marker e vista — niente stato persistito oltre a quello del marker.
   const handleLocate = () => {
-    const { L, map } = S.current;
+    const { map } = S.current;
     if (!map) return;
     if (!navigator.geolocation) {
       showTransientMsg("Geolocalizzazione non supportata da questo browser.");
@@ -1169,14 +1372,9 @@ export default function MapView({
         setLocating(false);
         const { latitude, longitude } = pos.coords;
         map.flyTo([latitude, longitude], Math.max(map.getZoom(), 12), { duration: 1.2 });
-        if (S.current.geoMarker) map.removeLayer(S.current.geoMarker);
-        S.current.geoMarker = L.marker([latitude, longitude], {
-          interactive: false,
-          icon: L.divIcon({
-            className: "", html: `<span class="geo-dot"></span>`,
-            iconSize: [18, 18], iconAnchor: [9, 9],
-          }),
-        }).addTo(map);
+        S.current.placeHomeMarker?.(latitude, longitude);
+        window.dispatchEvent(new CustomEvent("zt-map-center",
+          { detail: { lat: latitude, lng: longitude, source: "home" } }));
       },
       (err) => {
         setLocating(false);

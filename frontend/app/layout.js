@@ -14,7 +14,7 @@ export const metadata = {
   description:
     "Previsioni iperlocali, bollettini valanghe ufficiali e pianificazione gite con l'AI. Per chi va in montagna sul serio.",
   appleWebApp: { capable: true, title: "Zerotermico", statusBarStyle: "black-translucent" },
-  icons: { apple: "/apple-touch-icon.png" },
+  icons: { icon: "/favicon.ico", apple: "/apple-touch-icon.png" },
 };
 
 export const viewport = { themeColor: "#0a1420" };

@@ -9,13 +9,20 @@
 // the search bar / Itinerari / Pianifica gita while people were using them.
 // It now only wakes when the pointer/touch is actually near the top edge.
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useTopEdgeAutoHide } from "@/lib/useAutoHide";
 import { Icon } from "./WxIcon";
 
+// Le pagine che ora vivono sopra alla mappa persistente (vedi
+// app/(map)/layout.js): la navbar ci si comporta come sulla mappa pura
+// (overlay flottante a scomparsa), non come una pagina normale col proprio
+// scroll — il contenuto qui è un pannello, la mappa resta sempre sotto.
+const MAP_SHELL_PATHS = new Set(["/", "/itinerari", "/falesie", "/planner"]);
+
 export default function SiteNav() {
   const pathname = usePathname();
-  const immersive = pathname === "/";
+  const router = useRouter();
+  const immersive = MAP_SHELL_PATHS.has(pathname);
   const { hidden, onMouseEnter, onMouseLeave, onFocus, onBlur } = useTopEdgeAutoHide(immersive);
 
   return (
@@ -28,23 +35,46 @@ export default function SiteNav() {
     >
       <div className="wrap">
         <nav className="nav">
-          <Link href="/" className="logo" aria-label="Zerotermico">
-            <svg width="24" height="24" viewBox="0 0 32 32" aria-hidden>
-              <ellipse cx="14" cy="17" rx="9" ry="12" fill="none"
-                stroke="var(--accent)" strokeWidth="3.4" />
-              <line x1="7.5" y1="17" x2="20.5" y2="17"
-                stroke="var(--accent2)" strokeWidth="2.6" />
-              <circle cx="27.5" cy="6" r="3" fill="none"
-                stroke="var(--accent)" strokeWidth="2.4" />
-            </svg>
-            zero<span>°termico</span>
-          </Link>
+          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            {/* Sostituisce il link testuale "Mappa": la mappa non è più una
+                destinazione a parte, è sempre lì sotto — qui serve solo un
+                modo per lasciare il pannello aperto e tornare a vederla. */}
+            {pathname !== "/" && (
+              <button
+                type="button"
+                className="navback"
+                onClick={() => router.push("/")}
+                aria-label="Torna alla mappa"
+                title="Torna alla mappa"
+              >
+                <Icon.ArrowLeft size={18} />
+              </button>
+            )}
+            <Link href="/" className="logo" aria-label="Zerotermico">
+              <img src="/logo.png" width="30" height="30" alt="" aria-hidden="true" />
+              zero<span>°termico</span>
+            </Link>
+          </div>
           <div>
-            <Link href="/">Mappa</Link>
             <Link href="/localita">Cerca</Link>
-            <Link href="/itinerari">Itinerari</Link>
-            <Link href="/falesie">Falesie</Link>
-            <Link href="/planner">Pianifica</Link>
+            {/* Itinerari/Falesie/Pianifica sono pannelli, non pagine a sé —
+                nascosti di default, un click li apre (naviga alla rotta),
+                un secondo click li richiude (torna a "/") invece di restare
+                lì fermi: stesso href che cambia bersaglio a seconda che il
+                pannello sia già quello aperto o no. */}
+            {[
+              ["/itinerari", "Itinerari"],
+              ["/falesie", "Falesie"],
+              ["/planner", "Pianifica"],
+            ].map(([href, label]) => {
+              const active = pathname === href;
+              return (
+                <Link key={href} href={active ? "/" : href}
+                  className={active ? "navactive" : ""} aria-pressed={active}>
+                  {label}
+                </Link>
+              );
+            })}
             {/* Sulla mappa ("/") le impostazioni si aprono dal pulsante
                 ingranaggio di MapChrome (MapTools) — qui serve solo per le
                 altre pagine, dove quel chrome non esiste. */}

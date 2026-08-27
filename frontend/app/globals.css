@@ -26,6 +26,21 @@
   --navbar-h:62px; /* altezza reale della navbar — la mappa immersiva la
     riserva per zoom/ricerca/CTA anche quando la navbar stessa è nascosta,
     così quando riappare (overlay flottante) non li copre mai. */
+
+  /* ── marker mappa: una "skin" per tema ────────────────────────────
+     Casa, spillo utente, falesia, risultato Pianifica — quattro colori
+     scelti apposta per restare distinti TRA loro e coerenti col tema
+     (palette da ricerca: notte stellata per lo scuro, terra/mare per
+     bosco/mare). --marker-*-ink è il colore dell'icona SOPRA quel
+     marker, scelto per contrasto (chiaro su fondo scuro, scuro su
+     chiaro) — mai currentColor "a caso", altrimenti sparisce (regola
+     esplicita: mai un'icona invisibile sul suo stesso sfondo). Notte
+     alpina (scuro, default): oro/viola/arancio/blu, come luci diverse
+     nel buio. */
+  --marker-home:#f5c542; --marker-home-ink:#04121f;
+  --marker-pin:#7c3aed; --marker-pin-ink:#fff;
+  --marker-crag:#f97316; --marker-crag-ink:#04121f;
+  --marker-plan:#3b82f6; --marker-plan-ink:#fff;
 }
 
 /* ── tema chiaro ──────────────────────────────────────────────────
@@ -49,6 +64,14 @@
      come testo su fondo quasi bianco: contrasto ≥ 5:1 verificato. */
   --accent-text:#0369a1; --accent2-text:#0f766e;
   --warn-text:#b45309; --danger-text:#be123c;
+
+  /* Skin marker chiara: terracotta/blu notte/oro/blu vivo — lo spillo
+     dell'utente (--marker-pin) va scuro qui apposta (richiesta esplicita:
+     su fondo chiaro un pin scuro si legge meglio di uno pastello). */
+  --marker-home:#e2725b; --marker-home-ink:#fff;
+  --marker-pin:#041d3a; --marker-pin-ink:#fff;
+  --marker-crag:#eab308; --marker-crag-ink:#04121f;
+  --marker-plan:#1c63cc; --marker-plan-ink:#fff;
 }
 
 /* ── tema bosco ───────────────────────────────────────────────────
@@ -69,24 +92,37 @@
   --shadow:0 10px 40px rgba(3,8,4,.5);
   --accent-text:var(--accent); --accent2-text:var(--accent2);
   --warn-text:var(--warn); --danger-text:var(--danger);
+
+  /* Skin marker bosco: tan/legno/verde foresta/oliva — terra e sottobosco. */
+  --marker-home:#d9b382; --marker-home-ink:#04121f;
+  --marker-pin:#c08552; --marker-pin-ink:#04121f;
+  --marker-crag:#2e6f40; --marker-crag-ink:#fff;
+  --marker-plan:#556b2f; --marker-plan-ink:#fff;
 }
 
 /* ── tema mare ────────────────────────────────────────────────────
    Come il tema chiaro (fondo quasi bianco, testo scuro) ma la tinta è
-   il turchese del mare invece del ciano neutro, blu profondo come
-   secondo accento. accent-text/accent2-text scuriti per il contrasto
-   su fondo chiaro, stessa logica del tema chiaro sopra. */
+   il turchese del mare invece del ciano neutro, sabbia come secondo
+   accento (spiaggia, non un secondo blu). accent-text/accent2-text
+   scuriti per il contrasto su fondo chiaro, stessa logica del tema
+   chiaro sopra. */
 :root[data-theme="mare"]{
   --bg:#eef8fb; --bg2:#ffffff; --bg3:#e2f1f6;
   --ink:#082430; --muted:#3c6270; --faint:#5c7f8c;
   --accent:#22d3ee; --accent-soft:rgba(34,211,238,.10);
-  --accent2:#0ea5e9;
+  --accent2:#d9a566;
   --line:rgba(8,60,75,.09); --line-strong:rgba(8,60,75,.18);
   --card:rgba(8,60,75,.025); --card-hover:rgba(34,211,238,.07);
   --glass:rgba(255,255,255,.78);
   --shadow:0 10px 30px rgba(10,50,65,.10);
-  --accent-text:#0e7490; --accent2-text:#075985;
+  --accent-text:#0e7490; --accent2-text:#8a5a20;
   --warn-text:#b45309; --danger-text:#be123c;
+
+  /* Skin marker mare: sabbia/blu profondo/acqua/verde smeraldo — spiaggia e onde. */
+  --marker-home:#e9d8a6; --marker-home-ink:#04121f;
+  --marker-pin:#003f5c; --marker-pin-ink:#fff;
+  --marker-crag:#48cae4; --marker-crag-ink:#04121f;
+  --marker-plan:#52c9a8; --marker-plan-ink:#04121f;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
@@ -113,15 +149,25 @@ a{color:inherit;text-decoration:none}
 .navbar.navbar-immersive.chrome-hidden{transform:translateY(-100%)}
 .nav{display:flex;justify-content:space-between;align-items:center;padding:15px 0}
 .logo{font-weight:800;letter-spacing:-.3px;font-size:19px;display:flex;align-items:center;gap:9px}
-.logo svg{flex:none}
+.logo svg,.logo img{flex:none}
 .logo span{color:var(--accent-text)}
 .nav>div{display:flex;gap:4px}
 .nav a:not(.logo){color:var(--muted);font-size:13.5px;font-weight:600;
   padding:8px 14px;border-radius:999px;transition:color .18s,background .18s;margin:0}
 .nav a:not(.logo):hover{color:var(--ink);background:rgba(255,255,255,.05)}
+/* Pannello pinnato (Itinerari/Falesie/Pianifica aperti) — riempimento
+   pieno invece del solito bordo/tinta, stesso linguaggio di .chip.on: lo
+   stato "acceso" di un controllo è sempre un riempimento, mai una sfumatura
+   che si confonde con l'hover. */
+.navactive{background:var(--accent)!important;color:#04121f!important;font-weight:700}
+.navactive:hover{background:var(--accent)!important;color:#04121f!important}
 .navgear{display:inline-flex;align-items:center;justify-content:center;
   width:34px;height:34px;padding:0!important;color:var(--muted)}
 .navgear:hover{color:var(--ink)}
+.navback{display:inline-flex;align-items:center;justify-content:center;
+  width:34px;height:34px;border:0;border-radius:999px;background:transparent;
+  color:var(--muted);cursor:pointer;transition:color .18s,background .18s}
+.navback:hover{color:var(--ink);background:rgba(255,255,255,.05)}
 
 /* ── type ──────────────────────────────────────────────────── */
 h1{font-size:clamp(30px,4.6vw,46px);letter-spacing:-1.4px;line-height:1.06;
@@ -135,6 +181,10 @@ h2{font-size:21px;font-weight:700;letter-spacing:-.4px;margin:30px 0 12px}
 
 /* ── cards / grid ──────────────────────────────────────────── */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;margin:22px 0}
+/* Centinaia di itinerari (espansione internazionale) renderizzati tutti
+   insieme erano letteralmente una pagina lunga decine di migliaia di px:
+   RouteGrid ne mostra un tot alla volta, questo bottone ne carica altri. */
+.loadmore{display:flex;margin:8px auto 0}
 .card{position:relative;background:var(--card);border:1px solid var(--line);
   border-radius:var(--r-lg);padding:22px;display:block;overflow:hidden;
   transition:border-color .2s,background .2s,transform .16s,box-shadow .2s}
@@ -198,13 +248,48 @@ label{display:block;font-size:12px;font-weight:700;letter-spacing:.8px;
 .loading{color:var(--muted)}
 footer.wrap{color:var(--faint);font-size:12px;padding-top:10px;padding-bottom:26px}
 
+/* ── pannello a comparsa (Itinerari/Falesie/Planner sopra la mappa) ──
+   position:fixed: esce da main.wrap (max-width 1080px) e si ancora al
+   viewport vero (richiede che .mapshell.full NON usi transform per il suo
+   full-bleed — vedi il commento lì, altrimenti diventerebbe il containing
+   block di questo fixed). z-index sotto la navbar (1200) — le pagine
+   restano "dentro" il chrome, non sopra — ma sopra tutto il resto della mappa. */
+.mapoverlay-panel{position:fixed;top:calc(var(--navbar-h) + 16px);bottom:16px;right:16px;
+  z-index:1100;width:min(94vw,480px);
+  background:var(--glass);backdrop-filter:var(--blur);
+  border:1px solid var(--line-strong);border-radius:var(--r-lg);
+  box-shadow:var(--shadow);overflow:hidden;
+  animation:paneldrop .28s ease;transition:top .32s ease}
+html:has(.navbar.chrome-hidden) .mapoverlay-panel{top:16px}
+@keyframes paneldrop{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+.mapoverlay-scroll{height:100%;overflow-y:auto;padding:26px 26px 34px}
+/* Sotto ai 720px il pannello prende tutta la larghezza (niente "ai lati"
+   da mostrare su un telefono) — resta comunque sopra la mappa, non una
+   pagina a parte: il pulsante ← nella navbar la raggiunge lo stesso. */
+@media (max-width:720px){
+  .mapoverlay-panel{left:10px;right:10px;width:auto}
+}
+/* La colonna Meteo/Attività/Strumenti (destra) e i controlli Leaflet in
+   basso a destra ci finirebbero sotto: si fanno da parte finché il
+   pannello è aperto, stesso trattamento chrome-hidden del resto. */
+html.overlay-open .maprail,
+html.overlay-open .maptools,
+html.overlay-open .mapfields{opacity:0;pointer-events:none;transition:opacity .2s ease}
+html.overlay-open .mapshell .leaflet-bottom.leaflet-right{opacity:0;pointer-events:none;
+  transition:opacity .2s ease}
+
 /* ── mappa (Leaflet) ───────────────────────────────────────── */
 .mapshell{position:relative;height:min(72vh,760px);min-height:460px;
   border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--line);
   background:var(--bg2);margin-top:18px;box-shadow:var(--shadow)}
 /* La navbar sopra è un overlay flottante (auto-hide), non riserva più
-   spazio in flusso: la mappa può occupare l'intero viewport. */
-.mapshell.full{left:50%;transform:translateX(-50%);width:100vw;
+   spazio in flusso: la mappa può occupare l'intero viewport.
+   margin-left invece di left:50%+transform: un transform sull'elemento
+   crea un containing block per i suoi discendenti position:fixed (regola
+   CSS, non un bug del browser) — un .mapoverlay-panel fixed dentro a
+   .mapshell.full si sarebbe ancorato AL SUO riquadro invece che al
+   viewport, seguendone lo scroll interno invece di restarci fermo sopra. */
+.mapshell.full{margin-left:calc(50% - 50vw);width:100vw;
   height:100vh;min-height:520px;border-radius:0;border:0;margin-top:0;box-shadow:none}
 /* Pagina mappa: sempre a tutto schermo, mai scrollabile (il footer/
    disclaimer che prima stava sotto ora vive nel pulsante "Info" — vedi
@@ -286,8 +371,26 @@ html:has(.navbar.chrome-hidden) .mapcta{top:16px}
 .daychip .i{font-size:17px;line-height:1.15}
 .daychip .t{font-size:13px;font-weight:800;font-variant-numeric:tabular-nums}
 .daychip .s{width:16px;height:3px;border-radius:2px;margin-top:1px}
-.daystrip .demo{align-self:flex-start;font-size:9px;font-weight:800;
-  letter-spacing:.8px;text-transform:uppercase;color:var(--muted-on-l)}
+
+/* ── locbadge: da dove viene il riepilogo (Home o il punto cliccato) ──
+   Stesso daychip, primo della riga: un separatore verticale lo stacca dai
+   giorni veri, "a fianco" della striscia invece che dentro le sue celle.
+   È un <button> vero (scambia nome ↔ coordinate al click): reset degli
+   stili di default del browser, il resto arriva da .daychip. */
+.locbadge{justify-content:center;padding-right:9px;margin-right:3px;
+  border-right:1px solid var(--line-strong);border-top:0;border-bottom:0;border-left:0;
+  background:none;font-family:inherit;cursor:pointer}
+.locbadge:disabled{cursor:default}
+.daystrip .locbadge:hover:not(:disabled) .d{color:var(--ink)}
+.daystrip .locbadge .i{color:var(--accent-text)}
+.locbadge .t{font-size:9px;font-weight:700;line-height:1.25;
+  white-space:normal;text-align:center;max-width:52px}
+/* Nome di un centro abitato vero (reverse geocoding): una riga sola,
+   troncata invece di andare a capo su una colonna larga come gli altri
+   giorni — il titolo dell'elemento porta comunque il nome per intero. */
+.locbadge.haslabel{max-width:96px}
+.locbadge.haslabel .d{max-width:90px;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap}
 
 /* .maptimeline / .playbtn / .maplegend / .legendrow: rimossi col redesign
    1a — timeline e legenda vivono ora dentro .mapdock (.dock-timeline,
@@ -309,12 +412,19 @@ html:has(.navbar.chrome-hidden) .mapcta{top:16px}
   box-shadow:0 1px 6px rgba(11,23,34,.35)}
 @keyframes rtpulse{0%{transform:scale(.6);opacity:.45}70%{transform:scale(1.6);opacity:0}100%{opacity:0}}
 
-/* ── mirino: pallino "la mia posizione" (stesso pulse dei marker gita) ── */
-.geo-dot{position:relative;display:block;width:16px;height:16px}
-.geo-dot::before{content:"";position:absolute;inset:-4px;border-radius:50%;
-  background:var(--accent);opacity:.35;animation:rtpulse 2.2s ease-out infinite}
-.geo-dot::after{content:"";position:absolute;inset:2px;border-radius:50%;
-  background:var(--accent);border:2px solid #fff;box-shadow:0 1px 6px rgba(11,23,34,.35)}
+/* ── casa: posizione di riferimento per il riepilogo meteo ──────────
+   La piazza il Mirino (mappa.js → handleLocate), o il mount stesso se il
+   permesso di geolocalizzazione è già concesso da una visita precedente —
+   mai richiesto senza gesto esplicito la prima volta. */
+.home-marker{display:flex;align-items:center;justify-content:center;
+  width:30px;height:30px;border-radius:50%;background:var(--marker-home);
+  border:2px solid #fff;box-shadow:0 2px 8px rgba(11,23,34,.4);color:var(--marker-home-ink)}
+.home-marker svg{width:17px;height:17px}
+
+/* ── spillo: punto scelto con un click sulla mappa ───────────────────
+   Un click vero (non un pan: Leaflet non emette "click" dopo un drag)
+   diventa il nuovo riferimento per il riepilogo meteo, al posto di casa. */
+.pin-marker{display:block;filter:drop-shadow(0 2px 4px rgba(11,23,34,.4))}
 
 /* ── route marker clusters ─────────────────────────────────── */
 .rt-cluster{display:flex;align-items:center;justify-content:center;
@@ -325,13 +435,19 @@ html:has(.navbar.chrome-hidden) .mapcta{top:16px}
 
 /* ── crag (falesia) markers — amber, distinct from route blue ─── */
 .crag-dot{display:block;width:16px;height:16px;border-radius:4px;
-  background:#f5a524;border:2px solid #fff;transform:rotate(45deg);
+  background:var(--marker-crag);border:2px solid #fff;transform:rotate(45deg);
   box-shadow:0 1px 6px rgba(11,23,34,.35)}
 .crag-cluster{display:flex;align-items:center;justify-content:center;
-  width:34px;height:34px;border-radius:8px;background:#f5a524;
-  color:#04121f;font-weight:800;font-size:12.5px;border:3px solid #fff;
+  width:34px;height:34px;border-radius:8px;background:var(--marker-crag);
+  color:var(--marker-crag-ink);font-weight:800;font-size:12.5px;border:3px solid #fff;
   box-shadow:0 2px 10px rgba(11,23,34,.4);transition:transform .15s}
 .crag-cluster:hover{transform:scale(1.08)}
+
+/* ── spillo di un risultato "Pianifica gita" — numerato, un colore suo ── */
+.plan-pin{display:flex;align-items:center;justify-content:center;
+  width:26px;height:26px;border-radius:50%;background:var(--marker-plan);
+  color:var(--marker-plan-ink);font-weight:800;font-size:12px;border:2px solid #fff;
+  box-shadow:0 2px 8px rgba(11,23,34,.4)}
 
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -524,7 +640,7 @@ html:has(.navbar.chrome-hidden) .maptools{top:161px}
    l'etichetta "Scala") e la striscia giorni hanno altezze simili ma non
    identiche (righe attive variabili) — centrarle le fa leggere come
    allineate anche quando differiscono di qualche pixel. */
-.mapdock{position:absolute;left:104px;right:16px;bottom:28px;z-index:1000;
+.mapdock{position:absolute;left:16px;right:16px;bottom:28px;z-index:1000;
   display:flex;gap:12px;align-items:center;flex-wrap:wrap}
 .dockpanel{background:var(--glass);border:1px solid var(--line-strong);
   backdrop-filter:var(--blur);box-shadow:var(--shadow);color:var(--ink);
@@ -603,7 +719,6 @@ html:has(.navbar.chrome-hidden) .maptools{top:161px}
 .daychip .d{color:var(--muted)}
 .daychip .i{display:flex;align-items:center;justify-content:center;
   height:18px;font-size:0;color:var(--muted)}
-.daystrip .demo{color:var(--faint)}
 
 /* Il messaggio di stato era in alto al centro, dove ora passa la barra
    ricerca+CTA. È un pannello transitorio e al centro non c'è nient'altro:
@@ -662,7 +777,7 @@ html:has(.navbar.chrome-hidden) .mapshell.full .leaflet-top{top:6px}
   html:has(.navbar.chrome-hidden) .maprail{top:221px}
   .maptools{top:calc(var(--navbar-h) + 269px)}
   html:has(.navbar.chrome-hidden) .maptools{top:269px}
-  .mapdock{left:76px;right:10px;bottom:22px;gap:8px}
+  .mapdock{left:10px;right:10px;bottom:22px;gap:8px}
   .dock-timeline{flex:1 1 100%}
   .dock-days{flex:1 1 100%}
 }
@@ -825,9 +940,13 @@ html:has(.navbar.chrome-hidden) .mapshell.full .leaflet-top{top:6px}
    corretto a mano con select option{background:…}. */
 .chip{border:1px solid var(--line-strong);background:transparent;color:var(--muted);
   border-radius:8px;padding:7px 12px;font-family:inherit;font-size:11.5px;
-  font-weight:600;cursor:pointer;transition:color .18s,border-color .18s,background .18s}
+  font-weight:700;cursor:pointer;transition:color .18s,border-color .18s,background .18s}
 .chip:hover:not(:disabled){color:var(--ink);border-color:var(--accent)}
-.chip.on{background:var(--accent);border-color:var(--accent);color:#04121f;font-weight:700}
+/* Niente cambio di font-weight qui (era 600→700): un chip più "grasso" è
+   anche più largo, e con più opzioni impacchettate strette (Tema: 5 chip)
+   selezionarne uno diverso faceva traballare tutta la riga a ogni click —
+   il riempimento pieno basta da solo a segnalare lo stato attivo. */
+.chip.on{background:var(--accent);border-color:var(--accent);color:#04121f}
 
 .plan-filterbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;
   padding:10px 14px;border-radius:var(--r-md);border:1px solid rgba(94,234,212,.3);
@@ -855,6 +974,17 @@ html:has(.navbar.chrome-hidden) .mapshell.full .leaflet-top{top:6px}
   .plan2 .out{padding:24px 0}
   .plan-cols{grid-template-columns:1fr}
 }
+/* Il pianificatore ora vive spesso in un pannello stretto (Planner sopra la
+   mappa, vedi .mapoverlay-panel) invece che a piena pagina: stesso
+   adattamento a colonna singola della soglia mobile qui sopra, ma sempre
+   attivo — la larghezza del pannello non dipende dal viewport del browser,
+   resta ~480px anche su un desktop largo. */
+.mapoverlay-panel .plan2{grid-template-columns:1fr;margin:22px 0 0;
+  border-top:0;border-bottom:0}
+.mapoverlay-panel .plan2 .ask{position:static;border-right:0;
+  border-bottom:1px solid var(--line);padding:0 0 24px}
+.mapoverlay-panel .plan2 .out{padding:24px 0 0}
+.mapoverlay-panel .plan-cols{grid-template-columns:1fr}
 
 /* ═══ 1f · METEOGRAM IN METRI ═════════════════════════════════════ */
 .mg-head{display:flex;justify-content:space-between;align-items:baseline;

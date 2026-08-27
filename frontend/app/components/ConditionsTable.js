@@ -15,11 +15,17 @@
 // Header e righe condividono una sola subgrid, quindi le colonne non
 // possono scollarsi tra loro.
 
+import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Icon } from "./WxIcon";
 import { DANGER_COLORS, dangerInk } from "@/lib/wx";
 import { fmtMin } from "@/lib/fmt";
 import { useT } from "@/lib/i18n";
 import { useUnits } from "@/lib/units";
+
+//: come RouteGrid (RouteCard.js) — centinaia di righe tutte insieme erano
+// la "wall of text" della pagina itinerari, questo limite le spezza.
+const PAGE_SIZE = 30;
 
 /** Chiave di ordinamento per riga; null/undefined vanno sempre in fondo. */
 function sortValue(row, key) {
@@ -108,6 +114,9 @@ export default function ConditionsTable({ areas = [], routes = [], sort = "nome"
     { key: "tempo", label: t("conditions.col_time"), cls: "c-end" },
   ];
 
+  const [visible, setVisible] = useState(PAGE_SIZE);
+  useEffect(() => setVisible(PAGE_SIZE), [routes, sort]);
+
   if (!routes.length) return null;
 
   const byArea = Object.fromEntries(areas.map((a) => [a.area_id, a]));
@@ -115,6 +124,8 @@ export default function ConditionsTable({ areas = [], routes = [], sort = "nome"
     routes.map((route) => ({ route, area: byArea[route.area_id] })),
     sort
   );
+  const shownRows = rows.slice(0, visible);
+  const remaining = rows.length - shownRows.length;
 
   const inSeason = areas.some((a) => a?.bulletin?.status === "in_vigore");
   const anyDemo = areas.some((a) => a.forecast && a.forecast_is_demo);
@@ -122,7 +133,7 @@ export default function ConditionsTable({ areas = [], routes = [], sort = "nome"
     `/itinerari?${activity ? `activity=${encodeURIComponent(activity)}&` : ""}sort=${key}#condizioni`;
 
   return (
-    <section id="condizioni" style={{ marginTop: 34 }}>
+    <section id="condizioni" className="panel" style={{ marginTop: 34 }}>
       <div className="ctable-top">
         <div>
           <h2 style={{ margin: 0 }}>{t("conditions.title")}</h2>
@@ -140,19 +151,19 @@ export default function ConditionsTable({ areas = [], routes = [], sort = "nome"
                 {c.sortable === false ? (
                   c.label
                 ) : (
-                  <a className={`sortlink ${sort === c.key ? "on" : ""}`} href={href(c.key)}>
+                  <Link className={`sortlink ${sort === c.key ? "on" : ""}`} href={href(c.key)}>
                     {c.label}
                     {sort === c.key && <span aria-hidden> ↓</span>}
-                  </a>
+                  </Link>
                 )}
               </span>
             ))}
           </div>
 
-          {rows.map(({ route: r, area }) => (
+          {shownRows.map(({ route: r, area }) => (
             <div className="ctable-row" key={r.slug}>
               <span>
-                <a className="c-name" href={`/routes/${r.slug}`}>{r.name}</a>
+                <Link className="c-name" href={`/routes/${r.slug}`}>{r.name}</Link>
                 <span className="c-sub">
                   {(r.activity || "").replace("_", " ")}
                   {r.area_name ? ` · ${r.area_name}` : ""}
@@ -183,6 +194,16 @@ export default function ConditionsTable({ areas = [], routes = [], sort = "nome"
           ))}
         </div>
       </div>
+
+      {remaining > 0 && (
+        <button
+          type="button"
+          className="btn ghost loadmore"
+          onClick={() => setVisible((v) => v + PAGE_SIZE)}
+        >
+          {t("conditions.load_more")} ({remaining})
+        </button>
+      )}
 
       <p className="ctable-note">
         {areas[0]?.bulletin?.service || "AINEVA"} / Meteomont {t("conditions.prevails")}

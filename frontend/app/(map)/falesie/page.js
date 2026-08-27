@@ -3,10 +3,12 @@
 //
 // L'elenco vero e proprio (filtro paese, densità griglia/elenco, unità e
 // lingua) vive in CragList (client): qui restano solo il fetch server-side
-// e l'ISR a 15 minuti.
+// e l'ISR a 15 minuti. Contenuto dentro OverlayPanel: la mappa (route group
+// "(map)", vedi layout.js) resta visibile sotto/ai lati.
 import { serverFetch } from "@/lib/api";
-import CragList from "../components/CragList";
-import T from "../components/T";
+import OverlayPanel from "../../components/OverlayPanel";
+import CragList from "../../components/CragList";
+import T from "../../components/T";
 
 export const revalidate = 900;
 
@@ -29,7 +31,7 @@ export default async function Falesie() {
   const unknown = crags.filter((c) => !c.aspect);
 
   return (
-    <div>
+    <OverlayPanel>
       <span className="eyebrow"><T k="falesie.eyebrow" /></span>
       <h1><T k="falesie.h1_a" /> <em><T k="falesie.h1_em" /></em> <T k="falesie.h1_b" /></h1>
       <p className="sub"><T k="falesie.sub" /></p>
@@ -50,6 +52,6 @@ export default async function Falesie() {
       <CragList known={known} unknown={unknown} />
 
       <p className="disclaimer"><T k="falesie.disclaimer" /></p>
-    </div>
+    </OverlayPanel>
   );
 }

@@ -14,7 +14,7 @@ self-contained; trip-planner/safety_filters.py re-exports it for the spec side).
 from __future__ import annotations
 import logging
 from datetime import datetime, timezone
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from ..models import PlanRequest, PlanResponse, PlanCandidate, PointForecast
 from ..config import settings
 from ..connectors import registry
@@ -31,6 +31,15 @@ router = APIRouter(prefix="/planner", tags=["planner"])
 #: Block reason when the official bulletin cannot be retrieved (fail-closed).
 FETCH_ERROR_REASON = (
     "Impossibile recuperare il bollettino valanghe ufficiale: "
+    "itinerario escluso per prudenza (il pericolo non è verificabile)."
+)
+#: Block reason when the country simply has no bulletin connector at all yet
+#: (espansione internazionale, vedi backend/connectors — CH/AT/SI non hanno
+#: ancora un connettore reale). Stessa logica fail-closed di FETCH_ERROR_REASON,
+#: ma SOLO per le attività da neve: un escursionismo non ha bisogno di un
+#: bollettino valanghe, quindi non deve essere bloccato per la sua assenza.
+NO_CONNECTOR_REASON = (
+    "Nessun connettore per il bollettino valanghe ufficiale in questo paese: "
     "itinerario escluso per prudenza (il pericolo non è verificabile)."
 )
 
@@ -166,17 +175,24 @@ def plan(req: PlanRequest) -> PlanResponse:
         try:
             connector = registry.get_for_country(country)
         except KeyError:
-            raise HTTPException(
-                503,
-                f"Nessun connettore valanghe disponibile per il paese '{country}'. "
-                f"Itinerario '{route['slug']}' non pianificabile.",
-            )
+            # Nessun connettore per questo paese ancora — non un crash per
+            # l'intera richiesta (era così prima: un solo itinerario CH/AT/SI
+            # nel lotto bloccava la pianificazione di TUTTI gli altri). Stessa
+            # regola fail-closed di BulletinFetchError qui sotto: hard block
+            # solo per le attività da neve, il resto prosegue senza bollettino.
+            if sf_route.activity in sf.SNOW_ACTIVITIES:
+                blocked.append(PlanCandidate(
+                    route_id=route["slug"], name=route["name"],
+                    passed_safety=False, block_reasons=[NO_CONNECTOR_REASON],
+                ))
+                continue
+            connector = None
         try:
             bulletin = fetch_bulletin(
                 connector,
                 area.get("avalanche_zone", "UNKNOWN"),
                 area.get("avalanche_subzone"),
-            )
+            ) if connector is not None else None
         except BulletinFetchError:
             # Could not VERIFY the official danger. For snow activities that is a
             # hard block (fail-closed); other activities proceed without a bulletin.

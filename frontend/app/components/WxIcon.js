@@ -279,6 +279,31 @@ const Crosshair = (p) => (
   </Glyph>
 );
 
+// Casa — posizione di riferimento per il riepilogo meteo (badge striscia
+// giorni), tetto a falda + base, stessa sagoma semplice delle altre icone.
+const Home = (p) => (
+  <Glyph {...p}>
+    <path d="M4 11.5L12 4l8 7.5" />
+    <path d="M6 10v9h5v-5h2v5h5v-9" />
+  </Glyph>
+);
+
+// Spillo — punto scelto con un click sulla mappa (badge striscia giorni,
+// stessa sagoma del marker che compare sulla mappa in MapView.js).
+const Pin = (p) => (
+  <Glyph {...p}>
+    <path d="M12 21s7-7.58 7-12A7 7 0 105 9c0 4.42 7 12 7 12z" />
+    <circle cx="12" cy="9" r="2.3" />
+  </Glyph>
+);
+
+// Freccia indietro — "torna alla mappa" nella navbar.
+const ArrowLeft = (p) => (
+  <Glyph {...p}>
+    <path d="M19 12H5M11 6l-6 6 6 6" />
+  </Glyph>
+);
+
 export const Icon = {
   Sun, PartlyCloudy, Cloud, Rain, Storm, Snow,
   Freezing, Wind, Drop, Moon, Bolt,
@@ -286,6 +311,7 @@ export const Icon = {
   Check, Warning, Blocked, Compass, Bell, Search, Download,
   Play, Pause, Cycle,
   Route, Crag, Slope, Ski, Peak, Layers, Bike, CrossCountrySki,
+  Home, Pin, ArrowLeft,
 };
 
 // Stesse identiche regole di lib/wx.js (precipitazioni > nuvole > sereno),
