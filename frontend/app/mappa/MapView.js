@@ -552,7 +552,6 @@ export default function MapView({
   const S = useRef({});
   const [ready, setReady] = useState(false);
   const [msg, setMsg] = useState("Carico la mappa…");
-  const [base, setBase] = useState("chiaro");
   // Nessun campo acceso finché le Impostazioni (defaultFields, applicate
   // subito sotto non appena disponibili) non dicono diversamente — vedi
   // lib/settings.js.
@@ -585,7 +584,15 @@ export default function MapView({
   const [showSki, setShowSki] = useState(false);
   const [showSkifondo, setShowSkifondo] = useState(false);
 
-  const { settings, ready: settingsReady } = useSettings();
+  const { settings, setSetting, ready: settingsReady } = useSettings();
+
+  // Sfondo mappa (Chiaro/Terreno/Scuro): niente più uno switch rapido sulla
+  // mappa (era il segmented prima del trigger Meteo) — si sceglie dalle
+  // Impostazioni, e l'ultimo scelto È il default per la prossima apertura,
+  // niente distinzione "acceso ora" / "acceso di default" come per campi
+  // meteo e attività: un solo stato, sempre sincronizzato con settings.
+  const base = settings.mapBase;
+  const setBase = (v) => setSetting("mapBase", v);
 
   // Applica UNA sola volta le preferenze "acceso all'avvio" (Impostazioni →
   // Meteo predefinito / Attività all'avvio) non appena le preferenze vere
@@ -1652,13 +1659,12 @@ export default function MapView({
         setActiveFlyout={setActiveFlyout}
       />
 
-      {/* Campi meteo + sfondo — come è disegnata la mappa. A scomparsa (fieldsAutoHide). */}
+      {/* Campi meteo — come è disegnata la mappa. Lo sfondo (Chiaro/Terreno/
+          Scuro) non ha più un suo switch qui: si sceglie dalle Impostazioni
+          (vedi settings.mapBase sopra). A scomparsa (fieldsAutoHide). */}
       <MapFields
         ready={ready}
         fields={fields}
-        bases={BASES}
-        base={base}
-        setBase={setBase}
         hidden={fieldsAutoHide.hidden}
         onMouseEnter={fieldsAutoHide.onMouseEnter}
         onMouseLeave={fieldsAutoHide.onMouseLeave}

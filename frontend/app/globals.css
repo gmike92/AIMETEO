@@ -354,6 +354,10 @@ html:has(.navbar.chrome-hidden) .mapcta{top:16px}
   font-weight:700;color:var(--ink-on-l);transition:border-color .2s,transform .14s;
   box-shadow:0 3px 14px rgba(11,23,34,.18)}
 .mapcta a:hover{border-color:var(--accent);transform:translateY(-1px)}
+/* Pannello aperto (Itinerari/Pianifica) → link "selezionato", stesso
+   linguaggio di .chip.on/.segbtn.on (riempimento pieno invece di bordo). */
+.mapcta a.on{background:var(--accent);border-color:var(--accent);color:#04121f}
+.mapcta a.on:hover{transform:none}
 
 /* search bar sulla mappa (dentro .mapcta) */
 .mapsearch input{width:190px;background:var(--glass-l);border:1px solid var(--line-on-l);
@@ -965,13 +969,20 @@ html:has(.navbar.chrome-hidden) .mapshell.full .leaflet-top{top:6px}
   text-transform:uppercase;color:var(--faint);text-align:center}
 .actmatrix-label{font-size:12.5px;font-weight:700;color:var(--ink);
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.actmatrix-cell{justify-self:center;width:26px;height:26px;border-radius:7px;
-  border:1px solid var(--line-strong);background:transparent;color:transparent;
-  display:flex;align-items:center;justify-content:center;cursor:pointer;
-  transition:color .18s,border-color .18s,background .18s}
-.actmatrix-cell:hover:not(:disabled){border-color:var(--accent)}
-.actmatrix-cell.on{background:var(--accent);border-color:var(--accent);color:#04121f}
-.actmatrix-cell:disabled{opacity:.35;cursor:not-allowed}
+/* Toggle switch (pillola + pallino scorrevole) — usato per le due colonne
+   di ActivityMatrix sopra, al posto delle checkbox quadrate: più leggibile
+   come stato acceso/spento a colpo d'occhio, stesso linguaggio cromatico di
+   .chip.on (riempimento pieno = attivo). */
+.tglswitch{justify-self:center;width:36px;height:21px;border-radius:999px;
+  border:1px solid var(--line-strong);background:transparent;position:relative;
+  cursor:pointer;padding:0;transition:background .18s,border-color .18s}
+.tglswitch::after{content:"";position:absolute;top:2px;left:2px;width:15px;height:15px;
+  border-radius:50%;background:var(--muted);transition:transform .18s,background .18s}
+.tglswitch:hover:not(:disabled){border-color:var(--accent)}
+.tglswitch:hover:not(:disabled)::after{background:var(--ink)}
+.tglswitch.on{background:var(--accent);border-color:var(--accent)}
+.tglswitch.on::after{transform:translateX(15px);background:#04121f}
+.tglswitch:disabled{opacity:.35;cursor:not-allowed}
 
 .plan-filterbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;
   padding:10px 14px;border-radius:var(--r-md);border:1px solid rgba(94,234,212,.3);

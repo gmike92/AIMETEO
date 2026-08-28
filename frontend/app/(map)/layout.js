@@ -6,17 +6,43 @@
 // sempre la stessa istanza, le pagine cambiano solo cosa ci sta sopra
 // (vedi OverlayPanel.js per Itinerari/Falesie/Planner; "/" non ne usa uno,
 // resta la sola barra di ricerca com'era prima).
-import { useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { useSearchParams, usePathname } from "next/navigation";
 import MapView from "../mappa/MapView";
-import { DayStrip } from "../components/MapOverlay";
+import { DayStrip, MapSearch } from "../components/MapOverlay";
 
 export default function MapShellLayout({ children }) {
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const focusRoute = searchParams.get("route");
   const focusCrag = searchParams.get("crag");
 
   return (
     <MapView fullscreen focusRoute={focusRoute} focusCrag={focusCrag} days={<DayStrip />}>
+      {/* Ricerca + Itinerari/Pianifica: qui nel guscio persistente, non nella
+          pagina "/" (com'era prima) — così restano visibili e cliccabili
+          ANCHE quando un pannello (Itinerari/Falesie/Pianifica) è aperto,
+          invece di sparire con la pagina che li rendeva. Il link attivo
+          mostra lo stato "selezionato" (className "on") e un secondo click
+          torna a "/" invece di restare fermo sulla stessa pagina — stesso
+          pattern toggle già usato in SiteNav.js per le stesse tre voci. */}
+      <div className="mapcta">
+        <MapSearch />
+        <Link
+          href={pathname === "/itinerari" ? "/" : "/itinerari"}
+          className={pathname === "/itinerari" ? "on" : ""}
+          aria-pressed={pathname === "/itinerari"}
+        >
+          Itinerari
+        </Link>
+        <Link
+          href={pathname === "/planner" ? "/" : "/planner"}
+          className={pathname === "/planner" ? "on" : ""}
+          aria-pressed={pathname === "/planner"}
+        >
+          Pianifica gita
+        </Link>
+      </div>
       {children}
     </MapView>
   );

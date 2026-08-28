@@ -6,7 +6,6 @@
 import { useSettings } from "./SettingsProvider";
 import { useT } from "@/lib/i18n";
 import { DEFAULTS, writeSettings, ACTIVITY_KEYS, FIELD_KEYS } from "@/lib/settings";
-import { Icon } from "./WxIcon";
 
 export function Section({ title, sub, children, compact = false }) {
   return (
@@ -62,10 +61,10 @@ function ToggleChipGroup({ values, options, onToggle, labelledBy }) {
 // Attività: due preferenze indipendenti per la stessa lista di 5 voci
 // (quali offrire nel pannello, quali partono già accese) — invece di due
 // ToggleChipGroup separati che ripeterebbero le 5 etichette due volte, UNA
-// sola riga per voce con due celle a spunta compatte (stesso principio di
-// una tabella a doppia colonna). "All'avvio" è disabilitata quando la voce
-// non è visibile: un'attività nascosta accesa di default sarebbe attiva
-// sulla mappa senza modo di spegnerla dal pannello — vedi anche il filtro
+// sola riga per voce con due toggle compatti (stesso principio di una
+// tabella a doppia colonna). "All'avvio" è disabilitato quando la voce non
+// è visibile: un'attività nascosta accesa di default sarebbe attiva sulla
+// mappa senza modo di spegnerla dal pannello — vedi anche il filtro
 // equivalente in lib/settings.js (readSettings).
 function ActivityMatrix({ visible, defaults, onToggleVisible, onToggleDefault, options, colVisible, colDefault }) {
   return (
@@ -83,23 +82,19 @@ function ActivityMatrix({ visible, defaults, onToggleVisible, onToggleDefault, o
             <span className="actmatrix-label">{label}</span>
             <button
               type="button"
-              className={`actmatrix-cell ${isVisible ? "on" : ""}`}
+              className={`tglswitch ${isVisible ? "on" : ""}`}
               aria-pressed={isVisible}
               aria-label={`${colVisible}: ${label}`}
               onClick={() => onToggleVisible(key)}
-            >
-              {isVisible && <Icon.Check size={13} />}
-            </button>
+            />
             <button
               type="button"
-              className={`actmatrix-cell ${isDefault ? "on" : ""}`}
+              className={`tglswitch ${isDefault ? "on" : ""}`}
               aria-pressed={isDefault}
               disabled={!isVisible}
               aria-label={`${colDefault}: ${label}`}
               onClick={() => onToggleDefault(key)}
-            >
-              {isDefault && <Icon.Check size={13} />}
-            </button>
+            />
           </div>
         );
       })}
@@ -142,6 +137,18 @@ export default function SettingsFields({ compact = false }) {
             ["bosco", t("settings.theme_bosco")],
             ["mare", t("settings.theme_mare")],
             ["system", t("settings.theme_system")],
+          ]}
+        />
+      </Section>
+
+      <Section title={t("settings.map_base")} compact={compact}>
+        <ChipGroup
+          value={settings.mapBase}
+          onChange={(v) => setSetting("mapBase", v)}
+          options={[
+            ["chiaro", t("map.base_chiaro")],
+            ["terreno", t("map.base_terreno")],
+            ["scuro", t("map.base_scuro")],
           ]}
         />
       </Section>

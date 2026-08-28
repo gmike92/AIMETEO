@@ -34,6 +34,10 @@ export const DEFAULTS = Object.freeze({
   // macchina senza dirlo all'utente).
   density: "grid", // grid | list — solo per gli elenchi (itinerari, falesie)
   visibleActivities: ACTIVITY_KEYS, // quali voci del rail Attività mostrare
+  mapBase: "chiaro", // chiaro | terreno | scuro — sfondo della mappa; scelto
+  // qui invece che con uno switch rapido sulla mappa, l'ultimo scelto resta
+  // il default per la prossima apertura (nessuna distinzione "ora" / "di
+  // default", a differenza di defaultFields/defaultActivities sotto).
   // Nessun campo/attività acceso finché l'utente non lo sceglie qui — la
   // mappa all'avvio parte "pulita", non con una scelta implicita nostra.
   defaultFields: [], // campi meteo già accesi all'avvio dell'app
@@ -45,6 +49,7 @@ const VALID = {
   theme: new Set(["dark", "light", "bosco", "mare", "system"]),
   lang: new Set(["it", "en"]),
   density: new Set(["grid", "list"]),
+  mapBase: new Set(["chiaro", "terreno", "scuro"]),
 };
 
 /** Legge le preferenze salvate, scartando in silenzio chiavi/valori ignoti

@@ -254,6 +254,7 @@ const it = {
   "settings.theme_bosco": "Bosco",
   "settings.theme_mare": "Mare",
   "settings.theme_system": "Segui il sistema",
+  "settings.map_base": "Sfondo della mappa",
   "settings.lang": "Lingua dell'interfaccia",
   "settings.lang_note":
     "Traduce solo i testi dell'app. Nomi di itinerari e falesie restano nella lingua " +
@@ -528,6 +529,7 @@ const en = {
   "settings.theme_bosco": "Forest",
   "settings.theme_mare": "Sea",
   "settings.theme_system": "Follow system",
+  "settings.map_base": "Map background",
   "settings.lang": "Interface language",
   "settings.lang_note":
     "Translates only the app's own text. Route and crag names stay in their original " +
