@@ -23,7 +23,8 @@
   --muted-on-l:#42566b; --line-on-l:rgba(11,23,34,.14); --blur:saturate(1.4) blur(14px);
   --r-sm:10px; --r-md:14px; --r-lg:20px;
   --shadow:0 10px 40px rgba(2,8,16,.5);
-  --navbar-h:62px; /* altezza reale della navbar — la mappa immersiva la
+  --navbar-h:91px; /* altezza reale della navbar (logo 60px + padding —
+    misurata, non stimata) — la mappa immersiva la
     riserva per zoom/ricerca/CTA anche quando la navbar stessa è nascosta,
     così quando riappare (overlay flottante) non li copre mai. */
 
@@ -296,6 +297,11 @@ html.overlay-open .mapshell .leaflet-bottom.leaflet-right{opacity:0;pointer-even
    MapChrome.js — quindi non serve più raggiungerli scorrendo). */
 html:has(.mapshell.full),body:has(.mapshell.full){overflow:hidden;height:100%}
 .mapshell .leaflet-container{height:100%;width:100%;background:var(--bg2);font-family:inherit}
+/* Campi meteo (temp/UV/nuvole): dissolvenza incrociata invece dello scatto
+   secco removeLayer+addTo — vedi swapFieldOverlay() in MapView.js, che
+   pilota l'opacity via ImageOverlay.setOpacity(); fadeAnimation di Leaflet
+   coprirebbe solo tile/popup, mai gli ImageOverlay, da qui questa regola. */
+.wx-field-overlay{transition:opacity .26s ease}
 .leaflet-popup-content-wrapper{background:var(--glass);backdrop-filter:var(--blur);
   color:var(--ink);border:1px solid var(--line-strong);border-radius:var(--r-md);
   box-shadow:var(--shadow)}
@@ -947,6 +953,25 @@ html:has(.navbar.chrome-hidden) .mapshell.full .leaflet-top{top:6px}
    selezionarne uno diverso faceva traballare tutta la riga a ogni click —
    il riempimento pieno basta da solo a segnalare lo stato attivo. */
 .chip.on{background:var(--accent);border-color:var(--accent);color:#04121f}
+
+/* Attività nelle Impostazioni: due preferenze (visibile nel pannello /
+   accesa all'avvio) per la stessa lista di voci, come UNA tabella compatta
+   invece di due ToggleChipGroup che ripeterebbero le etichette due volte —
+   vedi ActivityMatrix in SettingsFields.js. */
+.actmatrix{display:flex;flex-direction:column;gap:2px}
+.actmatrix-row{display:grid;grid-template-columns:1fr 60px 60px;align-items:center;gap:6px}
+.actmatrix-head{padding-bottom:4px}
+.actmatrix-collabel{font-size:9.5px;font-weight:800;letter-spacing:.6px;
+  text-transform:uppercase;color:var(--faint);text-align:center}
+.actmatrix-label{font-size:12.5px;font-weight:700;color:var(--ink);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.actmatrix-cell{justify-self:center;width:26px;height:26px;border-radius:7px;
+  border:1px solid var(--line-strong);background:transparent;color:transparent;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  transition:color .18s,border-color .18s,background .18s}
+.actmatrix-cell:hover:not(:disabled){border-color:var(--accent)}
+.actmatrix-cell.on{background:var(--accent);border-color:var(--accent);color:#04121f}
+.actmatrix-cell:disabled{opacity:.35;cursor:not-allowed}
 
 .plan-filterbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;
   padding:10px 14px;border-radius:var(--r-md);border:1px solid rgba(94,234,212,.3);

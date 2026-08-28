@@ -20,6 +20,12 @@ export const STORAGE_KEY = "zt-settings-v1";
 // mai nulla (0 itinerari) sarebbe fuorviante.
 export const ACTIVITY_KEYS = ["rt", "fal", "mtb", "skifondo", "ski"];
 
+// Voci del pannello "Meteo" della mappa — vedi il campo `fields` in
+// MapView.js, stesso ordine. A differenza delle attività, tutti e otto sono
+// sempre offerti nel pannello (non c'è un equivalente di visibleActivities):
+// qui le Impostazioni decidono solo quali partono già accesi.
+export const FIELD_KEYS = ["temp", "wind", "radar", "uv", "clouds", "sun", "aurora", "lightning"];
+
 export const DEFAULTS = Object.freeze({
   units: "metric", // metric | imperial
   theme: "dark", // dark | light | bosco | mare | system
@@ -28,6 +34,10 @@ export const DEFAULTS = Object.freeze({
   // macchina senza dirlo all'utente).
   density: "grid", // grid | list — solo per gli elenchi (itinerari, falesie)
   visibleActivities: ACTIVITY_KEYS, // quali voci del rail Attività mostrare
+  // Nessun campo/attività acceso finché l'utente non lo sceglie qui — la
+  // mappa all'avvio parte "pulita", non con una scelta implicita nostra.
+  defaultFields: [], // campi meteo già accesi all'avvio dell'app
+  defaultActivities: [], // attività già accese all'avvio dell'app
 });
 
 const VALID = {
@@ -56,6 +66,18 @@ export function readSettings() {
       const known = new Set(ACTIVITY_KEYS);
       out.visibleActivities = parsed.visibleActivities.filter((k) => known.has(k));
     }
+    if (Array.isArray(parsed?.defaultFields)) {
+      const known = new Set(FIELD_KEYS);
+      out.defaultFields = parsed.defaultFields.filter((k) => known.has(k));
+    }
+    if (Array.isArray(parsed?.defaultActivities)) {
+      const known = new Set(ACTIVITY_KEYS);
+      out.defaultActivities = parsed.defaultActivities.filter((k) => known.has(k));
+    }
+    // Un'attività accesa di default ma nascosta dal rail (visibleActivities)
+    // sarebbe attiva sulla mappa senza modo di spegnerla dal pannello —
+    // "nascosta" vince sempre su "accesa di default".
+    out.defaultActivities = out.defaultActivities.filter((k) => out.visibleActivities.includes(k));
     return out;
   } catch {
     return { ...DEFAULTS };

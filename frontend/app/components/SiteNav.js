@@ -51,7 +51,7 @@ export default function SiteNav() {
               </button>
             )}
             <Link href="/" className="logo" aria-label="Zerotermico">
-              <img src="/logo.png" width="30" height="30" alt="" aria-hidden="true" />
+              <img src="/logo.png" width="60" height="60" alt="" aria-hidden="true" />
               zero<span>°termico</span>
             </Link>
           </div>

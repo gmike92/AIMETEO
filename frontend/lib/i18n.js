@@ -261,10 +261,24 @@ const it = {
   "settings.density": "Visualizzazione elenchi",
   "settings.density_grid": "Griglia",
   "settings.density_list": "Elenco",
-  "settings.map_layers": "Attività visualizzabili sulla mappa",
+  "settings.default_fields": "Meteo all'avvio",
+  "settings.default_fields_note":
+    "Quali campi meteo sono già accesi quando apri l'app. Nessuno per default: " +
+    "puoi comunque accenderli a mano dal pannello Meteo della mappa.",
+  "field.temp": "Temp",
+  "field.wind": "Vento",
+  "field.radar": "Pioggia",
+  "field.uv": "UV",
+  "field.clouds": "Nuvole",
+  "field.sun": "Sole",
+  "field.aurora": "Aurora",
+  "field.lightning": "Fulmini",
+  "settings.map_layers": "Attività",
   "settings.map_layers_note":
-    "Quali pulsanti mostrare nel pannello Attività della mappa — non accende o " +
-    "spegne nulla da qui, decide solo cosa offrire.",
+    "Quali pulsanti offrire nel pannello Attività della mappa, e quali di questi " +
+    "partono già accesi all'avvio.",
+  "settings.col_visible": "Visibile",
+  "settings.col_default": "All'avvio",
   "layer.rt": "Itinerari",
   "layer.fal": "Falesie",
   "layer.mtb": "MTB",
@@ -521,10 +535,24 @@ const en = {
   "settings.density": "List display",
   "settings.density_grid": "Grid",
   "settings.density_list": "List",
-  "settings.map_layers": "Activities shown on the map",
+  "settings.default_fields": "Weather at startup",
+  "settings.default_fields_note":
+    "Which weather fields are already on when you open the app. None by default " +
+    "— you can still turn them on by hand from the map's Weather panel.",
+  "field.temp": "Temp",
+  "field.wind": "Wind",
+  "field.radar": "Rain",
+  "field.uv": "UV",
+  "field.clouds": "Clouds",
+  "field.sun": "Sun",
+  "field.aurora": "Aurora",
+  "field.lightning": "Lightning",
+  "settings.map_layers": "Activities",
   "settings.map_layers_note":
-    "Which buttons to offer in the map's Activity panel — doesn't turn anything " +
-    "on or off from here, just what's available.",
+    "Which buttons to offer in the map's Activity panel, and which of those " +
+    "start already on at launch.",
+  "settings.col_visible": "Visible",
+  "settings.col_default": "At launch",
   "layer.rt": "Routes",
   "layer.fal": "Crags",
   "layer.mtb": "MTB",

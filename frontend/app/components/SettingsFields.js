@@ -5,7 +5,8 @@
 // stesso markup, un solo posto dove può disallinearsi.
 import { useSettings } from "./SettingsProvider";
 import { useT } from "@/lib/i18n";
-import { DEFAULTS, writeSettings, ACTIVITY_KEYS } from "@/lib/settings";
+import { DEFAULTS, writeSettings, ACTIVITY_KEYS, FIELD_KEYS } from "@/lib/settings";
+import { Icon } from "./WxIcon";
 
 export function Section({ title, sub, children, compact = false }) {
   return (
@@ -54,6 +55,54 @@ function ToggleChipGroup({ values, options, onToggle, labelledBy }) {
           {label}
         </button>
       ))}
+    </div>
+  );
+}
+
+// Attività: due preferenze indipendenti per la stessa lista di 5 voci
+// (quali offrire nel pannello, quali partono già accese) — invece di due
+// ToggleChipGroup separati che ripeterebbero le 5 etichette due volte, UNA
+// sola riga per voce con due celle a spunta compatte (stesso principio di
+// una tabella a doppia colonna). "All'avvio" è disabilitata quando la voce
+// non è visibile: un'attività nascosta accesa di default sarebbe attiva
+// sulla mappa senza modo di spegnerla dal pannello — vedi anche il filtro
+// equivalente in lib/settings.js (readSettings).
+function ActivityMatrix({ visible, defaults, onToggleVisible, onToggleDefault, options, colVisible, colDefault }) {
+  return (
+    <div className="actmatrix" role="group">
+      <div className="actmatrix-row actmatrix-head">
+        <span />
+        <span className="actmatrix-collabel">{colVisible}</span>
+        <span className="actmatrix-collabel">{colDefault}</span>
+      </div>
+      {options.map(([key, label]) => {
+        const isVisible = visible.includes(key);
+        const isDefault = defaults.includes(key);
+        return (
+          <div key={key} className="actmatrix-row">
+            <span className="actmatrix-label">{label}</span>
+            <button
+              type="button"
+              className={`actmatrix-cell ${isVisible ? "on" : ""}`}
+              aria-pressed={isVisible}
+              aria-label={`${colVisible}: ${label}`}
+              onClick={() => onToggleVisible(key)}
+            >
+              {isVisible && <Icon.Check size={13} />}
+            </button>
+            <button
+              type="button"
+              className={`actmatrix-cell ${isDefault ? "on" : ""}`}
+              aria-pressed={isDefault}
+              disabled={!isVisible}
+              aria-label={`${colDefault}: ${label}`}
+              onClick={() => onToggleDefault(key)}
+            >
+              {isDefault && <Icon.Check size={13} />}
+            </button>
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -119,14 +168,42 @@ export default function SettingsFields({ compact = false }) {
         />
       </Section>
 
-      <Section title={t("settings.map_layers")} sub={compact ? null : t("settings.map_layers_note")} compact={compact}>
+      <Section title={t("settings.default_fields")} sub={compact ? null : t("settings.default_fields_note")} compact={compact}>
         <ToggleChipGroup
-          values={settings.visibleActivities}
+          values={settings.defaultFields}
           onToggle={(key) => {
-            const next = settings.visibleActivities.includes(key)
-              ? settings.visibleActivities.filter((k) => k !== key)
-              : [...settings.visibleActivities, key];
-            setSetting("visibleActivities", next);
+            const next = settings.defaultFields.includes(key)
+              ? settings.defaultFields.filter((k) => k !== key)
+              : [...settings.defaultFields, key];
+            setSetting("defaultFields", next);
+          }}
+          options={FIELD_KEYS.map((k) => [k, t(`field.${k}`)])}
+        />
+      </Section>
+
+      <Section title={t("settings.map_layers")} sub={compact ? null : t("settings.map_layers_note")} compact={compact}>
+        <ActivityMatrix
+          visible={settings.visibleActivities}
+          defaults={settings.defaultActivities}
+          colVisible={t("settings.col_visible")}
+          colDefault={t("settings.col_default")}
+          onToggleVisible={(key) => {
+            const nowVisible = !settings.visibleActivities.includes(key);
+            const nextVisible = nowVisible
+              ? [...settings.visibleActivities, key]
+              : settings.visibleActivities.filter((k) => k !== key);
+            setSetting("visibleActivities", nextVisible);
+            // Nascondere una voce accesa di default la spegne anche lì —
+            // niente attività "fantasma" accesa senza modo di spegnerla.
+            if (!nowVisible && settings.defaultActivities.includes(key)) {
+              setSetting("defaultActivities", settings.defaultActivities.filter((k) => k !== key));
+            }
+          }}
+          onToggleDefault={(key) => {
+            const next = settings.defaultActivities.includes(key)
+              ? settings.defaultActivities.filter((k) => k !== key)
+              : [...settings.defaultActivities, key];
+            setSetting("defaultActivities", next);
           }}
           options={ACTIVITY_KEYS.map((k) => [k, t(`layer.${k}`)])}
         />

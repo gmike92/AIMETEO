@@ -304,6 +304,60 @@ function fieldCanvas(values, nx, ny, colorFn, opts = {}) {
 }
 const tempCanvas = (temps, nx, ny) => fieldCanvas(temps, nx, ny, tempColor);
 
+// Dissolvenza incrociata per i campi meteo (temp/UV/nuvole): al posto dello
+// scatto secco removeLayer+addTo, il nuovo overlay nasce a opacity 0 e sale
+// al suo target, il vecchio scende a 0 e si rimuove dopo la transizione
+// (.wx-field-overlay in globals.css). Il doppio requestAnimationFrame serve
+// perché il browser deve "vedere" il primo paint a opacity:0 prima che un
+// cambio successivo abbia davvero una transizione da cui partire — un solo
+// rAF a volte collassa i due stati nello stesso frame e la CSS transition
+// non ha nulla da animare.
+//
+// Replicato a ±360°: un ImageOverlay è ancorato a UN rettangolo lat/lon
+// fisso — a differenza dei tile (che Leaflet ripete da sé) o del terminatore
+// giorno/notte (ridisegnato da zero a ogni pan sui bound ESATTI della vista
+// corrente, quindi segue automaticamente qualunque copia del planisfero),
+// un'unica immagine non compare mai nella copia adiacente del mondo. Tre
+// copie identiche (stessa immagine, stesso URL — nessun costo aggiuntivo di
+// calcolo) spostate di -360°/0°/+360° in longitudine coprono la vista
+// corrente più le due adiacenti, che è quanto serve per un pan normale.
+const FIELD_FADE_MS = 260; // in sync con la transition di .wx-field-overlay
+const WORLD_COPY_OFFSETS = [-360, 0, 360];
+function swapFieldOverlay(S, map, slotKey, makeSpec, targetOpacity) {
+  const { L } = S.current;
+  const prev = S.current[slotKey];
+  const { url, bounds } = makeSpec();
+  const [[la2, lo1], [la1, lo2]] = bounds;
+  const next = WORLD_COPY_OFFSETS.map((k) =>
+    L.imageOverlay(url, [[la2, lo1 + k], [la1, lo2 + k]], {
+      opacity: 0, interactive: false, className: "wx-field-overlay",
+    }).addTo(map)
+  );
+  next.forEach((l) => l.bringToFront?.());
+  S.current[slotKey] = next;
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      if (S.current[slotKey] !== next) return; // già superato da un refresh più recente
+      next.forEach((l) => l.setOpacity(targetOpacity));
+    });
+  });
+  if (prev) {
+    prev.forEach((l) => l.setOpacity(0));
+    const timer = setTimeout(() => prev.forEach((l) => map.removeLayer(l)), FIELD_FADE_MS + 40);
+    (S.current.fieldFadeTimers ??= new Set()).add(timer);
+  }
+}
+// Percorso di spegnimento (nessun sostituto): sfuma le copie attive e poi le
+// toglie, stesso principio della metà "in uscita" di swapFieldOverlay sopra.
+function fadeOutFieldOverlay(S, map, slotKey) {
+  const layers = S.current[slotKey];
+  if (!layers) return;
+  S.current[slotKey] = null;
+  layers.forEach((l) => l.setOpacity(0));
+  const timer = setTimeout(() => layers.forEach((l) => map.removeLayer(l)), FIELD_FADE_MS + 40);
+  (S.current.fieldFadeTimers ??= new Set()).add(timer);
+}
+
 // UV index 0–11+ → standard WHO UV scale (verde→giallo→arancio→rosso→viola).
 const UV_STOPS = [
   [0, [80, 225, 140]], [3, [247, 213, 71]], [6, [244, 157, 55]],
@@ -499,13 +553,17 @@ export default function MapView({
   const [ready, setReady] = useState(false);
   const [msg, setMsg] = useState("Carico la mappa…");
   const [base, setBase] = useState("chiaro");
-  const [temp, setTemp] = useState(true);
-  const [wind, setWind] = useState(true);
+  // Nessun campo acceso finché le Impostazioni (defaultFields, applicate
+  // subito sotto non appena disponibili) non dicono diversamente — vedi
+  // lib/settings.js.
+  const [temp, setTemp] = useState(false);
+  const [wind, setWind] = useState(false);
   const [radar, setRadar] = useState(false);
   const [frames, setFrames] = useState([]);
   const [frameIdx, setFrameIdx] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [tempRange, setTempRange] = useState(null);
+  const [windRange, setWindRange] = useState(null); // [min,max] m/s nella vista corrente
   const [season, setSeason] = useState(false); // true = a bulletin is in force somewhere
   const [slope, setSlope] = useState(false);
   const [hasSlope, setHasSlope] = useState(false); // tile generati? (area pilota)
@@ -527,7 +585,36 @@ export default function MapView({
   const [showSki, setShowSki] = useState(false);
   const [showSkifondo, setShowSkifondo] = useState(false);
 
-  const { settings } = useSettings();
+  const { settings, ready: settingsReady } = useSettings();
+
+  // Applica UNA sola volta le preferenze "acceso all'avvio" (Impostazioni →
+  // Meteo predefinito / Attività all'avvio) non appena le preferenze vere
+  // sono disponibili (settingsReady, dopo il mount — vedi SettingsProvider,
+  // prima di quel momento settings è ancora il DEFAULTS server-side, che ha
+  // già tutto spento: nessun hydration mismatch). Un ref, non un altro
+  // useState, perché non deve MAI più rieseguirsi dopo il primo giro — se
+  // no, cambiare le Impostazioni a runtime riaccenderebbe campi che
+  // l'utente aveva appena spento a mano.
+  const defaultsAppliedRef = useRef(false);
+  useEffect(() => {
+    if (!settingsReady || defaultsAppliedRef.current) return;
+    defaultsAppliedRef.current = true;
+    const df = settings.defaultFields;
+    if (df.includes("temp")) setTemp(true);
+    if (df.includes("wind")) setWind(true);
+    if (df.includes("radar")) setRadar(true);
+    if (df.includes("uv")) setUv(true);
+    if (df.includes("clouds")) setClouds(true);
+    if (df.includes("sun")) setSun(true);
+    if (df.includes("aurora")) setAurora(true);
+    if (df.includes("lightning")) setLightning(true);
+    const da = settings.defaultActivities;
+    if (da.includes("rt")) setShowRoutes(true);
+    if (da.includes("fal")) setShowCrags(true);
+    if (da.includes("mtb")) setShowMtb(true);
+    if (da.includes("skifondo")) setShowSkifondo(true);
+    if (da.includes("ski")) setShowSki(true);
+  }, [settingsReady, settings]);
 
   // Rail (livelli/attività), campi meteo e strumenti: a scomparsa dopo
   // qualche secondo di inattività, tornano visibili a qualunque interazione
@@ -574,6 +661,14 @@ export default function MapView({
           zoomControl: false, scrollWheelZoom: true,
           fadeAnimation: true, zoomAnimation: true,
           minZoom: 2,
+          // Latitudine limitata a dove i tile esistono davvero (Web Mercator,
+          // ±85.06°) — oltre non c'è nulla da mostrare, solo lo sfondo del
+          // container (fasce nere sopra/sotto quando si trascina troppo in
+          // verticale). Longitudine SENZA limiti (Infinity): il pan
+          // orizzontale libero intorno al globo resta intatto, solo il verticale
+          // ha davvero un bordo oltre cui non c'è mappa.
+          maxBounds: [[-85.06, -Infinity], [85.06, Infinity]],
+          maxBoundsViscosity: 1.0,
         }).setView([46.1, 10.4], 7);
         const zoomCtl = L.control.zoom({ position: "topleft" }).addTo(map);
         // Leaflet disegna +/- col carattere di sistema (bruttino, spesso non
@@ -675,6 +770,13 @@ export default function MapView({
             S.current.grid = data;
             if (!dead) {
               setTempRange([Math.min(...data.temps), Math.max(...data.temps)]);
+              // Scala del vento (legenda + colore delle particelle) ricalcolata
+              // sulla vista corrente, stessa logica della temperatura: la
+              // scala "0–58 km/h" fissa aveva senso solo per il caso peggiore
+              // di tutta Italia, non per un lembo di Alpi con vento debole.
+              const [uComp, vComp] = data.wind;
+              const speeds = uComp.data.map((u, i) => Math.hypot(u, vComp.data[i]));
+              setWindRange([Math.min(...speeds), Math.max(...speeds)]);
               setGridVersion((v) => v + 1);
               // Il fetch iniziale può fallire (es. quota oraria Open-Meteo
               // esaurita) e lasciare il banner d'errore appeso a schermo:
@@ -844,6 +946,7 @@ export default function MapView({
       clearInterval(S.current.timer);
       clearTimeout(S.current.gridTimer);
       clearInterval(S.current.gridRetryTimer);
+      S.current.fieldFadeTimers?.forEach(clearTimeout);
       if (S.current.map) S.current.map.remove();
       S.current = {};
     };
@@ -1068,21 +1171,21 @@ export default function MapView({
     return () => { dead = true; };
   }, [showSki, showSkifondo, ready]);
 
-  // temperature color field
+  // temperature color field — dissolvenza incrociata, vedi swapFieldOverlay
   useEffect(() => {
     const { L, map, grid } = S.current;
     if (!map) return;
-    if (S.current.tempOverlay) {
-      map.removeLayer(S.current.tempOverlay);
-      S.current.tempOverlay = null;
-    }
     if (temp && grid) {
-      S.current.tempOverlay = L.imageOverlay(
-        tempCanvas(grid.temps, grid.nx, grid.ny),
-        [[grid.la2, grid.lo1], [grid.la1, grid.lo2]],
-        { opacity: 0.4, interactive: false }
-      ).addTo(map);
-      S.current.tempOverlay.bringToFront?.();
+      swapFieldOverlay(
+        S, map, "tempOverlay",
+        () => ({
+          url: tempCanvas(grid.temps, grid.nx, grid.ny),
+          bounds: [[grid.la2, grid.lo1], [grid.la1, grid.lo2]],
+        }),
+        0.4
+      );
+    } else {
+      fadeOutFieldOverlay(S, map, "tempOverlay");
     }
   }, [temp, ready, gridVersion]);
 
@@ -1090,17 +1193,17 @@ export default function MapView({
   useEffect(() => {
     const { L, map, grid } = S.current;
     if (!map) return;
-    if (S.current.uvOverlay) {
-      map.removeLayer(S.current.uvOverlay);
-      S.current.uvOverlay = null;
-    }
     if (uv && grid) {
-      S.current.uvOverlay = L.imageOverlay(
-        uvCanvas(grid.uvs, grid.nx, grid.ny),
-        [[grid.la2, grid.lo1], [grid.la1, grid.lo2]],
-        { opacity: 0.45, interactive: false }
-      ).addTo(map);
-      S.current.uvOverlay.bringToFront?.();
+      swapFieldOverlay(
+        S, map, "uvOverlay",
+        () => ({
+          url: uvCanvas(grid.uvs, grid.nx, grid.ny),
+          bounds: [[grid.la2, grid.lo1], [grid.la1, grid.lo2]],
+        }),
+        0.45
+      );
+    } else {
+      fadeOutFieldOverlay(S, map, "uvOverlay");
     }
   }, [uv, ready, gridVersion]);
 
@@ -1108,17 +1211,17 @@ export default function MapView({
   useEffect(() => {
     const { L, map, grid } = S.current;
     if (!map) return;
-    if (S.current.cloudOverlay) {
-      map.removeLayer(S.current.cloudOverlay);
-      S.current.cloudOverlay = null;
-    }
     if (clouds && grid) {
-      S.current.cloudOverlay = L.imageOverlay(
-        cloudCanvas(grid.clouds, grid.nx, grid.ny),
-        [[grid.la2, grid.lo1], [grid.la1, grid.lo2]],
-        { opacity: 0.5, interactive: false }
-      ).addTo(map);
-      S.current.cloudOverlay.bringToFront?.();
+      swapFieldOverlay(
+        S, map, "cloudOverlay",
+        () => ({
+          url: cloudCanvas(grid.clouds, grid.nx, grid.ny),
+          bounds: [[grid.la2, grid.lo1], [grid.la1, grid.lo2]],
+        }),
+        0.5
+      );
+    } else {
+      fadeOutFieldOverlay(S, map, "cloudOverlay");
     }
   }, [clouds, ready, gridVersion]);
 
@@ -1152,6 +1255,12 @@ export default function MapView({
       return;
     }
     const scale = windColorScale(base === "scuro" || temp);
+    // Scala min/max ricalcolata sulla vista corrente (vedi windRange sopra),
+    // non più fissa a 0–16 m/s (~58 km/h, il caso peggiore di tutta Italia):
+    // così un lembo di Alpi con vento debole usa davvero tutta la scala di
+    // colore invece di restare quasi tutto sul primo colore, appiattito.
+    const minV = windRange ? windRange[0] : 0;
+    const maxV = windRange ? Math.max(windRange[1], minV + 1) : 16;
     if (S.current.velocity) {
       // Aggiorna dati/colore sul layer già in mappa invece di ricrearlo ad
       // ogni pan/zoom (gridVersion cambia in continuazione): oltre a essere
@@ -1161,7 +1270,9 @@ export default function MapView({
       // crasha su this._map.getSize(). Ricreare il layer solo quando serve
       // davvero (vento appena acceso) tiene questa corsa rara invece che
       // su ogni singolo movimento della mappa.
-      S.current.velocity.setOptions({ data: grid.wind, colorScale: scale });
+      S.current.velocity.setOptions({
+        data: grid.wind, colorScale: scale, minVelocity: minV, maxVelocity: maxV,
+      });
       return;
     }
     S.current.velocity = L.velocityLayer({
@@ -1174,7 +1285,7 @@ export default function MapView({
         velocityType: "vento 10 m", position: "bottomright",
         emptyString: "", speedUnit: "m/s",
       },
-      minVelocity: 0, maxVelocity: 16, velocityScale: 0.008,
+      minVelocity: minV, maxVelocity: maxV, velocityScale: 0.008,
       particleMultiplier: 1 / 260, lineWidth: 1.3, particleAge: 55,
       colorScale: scale,
     }).addTo(map);
@@ -1190,7 +1301,7 @@ export default function MapView({
         if (canvasLayer._map) drawOriginal();
       };
     }
-  }, [wind, temp, base, ready, gridVersion]);
+  }, [wind, temp, base, ready, gridVersion, windRange]);
 
   // Day/night terminator — real solar-elevation shading. Computed from the
   // map's OWN current bounds (not the network-fetched weather grid): it's
@@ -1479,8 +1590,9 @@ export default function MapView({
       min: `${Math.round(tempRange[0])}°`, max: `${Math.round(tempRange[1])}°`,
       gradient: rangeGradient(tempRange[0], tempRange[1]),
     },
-    wind && {
-      key: "wind", label: "Vento", min: "0", max: "58 km/h",
+    wind && windRange && {
+      key: "wind", label: "Vento",
+      min: `${Math.round(windRange[0] * 3.6)}`, max: `${Math.round(windRange[1] * 3.6)} km/h`,
       gradient: windGradient(base === "scuro" || temp),
     },
     uv && { key: "uv", label: "UV", min: "0", max: "11+", gradient: uvGradient },
