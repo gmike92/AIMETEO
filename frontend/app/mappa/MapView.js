@@ -13,6 +13,16 @@ import { useSettings } from "@/app/components/SettingsProvider";
 import { ACTIVITY_KEYS } from "@/lib/settings";
 import { MapRail, MapFields, MapTools, MapDock } from "./MapChrome";
 
+// CARTO ora richiede una chiave (gratuita, 5M richieste/mese) sui suoi
+// raster basemap — senza, i tile arrivano comunque ma con un watermark
+// "API KEY REQUIRED" sopra. Se la var d'ambiente non è impostata l'URL
+// resta quello di sempre (stesso degrado onesto, mai un errore): vedi
+// frontend/.env.local.example per dove ottenerla.
+const CARTO_KEY = process.env.NEXT_PUBLIC_CARTO_API_KEY;
+const cartoTileUrl = (style) =>
+  `https://{s}.basemaps.cartocdn.com/${style}/{z}/{x}/{y}{r}.png` +
+  (CARTO_KEY ? `?key=${CARTO_KEY}` : "");
+
 // Glifi per i contenuti che Leaflet vuole come STRINGA HTML (divIcon, popup):
 // lì non possiamo montare un componente React, ma il markup SVG è lo stesso
 // che disegna WxIcon — niente emoji nemmeno qui (regola 1.2).
@@ -574,13 +584,13 @@ export default function MapView({
         setTimeout(() => map.invalidateSize(), 50);
 
         const bases = {
-          chiaro: L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+          chiaro: L.tileLayer(cartoTileUrl("rastertiles/voyager"), {
             maxZoom: 18, attribution: '© <a href="https://carto.com">CARTO</a> · © OpenStreetMap',
           }),
           terreno: L.tileLayer("https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png", {
             maxZoom: 16, attribution: '© <a href="https://opentopomap.org">OpenTopoMap</a> · © OpenStreetMap',
           }),
-          scuro: L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+          scuro: L.tileLayer(cartoTileUrl("dark_all"), {
             maxZoom: 18, attribution: '© <a href="https://carto.com">CARTO</a> · © OpenStreetMap',
           }),
         };
