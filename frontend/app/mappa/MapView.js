@@ -1648,42 +1648,47 @@ export default function MapView({
       <div ref={mapEl} style={{ position: "absolute", inset: 0 }} />
       {children}
 
-      {/* Livelli — cosa è disegnato sulla mappa. A scomparsa (railAutoHide). */}
-      <MapRail
-        ready={ready}
-        layers={layers}
-        hidden={railAutoHide.hidden}
-        onMouseEnter={railAutoHide.onMouseEnter}
-        onMouseLeave={railAutoHide.onMouseLeave}
-        activeFlyout={activeFlyout}
-        setActiveFlyout={setActiveFlyout}
-      />
+      {/* Livelli, campi meteo, impostazioni/info/localizza: una sola colonna
+          destra, spaziata con flex gap invece di tre top assoluti a mano
+          (vedi .map-right-col in globals.css). */}
+      <div className="map-right-col">
+        {/* Livelli — cosa è disegnato sulla mappa. A scomparsa (railAutoHide). */}
+        <MapRail
+          ready={ready}
+          layers={layers}
+          hidden={railAutoHide.hidden}
+          onMouseEnter={railAutoHide.onMouseEnter}
+          onMouseLeave={railAutoHide.onMouseLeave}
+          activeFlyout={activeFlyout}
+          setActiveFlyout={setActiveFlyout}
+        />
 
-      {/* Campi meteo — come è disegnata la mappa. Lo sfondo (Chiaro/Terreno/
-          Scuro) non ha più un suo switch qui: si sceglie dalle Impostazioni
-          (vedi settings.mapBase sopra). A scomparsa (fieldsAutoHide). */}
-      <MapFields
-        ready={ready}
-        fields={fields}
-        hidden={fieldsAutoHide.hidden}
-        onMouseEnter={fieldsAutoHide.onMouseEnter}
-        onMouseLeave={fieldsAutoHide.onMouseLeave}
-        activeFlyout={activeFlyout}
-        setActiveFlyout={setActiveFlyout}
-      />
+        {/* Campi meteo — come è disegnata la mappa. Lo sfondo (Chiaro/Terreno/
+            Scuro) non ha più un suo switch qui: si sceglie dalle Impostazioni
+            (vedi settings.mapBase sopra). A scomparsa (fieldsAutoHide). */}
+        <MapFields
+          ready={ready}
+          fields={fields}
+          hidden={fieldsAutoHide.hidden}
+          onMouseEnter={fieldsAutoHide.onMouseEnter}
+          onMouseLeave={fieldsAutoHide.onMouseLeave}
+          activeFlyout={activeFlyout}
+          setActiveFlyout={setActiveFlyout}
+        />
 
-      {/* Impostazioni, info, centra sulla mia posizione. A scomparsa (toolsAutoHide). */}
-      <MapTools
-        ready={ready}
-        hidden={toolsAutoHide.hidden}
-        onMouseEnter={toolsAutoHide.onMouseEnter}
-        onMouseLeave={toolsAutoHide.onMouseLeave}
-        activeFlyout={activeFlyout}
-        setActiveFlyout={setActiveFlyout}
-        onLocate={handleLocate}
-        locating={locating}
-        infoContent={infoContent}
-      />
+        {/* Impostazioni, info, centra sulla mia posizione. A scomparsa (toolsAutoHide). */}
+        <MapTools
+          ready={ready}
+          hidden={toolsAutoHide.hidden}
+          onMouseEnter={toolsAutoHide.onMouseEnter}
+          onMouseLeave={toolsAutoHide.onMouseLeave}
+          activeFlyout={activeFlyout}
+          setActiveFlyout={setActiveFlyout}
+          onLocate={handleLocate}
+          locating={locating}
+          infoContent={infoContent}
+        />
+      </div>
 
       {/* Legenda, timeline radar e striscia giorni: un solo sistema di layout. */}
       <MapDock legend={legend} radar={radarProps} days={days} />

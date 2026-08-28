@@ -3,6 +3,7 @@
 // la pagina /impostazioni (altre pagine, chrome pieno) e il pannello a
 // comparsa sulla mappa (MapChrome.js): stesso stato (SettingsProvider),
 // stesso markup, un solo posto dove può disallinearsi.
+import { useState } from "react";
 import { useSettings } from "./SettingsProvider";
 import { useT } from "@/lib/i18n";
 import { DEFAULTS, writeSettings, ACTIVITY_KEYS, FIELD_KEYS } from "@/lib/settings";
@@ -104,9 +105,17 @@ function ActivityMatrix({ visible, defaults, onToggleVisible, onToggleDefault, o
 
 // compact: variante per il pannello a comparsa sulla mappa (meno spaziatura,
 // niente "panel" con bordo — vive già dentro il vetro del flyout).
+// Tre gruppi per attinenza invece di una sola lista lunga (era 7 sezioni
+// una sotto l'altra): "generali" (lingua, unità — le prime due che un
+// utente cerca), "aspetto" (tema, sfondo mappa — puramente visivo),
+// "preferenze" (densità elenchi, default meteo/attività — cosa parte
+// acceso). Il reset resta fuori dai tab: è globale, non di una sezione sola.
+const TAB_KEYS = ["generali", "aspetto", "preferenze"];
+
 export default function SettingsFields({ compact = false }) {
   const { settings, setSetting } = useSettings();
   const t = useT();
+  const [tab, setTab] = useState(TAB_KEYS[0]);
 
   const reset = () => {
     writeSettings(DEFAULTS);
@@ -115,106 +124,130 @@ export default function SettingsFields({ compact = false }) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: compact ? 12 : 14 }}>
-      <Section title={t("settings.units")} compact={compact}>
+      <div className="settings-tabbar">
         <ChipGroup
-          labelledBy="units-h"
-          value={settings.units}
-          onChange={(v) => setSetting("units", v)}
+          value={tab}
+          onChange={setTab}
           options={[
-            ["metric", t("settings.units_metric")],
-            ["imperial", t("settings.units_imperial")],
+            ["generali", t("settings.tab_general")],
+            ["aspetto", t("settings.tab_appearance")],
+            ["preferenze", t("settings.tab_preferences")],
           ]}
         />
-      </Section>
+      </div>
 
-      <Section title={t("settings.theme")} compact={compact}>
-        <ChipGroup
-          value={settings.theme}
-          onChange={(v) => setSetting("theme", v)}
-          options={[
-            ["dark", t("settings.theme_dark")],
-            ["light", t("settings.theme_light")],
-            ["bosco", t("settings.theme_bosco")],
-            ["mare", t("settings.theme_mare")],
-            ["system", t("settings.theme_system")],
-          ]}
-        />
-      </Section>
+      {tab === "generali" && (
+        <>
+          <Section title={t("settings.lang")} sub={compact ? null : t("settings.lang_note")} compact={compact}>
+            <ChipGroup
+              value={settings.lang}
+              onChange={(v) => setSetting("lang", v)}
+              options={[
+                ["it", "Italiano"],
+                ["en", "English"],
+              ]}
+            />
+          </Section>
 
-      <Section title={t("settings.map_base")} compact={compact}>
-        <ChipGroup
-          value={settings.mapBase}
-          onChange={(v) => setSetting("mapBase", v)}
-          options={[
-            ["chiaro", t("map.base_chiaro")],
-            ["terreno", t("map.base_terreno")],
-            ["scuro", t("map.base_scuro")],
-          ]}
-        />
-      </Section>
+          <Section title={t("settings.units")} compact={compact}>
+            <ChipGroup
+              labelledBy="units-h"
+              value={settings.units}
+              onChange={(v) => setSetting("units", v)}
+              options={[
+                ["metric", t("settings.units_metric")],
+                ["imperial", t("settings.units_imperial")],
+              ]}
+            />
+          </Section>
+        </>
+      )}
 
-      <Section title={t("settings.lang")} sub={compact ? null : t("settings.lang_note")} compact={compact}>
-        <ChipGroup
-          value={settings.lang}
-          onChange={(v) => setSetting("lang", v)}
-          options={[
-            ["it", "Italiano"],
-            ["en", "English"],
-          ]}
-        />
-      </Section>
+      {tab === "aspetto" && (
+        <>
+          <Section title={t("settings.theme")} compact={compact}>
+            <ChipGroup
+              value={settings.theme}
+              onChange={(v) => setSetting("theme", v)}
+              options={[
+                ["dark", t("settings.theme_dark")],
+                ["light", t("settings.theme_light")],
+                ["bosco", t("settings.theme_bosco")],
+                ["mare", t("settings.theme_mare")],
+                ["system", t("settings.theme_system")],
+              ]}
+            />
+          </Section>
 
-      <Section title={t("settings.density")} compact={compact}>
-        <ChipGroup
-          value={settings.density}
-          onChange={(v) => setSetting("density", v)}
-          options={[
-            ["grid", t("settings.density_grid")],
-            ["list", t("settings.density_list")],
-          ]}
-        />
-      </Section>
+          <Section title={t("settings.map_base")} compact={compact}>
+            <ChipGroup
+              value={settings.mapBase}
+              onChange={(v) => setSetting("mapBase", v)}
+              options={[
+                ["chiaro", t("map.base_chiaro")],
+                ["terreno", t("map.base_terreno")],
+                ["scuro", t("map.base_scuro")],
+              ]}
+            />
+          </Section>
+        </>
+      )}
 
-      <Section title={t("settings.default_fields")} sub={compact ? null : t("settings.default_fields_note")} compact={compact}>
-        <ToggleChipGroup
-          values={settings.defaultFields}
-          onToggle={(key) => {
-            const next = settings.defaultFields.includes(key)
-              ? settings.defaultFields.filter((k) => k !== key)
-              : [...settings.defaultFields, key];
-            setSetting("defaultFields", next);
-          }}
-          options={FIELD_KEYS.map((k) => [k, t(`field.${k}`)])}
-        />
-      </Section>
+      {tab === "preferenze" && (
+        <>
+          <Section title={t("settings.density")} compact={compact}>
+            <ChipGroup
+              value={settings.density}
+              onChange={(v) => setSetting("density", v)}
+              options={[
+                ["grid", t("settings.density_grid")],
+                ["list", t("settings.density_list")],
+              ]}
+            />
+          </Section>
 
-      <Section title={t("settings.map_layers")} sub={compact ? null : t("settings.map_layers_note")} compact={compact}>
-        <ActivityMatrix
-          visible={settings.visibleActivities}
-          defaults={settings.defaultActivities}
-          colVisible={t("settings.col_visible")}
-          colDefault={t("settings.col_default")}
-          onToggleVisible={(key) => {
-            const nowVisible = !settings.visibleActivities.includes(key);
-            const nextVisible = nowVisible
-              ? [...settings.visibleActivities, key]
-              : settings.visibleActivities.filter((k) => k !== key);
-            setSetting("visibleActivities", nextVisible);
-            // Nascondere una voce accesa di default la spegne anche lì —
-            // niente attività "fantasma" accesa senza modo di spegnerla.
-            if (!nowVisible && settings.defaultActivities.includes(key)) {
-              setSetting("defaultActivities", settings.defaultActivities.filter((k) => k !== key));
-            }
-          }}
-          onToggleDefault={(key) => {
-            const next = settings.defaultActivities.includes(key)
-              ? settings.defaultActivities.filter((k) => k !== key)
-              : [...settings.defaultActivities, key];
-            setSetting("defaultActivities", next);
-          }}
-          options={ACTIVITY_KEYS.map((k) => [k, t(`layer.${k}`)])}
-        />
-      </Section>
+          <Section title={t("settings.default_fields")} sub={compact ? null : t("settings.default_fields_note")} compact={compact}>
+            <ToggleChipGroup
+              values={settings.defaultFields}
+              onToggle={(key) => {
+                const next = settings.defaultFields.includes(key)
+                  ? settings.defaultFields.filter((k) => k !== key)
+                  : [...settings.defaultFields, key];
+                setSetting("defaultFields", next);
+              }}
+              options={FIELD_KEYS.map((k) => [k, t(`field.${k}`)])}
+            />
+          </Section>
+
+          <Section title={t("settings.map_layers")} sub={compact ? null : t("settings.map_layers_note")} compact={compact}>
+            <ActivityMatrix
+              visible={settings.visibleActivities}
+              defaults={settings.defaultActivities}
+              colVisible={t("settings.col_visible")}
+              colDefault={t("settings.col_default")}
+              onToggleVisible={(key) => {
+                const nowVisible = !settings.visibleActivities.includes(key);
+                const nextVisible = nowVisible
+                  ? [...settings.visibleActivities, key]
+                  : settings.visibleActivities.filter((k) => k !== key);
+                setSetting("visibleActivities", nextVisible);
+                // Nascondere una voce accesa di default la spegne anche lì —
+                // niente attività "fantasma" accesa senza modo di spegnerla.
+                if (!nowVisible && settings.defaultActivities.includes(key)) {
+                  setSetting("defaultActivities", settings.defaultActivities.filter((k) => k !== key));
+                }
+              }}
+              onToggleDefault={(key) => {
+                const next = settings.defaultActivities.includes(key)
+                  ? settings.defaultActivities.filter((k) => k !== key)
+                  : [...settings.defaultActivities, key];
+                setSetting("defaultActivities", next);
+              }}
+              options={ACTIVITY_KEYS.map((k) => [k, t(`layer.${k}`)])}
+            />
+          </Section>
+        </>
+      )}
 
       <button
         type="button"

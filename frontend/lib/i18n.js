@@ -245,6 +245,9 @@ const it = {
 
   "settings.title": "Impostazioni",
   "settings.sub": "Preferenze del browser: restano su questo dispositivo, non sul tuo account.",
+  "settings.tab_general": "Generali",
+  "settings.tab_appearance": "Aspetto",
+  "settings.tab_preferences": "Preferenze",
   "settings.units": "Unità di misura",
   "settings.units_metric": "Metriche (m, km/h, °C)",
   "settings.units_imperial": "Imperiali (ft, mph, °F)",
@@ -520,6 +523,9 @@ const en = {
 
   "settings.title": "Settings",
   "settings.sub": "Browser preferences: they stay on this device, not on your account.",
+  "settings.tab_general": "General",
+  "settings.tab_appearance": "Appearance",
+  "settings.tab_preferences": "Preferences",
   "settings.units": "Units",
   "settings.units_metric": "Metric (m, km/h, °C)",
   "settings.units_imperial": "Imperial (ft, mph, °F)",

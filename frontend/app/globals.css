@@ -561,13 +561,26 @@ html.flyout-pinned .flyout:not(.expanded):hover .flyout-panel{
 .tool-settings .flyout-panel,
 .tool-info .flyout-panel{left:auto;right:calc(100% + 8px)}
 
-/* livelli — trigger "Attività" in colonna destra, sotto il pannello Meteo
-   (.mapfields: sfondo + trigger Meteo, 87px di altezza + 10px di margine —
-   vedi --navbar-h in :root, stessa logica di mapcta così quando la navbar
-   riappare tutto scende in blocco, coerente). */
-.maprail{position:absolute;right:16px;top:calc(var(--navbar-h) + 113px);z-index:1001;
-  transition:transform .3s ease,opacity .3s ease,top .32s ease}
-html:has(.navbar.chrome-hidden) .maprail{top:113px}
+/* Colonna destra — Meteo, Attività, Strumenti (impostazioni/info/mirino):
+   UN solo contenitore posizionato con gap, non tre elementi ciascuno con
+   un top:Npx a mano (regola 1.6). Prima ogni pannello aveva il proprio
+   offset calcolato sull'altezza ATTESA di quello sopra (es. .maprail
+   presumeva ".mapfields: sfondo + trigger Meteo, 87px" nel commento) — a
+   sfondo mappa rimosso da qui (spostato nelle Impostazioni), .mapfields è
+   tornato a una riga sola ma gli offset sotto sono rimasti agli stessi
+   numeri, aprendo un vuoto tra Meteo e Attività. Un gap risolve la classe
+   intera di bug: si autocorregge qualunque altezza abbiano i figli, ora o
+   in futuro. */
+.map-right-col{position:absolute;right:16px;top:calc(var(--navbar-h) + 16px);
+  z-index:1001;display:flex;flex-direction:column;align-items:flex-end;
+  gap:12px;transition:top .32s ease}
+html:has(.navbar.chrome-hidden) .map-right-col{top:16px}
+
+/* livelli — trigger "Attività", ora un figlio in flusso della colonna
+   (non più position:absolute) — il "salire/scendere" con la navbar e lo
+   scomparire per inattività restano, spostati sul contenitore sopra e su
+   ciascun figlio rispettivamente. */
+.maprail{transition:transform .3s ease,opacity .3s ease}
 /* A scomparsa dopo qualche secondo di inattività (vedi useAutoHide) —
    torna visibile a qualunque interazione sulla pagina/mappa. */
 .maprail.chrome-hidden{transform:translateX(14px);opacity:0;pointer-events:none}
@@ -584,12 +597,10 @@ html:has(.navbar.chrome-hidden) .maprail{top:113px}
 .railbtn.on{background:var(--accent-soft);color:var(--accent-text)}
 .railbtn:disabled{color:var(--faint)}
 
-/* campi meteo — trigger "Meteo" in colonna destra; lo sfondo mappa non è
-   un campo meteo, resta un tap sempre visibile subito sotto. */
-.mapfields{position:absolute;right:16px;top:calc(var(--navbar-h) + 16px);z-index:1001;
-  display:flex;flex-direction:column;gap:8px;align-items:flex-end;
-  transition:transform .3s ease,opacity .3s ease,top .32s ease}
-html:has(.navbar.chrome-hidden) .mapfields{top:16px}
+/* campi meteo — trigger "Meteo", figlio in flusso di .map-right-col (vedi
+   sopra). Lo sfondo mappa non è più qui (spostato nelle Impostazioni). */
+.mapfields{display:flex;flex-direction:column;gap:8px;align-items:flex-end;
+  transition:transform .3s ease,opacity .3s ease}
 .mapfields.chrome-hidden{transform:translateY(-10px);opacity:0;pointer-events:none}
 .segmented{display:flex;gap:4px;padding:5px;border-radius:999px;
   background:var(--glass);border:1px solid var(--line-strong);
@@ -625,10 +636,8 @@ html:has(.navbar.chrome-hidden) .mapfields{top:16px}
 
 /* strumenti — impostazioni/info/mirino, colonna destra sotto Attività:
    stessa logica di comparsa/posizione di rail e campi (vedi sopra). */
-.maptools{position:absolute;right:16px;top:calc(var(--navbar-h) + 161px);z-index:1001;
-  display:flex;flex-direction:column;gap:6px;
-  transition:transform .3s ease,opacity .3s ease,top .32s ease}
-html:has(.navbar.chrome-hidden) .maptools{top:161px}
+.maptools{display:flex;flex-direction:column;gap:6px;
+  transition:transform .3s ease,opacity .3s ease}
 .maptools.chrome-hidden{transform:translateX(14px);opacity:0;pointer-events:none}
 
 /* variante compatta del trigger: solo icona, quadrata invece di pillola —
@@ -638,9 +647,12 @@ html:has(.navbar.chrome-hidden) .maptools{top:161px}
   border-radius:12px;gap:0}
 
 .tool-panel{width:220px}
-/* Impostazioni ha 4 gruppi di chip (unità/tema/lingua/densità) — un filo
-   più largo del pannello info per non far andare a capo i gruppi da 3. */
+/* Impostazioni ha 3 tab (generali/aspetto/preferenze) — un filo più largo
+   del pannello info per non far andare a capo i gruppi da 3. */
 .tool-settings .tool-panel{width:250px}
+/* Riga dei tab delle Impostazioni: un bordo sotto la separa dal resto dei
+   chip (unità, tema…) così non sembra solo un altro gruppo di opzioni. */
+.settings-tabbar{padding-bottom:10px;border-bottom:1px solid var(--line-strong)}
 .tool-note{font-size:12px;line-height:1.55;color:var(--muted)}
 .tool-panel-info p{font-size:12px;line-height:1.55;color:var(--muted)}
 .tool-panel-info p+p{margin-top:10px;font-size:11px;color:var(--faint)}
@@ -778,15 +790,12 @@ html:has(.navbar.chrome-hidden) .mapshell.full .leaflet-top{top:6px}
 @media (max-width:640px){
   .mapcta{left:16px;right:16px}
   /* .mapcta va a capo su due righe sotto i ~640px: tutta la colonna destra
-     (Meteo/Attività/Strumenti) più in basso per non finirci sotto, sia a
-     navbar visibile che nascosta — stessi 97px/145px di distacco del
-     desktop, solo il punto di partenza (.mapfields) si abbassa. */
-  .mapfields{top:calc(var(--navbar-h) + 124px)}
-  html:has(.navbar.chrome-hidden) .mapfields{top:124px}
-  .maprail{top:calc(var(--navbar-h) + 221px)}
-  html:has(.navbar.chrome-hidden) .maprail{top:221px}
-  .maptools{top:calc(var(--navbar-h) + 269px)}
-  html:has(.navbar.chrome-hidden) .maptools{top:269px}
+     (Meteo/Attività/Strumenti, ora un solo .map-right-col) più in basso per
+     non finirci sotto, sia a navbar visibile che nascosta. Un solo override
+     invece di tre — prima ripetuto su ciascun figlio, che è esattamente
+     come la spaziatura è finita fuori sincrono la prima volta. */
+  .map-right-col{top:calc(var(--navbar-h) + 124px)}
+  html:has(.navbar.chrome-hidden) .map-right-col{top:124px}
   .mapdock{left:10px;right:10px;bottom:22px;gap:8px}
   .dock-timeline{flex:1 1 100%}
   .dock-days{flex:1 1 100%}
