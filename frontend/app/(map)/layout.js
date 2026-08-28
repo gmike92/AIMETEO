@@ -6,12 +6,20 @@
 // sempre la stessa istanza, le pagine cambiano solo cosa ci sta sopra
 // (vedi OverlayPanel.js per Itinerari/Falesie/Planner; "/" non ne usa uno,
 // resta la sola barra di ricerca com'era prima).
+import { Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams, usePathname } from "next/navigation";
 import MapView from "../mappa/MapView";
 import { DayStrip, MapSearch } from "../components/MapOverlay";
 
-export default function MapShellLayout({ children }) {
+// useSearchParams() forza il bailout a client-side rendering per chiunque
+// lo chiami, e Next lo tratta come un errore di build (non un semplice
+// warning) se chi lo chiama non è dentro una Suspense — per questo il vero
+// corpo del layout è isolato in MapShellInner, con MapShellLayout che fa
+// solo da confine Suspense. fallback:null va bene qui: la mappa è comunque
+// interattiva solo lato client, non c'è nulla di significativo da
+// prerenderizzare al posto suo.
+function MapShellInner({ children }) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const focusRoute = searchParams.get("route");
@@ -45,5 +53,13 @@ export default function MapShellLayout({ children }) {
       </div>
       {children}
     </MapView>
+  );
+}
+
+export default function MapShellLayout({ children }) {
+  return (
+    <Suspense fallback={null}>
+      <MapShellInner>{children}</MapShellInner>
+    </Suspense>
   );
 }
