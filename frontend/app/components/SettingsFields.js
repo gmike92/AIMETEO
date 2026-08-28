@@ -59,6 +59,30 @@ function ToggleChipGroup({ values, options, onToggle, labelledBy }) {
   );
 }
 
+// Selettore delle 3 categorie in cima al pannello — un segmented control
+// (traccia incassata + pillola sollevata), non un ChipGroup: i chip col
+// riempimento accent sono già il linguaggio delle scelte vere (tema,
+// unità...), e riusarli qui faceva sembrare le categorie un'altra opzione
+// da impostare invece che una navigazione tra gruppi.
+function TabBar({ value, options, onChange }) {
+  return (
+    <div className="settings-tabbar" role="tablist">
+      {options.map(([val, label]) => (
+        <button
+          key={val}
+          type="button"
+          role="tab"
+          aria-selected={value === val}
+          className={`settings-tab ${value === val ? "on" : ""}`}
+          onClick={() => onChange(val)}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 // Attività: due preferenze indipendenti per la stessa lista di 5 voci
 // (quali offrire nel pannello, quali partono già accese) — invece di due
 // ToggleChipGroup separati che ripeterebbero le 5 etichette due volte, UNA
@@ -124,17 +148,15 @@ export default function SettingsFields({ compact = false }) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: compact ? 12 : 14 }}>
-      <div className="settings-tabbar">
-        <ChipGroup
-          value={tab}
-          onChange={setTab}
-          options={[
-            ["generali", t("settings.tab_general")],
-            ["aspetto", t("settings.tab_appearance")],
-            ["preferenze", t("settings.tab_preferences")],
-          ]}
-        />
-      </div>
+      <TabBar
+        value={tab}
+        onChange={setTab}
+        options={[
+          ["generali", t("settings.tab_general")],
+          ["aspetto", t("settings.tab_appearance")],
+          ["preferenze", t("settings.tab_preferences")],
+        ]}
+      />
 
       {tab === "generali" && (
         <>
