@@ -451,6 +451,13 @@ const uvGradient = (() => {
 
 const CLOUD_GRADIENT = "linear-gradient(90deg, rgba(244,240,232,0), rgba(244,240,232,.82))";
 const AURORA_GRADIENT = "linear-gradient(90deg, rgba(60,255,170,0), rgba(60,255,170,.9))";
+// Il radar RainViewer arriva già come tile colorate (nessun valore numerico
+// per pixel, a differenza di temp/UV/nuvole che disegniamo noi): scala
+// statica leggera→intensa nella stessa convenzione blu→verde→giallo→rosso
+// dei radar meteo, come UV/Nuvole/Aurora sopra (anche loro fisse, non
+// ricalcolate sulla vista).
+const RADAR_GRADIENT =
+  "linear-gradient(90deg, #6dd1f7, #34a1e0, #34c759, #ffd60a, #ff9500, #ff3b30, #af52de)";
 
 function popupHtml(area, route) {
   const b = area?.bulletin;
@@ -954,7 +961,20 @@ export default function MapView({
       clearTimeout(S.current.gridTimer);
       clearInterval(S.current.gridRetryTimer);
       S.current.fieldFadeTimers?.forEach(clearTimeout);
-      if (S.current.map) S.current.map.remove();
+      if (S.current.map) {
+        // Leaflet pianifica un setTimeout(250ms) di riserva per completare
+        // un'animazione di zoom in corso (workaround webkit per transitionend
+        // che non parte sempre — leaflet-src.js, _onZoomTransitionEnd) — un
+        // timer crudo, non un event listener, quindi map.remove() qui sotto
+        // non lo annulla. Se scatta DOPO la rimozione trova _mapPane già
+        // smontato e crasha su _getMapPanePos ("_leaflet_pos" di undefined).
+        // Spegnere il flag prima del remove lo fa uscire subito (stesso guard
+        // che la funzione usa già in testa), innocuo perché la mappa sta
+        // comunque per sparire — riproducibile navigando via dalla mappa
+        // (es. Impostazioni) mentre uno zoom è ancora in animazione.
+        S.current.map._animatingZoom = false;
+        S.current.map.remove();
+      }
       S.current = {};
     };
   }, []);
@@ -1604,6 +1624,7 @@ export default function MapView({
     },
     uv && { key: "uv", label: "UV", min: "0", max: "11+", gradient: uvGradient },
     clouds && { key: "clouds", label: "Nuvole", min: "0%", max: "100%", gradient: CLOUD_GRADIENT },
+    radar && { key: "radar", label: "Pioggia", min: "leggera", max: "intensa", gradient: RADAR_GRADIENT },
     aurora && { key: "aurora", label: "Aurora", min: "bassa", max: "alta", gradient: AURORA_GRADIENT },
   ].filter(Boolean);
 
