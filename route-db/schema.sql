@@ -30,7 +30,15 @@ CREATE TYPE difficulty_scale AS ENUM (
   'BSA',    -- ski mountaineering (MS, BS, OS, BSA, OSA)
   'EE_EEA', -- hiking (T, E, EE, EEA)
   'FERRATA',-- ferrata grade (F, PD, D, TD, ED)
-  'CAI'     -- generic CAI difficulty
+  'CAI',    -- generic CAI difficulty (Italian hiking network)
+  'C2C',    -- grade taken verbatim from Camptocamp.org (scripts/import_c2c.py),
+            -- kept as-is rather than remapped into another scale — mixed
+            -- units across activities (ski_rating/hiking_rating/...), see
+            -- RATING_FIELDS in that script.
+  'OSM'     -- grade taken verbatim from an OpenStreetMap difficulty tag with
+            -- no dedicated scale here (mtb:scale, sac_scale, ...), or "n.d."
+            -- when the tag is absent — never inferred (scripts/import_osm_mtb.py,
+            -- import_osm_hiking.py).
 );
 
 -- ─────────────────────────────────────────────────────────────

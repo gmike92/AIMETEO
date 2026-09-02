@@ -3,6 +3,7 @@
 // interactive part (the AI briefing) lives in the BriefingPanel client
 // component. Testo fisso e numeri passano da isole client (T/Measurement)
 // che seguono lingua e unità dei Settings senza perdere il render server.
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { serverFetch, API_BASE } from "@/lib/api";
 import BriefingPanel from "./BriefingPanel";
@@ -11,10 +12,11 @@ import Meteogram from "./Meteogram";
 import RouteWeatherStrip from "./RouteWeatherStrip";
 import OfflineButton from "./OfflineButton";
 import BestWindowCard from "./BestWindowCard";
-import PushButton from "../../components/PushButton";
-import { Icon } from "../../components/WxIcon";
-import T from "../../components/T";
-import Measurement from "../../components/Measurement";
+import PushButton from "@/app/components/PushButton";
+import { Icon } from "@/app/components/WxIcon";
+import T from "@/app/components/T";
+import Measurement from "@/app/components/Measurement";
+import OverlayPanel from "@/app/components/OverlayPanel";
 
 export const revalidate = 300;
 
@@ -66,17 +68,17 @@ export default async function RouteDetail({ params }) {
   const isDemoForecast = !hasRealCoords || forecast?.source === "mock";
 
   return (
-    <div>
-      <a href="/itinerari" className="note"><T k="route.back" /></a>
+    <OverlayPanel>
+      <Link href="/itinerari" className="note"><T k="route.back" /></Link>
       {hasRealCoords && (
         <>
-          <a
+          <Link
             href={`/?route=${encodeURIComponent(params.slug)}`}
             className="note"
             style={{ marginLeft: 16, color: "var(--accent-text)" }}
           >
             <T k="route.see_on_map" />
-          </a>
+          </Link>
           <a
             href={`${API_BASE}/routes/${encodeURIComponent(params.slug)}/gpx`}
             className="note"
@@ -190,6 +192,6 @@ export default async function RouteDetail({ params }) {
       </p>
 
       <p className="disclaimer"><T k="route.disclaimer" /></p>
-    </div>
+    </OverlayPanel>
   );
 }

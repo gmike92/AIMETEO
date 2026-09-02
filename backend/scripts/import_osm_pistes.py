@@ -41,6 +41,21 @@ AREAS = {
     "area-zermatt-ch": (45.95, 7.65, 46.05, 7.85),
     "area-oetztal-at": (46.80, 10.75, 47.05, 11.05),           # Soelden
     "area-zillertal-at": (47.00, 11.70, 47.20, 12.00),         # Mayrhofen
+    # Sci di fondo era quasi assente (8 record su 175) e zero fuori Europa —
+    # mete nordiche note aggiunte per copertura reale, stesso tag piste:type
+    # (convenzione OSM globale, nessun adattamento allo script serve).
+    "area-jotunheimen-no": (61.35, 8.05, 61.75, 8.90),         # NO — culla dello sci nordico
+    "area-lillehammer-no": (61.05, 10.30, 61.20, 10.55),       # NO — sede olimpica 1994
+    "area-hakuba-jp": (36.55, 137.75, 36.85, 137.95),          # JP
+    "area-niseko-jp": (42.75, 140.60, 42.95, 140.75),          # JP
+    "area-lake-placid-us": (44.15, -73.95, 44.35, -73.75),     # US — sede olimpica
+    "area-jackson-hole-us": (43.35, -111.10, 44.05, -110.55),  # US — discesa
+    "area-banff-ca": (51.05, -116.30, 51.55, -115.30),         # CA — Canmore Nordic Centre
+    "area-whistler-ca": (49.95, -123.20, 50.20, -122.80),      # CA — discesa
+    "area-chamonix-fr": (45.86, 6.80, 45.95, 6.95),            # FR — discesa
+    "area-jura-rousses-fr": (46.45, 5.95, 46.60, 6.10),        # FR — cuore dello sci nordico francese
+    "area-feldberg-de": (47.82, 7.95, 47.92, 8.10),            # DE — Foresta Nera, nordico
+    "area-oberstdorf-de": (47.35, 10.25, 47.45, 10.40),        # DE — sede storica combinata nordica
 }
 
 PHASE_LIMIT = 60  #: max elementi per area nella query (--max-per-area li screma dopo)

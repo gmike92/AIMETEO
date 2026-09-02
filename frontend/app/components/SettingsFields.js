@@ -6,7 +6,7 @@
 import { useState } from "react";
 import { useSettings } from "./SettingsProvider";
 import { useT } from "@/lib/i18n";
-import { DEFAULTS, writeSettings, ACTIVITY_KEYS, FIELD_KEYS } from "@/lib/settings";
+import { DEFAULTS, writeSettings, ACTIVITY_KEYS, FIELD_KEYS, ACTIVITY_COLOR_KEYS, COLOR_SWATCHES } from "@/lib/settings";
 
 export function Section({ title, sub, children, compact = false }) {
   return (
@@ -127,6 +127,47 @@ function ActivityMatrix({ visible, defaults, onToggleVisible, onToggleDefault, o
   );
 }
 
+// Colore per attività — invece di una riga (e 10 swatch) per ciascuna delle
+// 7 voci tutte insieme (stessa tavolozza ripetuta 7 volte, molto lungo),
+// UNA sola tavolozza condivisa: un selettore a chip sceglie QUALE attività
+// si sta colorando (fa da "menu a tendina", ma coerente con .chip — niente
+// <select> nativo, vedi la nota su .chip in globals.css), poi sotto compare
+// solo la riga di swatch per quella voce. "Predefinito" (un chip di testo,
+// non un cerchio colorato: il default di "falesie" cambia col tema, un
+// unico swatch fisso non potrebbe rappresentarlo) toglie l'override e torna
+// al colore scelto dall'app.
+function ActivityColorPicker({ colors, onPick, onReset, options, swatches, defaultLabel }) {
+  const [selected, setSelected] = useState(options[0][0]);
+  const current = colors[selected];
+  return (
+    <div className="colorpicker" role="group">
+      <ChipGroup value={selected} options={options} onChange={setSelected} />
+      <div className="colorpicker-swatches">
+        <button
+          type="button"
+          className={`chip colorpicker-default ${!current ? "on" : ""}`}
+          aria-pressed={!current}
+          onClick={() => onReset(selected)}
+        >
+          {defaultLabel}
+        </button>
+        {swatches.map((hex) => (
+          <button
+            key={hex}
+            type="button"
+            className={`colorswatch ${current === hex ? "on" : ""}`}
+            style={{ "--sw": hex }}
+            aria-pressed={current === hex}
+            aria-label={hex}
+            title={hex}
+            onClick={() => onPick(selected, hex)}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // compact: variante per il pannello a comparsa sulla mappa (meno spaziatura,
 // niente "panel" con bordo — vive già dentro il vetro del flyout).
 // Tre gruppi per attinenza invece di una sola lista lunga (era 7 sezioni
@@ -210,6 +251,24 @@ export default function SettingsFields({ compact = false }) {
                 ["terreno", t("map.base_terreno")],
                 ["scuro", t("map.base_scuro")],
               ]}
+            />
+          </Section>
+
+          <Section title={t("settings.activity_colors")} sub={compact ? null : t("settings.activity_colors_note")} compact={compact}>
+            <ActivityColorPicker
+              colors={settings.activityColors}
+              swatches={COLOR_SWATCHES}
+              defaultLabel={t("settings.color_default")}
+              onPick={(key, hex) => setSetting("activityColors", { ...settings.activityColors, [key]: hex })}
+              onReset={(key) => {
+                const next = { ...settings.activityColors };
+                delete next[key];
+                setSetting("activityColors", next);
+              }}
+              options={ACTIVITY_COLOR_KEYS.map((k) => [
+                k,
+                k === "falesie" ? t("layer.fal") : k === "skifondo" ? t("layer.skifondo") : t(`act.${k}`),
+              ])}
             />
           </Section>
         </>

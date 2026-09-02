@@ -136,7 +136,11 @@ function Profile({ points, freezingLevel, slug }) {
   );
 }
 
-export default function RouteCard({ route: r, freezingLevel }) {
+// alwaysDetail: per l'anteprima sulla mappa (vedi RoutePreviewCard in
+// MapView.js) — lì "hasTrack" è sempre vero (la card compare solo cliccando
+// un marker, che esiste solo per itinerari con traccia) ma il link giusto
+// NON è "torna alla mappa" (ci si è già sopra), è la scheda completa.
+export default function RouteCard({ route: r, freezingLevel, alwaysDetail = false }) {
   const t = useT();
   const units = useUnits();
   // Con una traccia reale il link apre la mappa sulla traccia; senza, la scheda.
@@ -145,12 +149,13 @@ export default function RouteCard({ route: r, freezingLevel }) {
   const tempo =
     fmtMin(r.tempi?.totale_min) ||
     (r.tempi?.salita_min != null ? `~${fmtMin(r.tempi.salita_min)}` : null);
+  const href = alwaysDetail
+    ? `/routes/${r.slug}`
+    : hasTrack ? `/?route=${encodeURIComponent(r.slug)}` : `/routes/${r.slug}`;
+  const footerLabel = alwaysDetail || !hasTrack ? t("rcard.go_route") : t("rcard.go_map");
 
   return (
-    <Link
-      className="rcard"
-      href={hasTrack ? `/?route=${encodeURIComponent(r.slug)}` : `/routes/${r.slug}`}
-    >
+    <Link className="rcard" href={href}>
       <div className="rcard-head">
         <div className="rcard-id">
           {/* Attività come kicker testuale: era un'emoji, e un'emoji di
@@ -196,7 +201,7 @@ export default function RouteCard({ route: r, freezingLevel }) {
           {verified && <Icon.Check size={13} />}
           {verified ? t("rcard.verified") : t("rcard.unverified")}
         </span>
-        <span className="go">{hasTrack ? t("rcard.go_map") : t("rcard.go_route")}</span>
+        <span className="go">{footerLabel}</span>
       </div>
     </Link>
   );

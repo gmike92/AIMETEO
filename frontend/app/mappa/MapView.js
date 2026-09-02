@@ -12,6 +12,7 @@ import { FooterLinks } from "@/app/components/SiteFooter";
 import { useSettings } from "@/app/components/SettingsProvider";
 import { ACTIVITY_KEYS } from "@/lib/settings";
 import { MapRail, MapFields, MapTools, MapDock } from "./MapChrome";
+import RouteCard from "@/app/components/RouteCard";
 
 // CARTO ora richiede una chiave (gratuita, 5M richieste/mese) sui suoi
 // raster basemap — senza, i tile arrivano comunque ma con un watermark
@@ -214,6 +215,34 @@ const TEMP_GRADIENT = `linear-gradient(90deg, ${TEMP_STOPS.map(
   ([, c]) => `rgb(${c.join(",")})`
 ).join(",")})`;
 
+// Pendenza da un campo di quote (stessa griglia nx×ny del meteo, così basta
+// UN fetch elevazioni in più per ciclo invece di una griglia dedicata):
+// differenze finite centrate (laterali sui bordi) convertite in metri reali
+// per riga (dx varia con la latitudine, dy no), poi atan(|∇z|) in gradi.
+const M_PER_DEG_LAT = 111320;
+function computeSlopes(elevations, nx, ny, dx, dy, la1) {
+  const dyM = dy * M_PER_DEG_LAT;
+  const slopes = new Array(nx * ny);
+  for (let iy = 0; iy < ny; iy++) {
+    const lat = la1 - iy * dy;
+    const dxM = dx * M_PER_DEG_LAT * Math.cos((lat * Math.PI) / 180);
+    for (let ix = 0; ix < nx; ix++) {
+      const ixL = Math.max(0, ix - 1);
+      const ixR = Math.min(nx - 1, ix + 1);
+      const iyU = Math.max(0, iy - 1); // iy cresce verso sud (la1 - iy*dy): iyU è più a nord
+      const iyD = Math.min(ny - 1, iy + 1);
+      const dzdx = ixR > ixL
+        ? (elevations[iy * nx + ixR] - elevations[iy * nx + ixL]) / ((ixR - ixL) * dxM)
+        : 0;
+      const dzdy = iyD > iyU
+        ? (elevations[iyU * nx + ix] - elevations[iyD * nx + ix]) / ((iyD - iyU) * dyM)
+        : 0;
+      slopes[iy * nx + ix] = (Math.atan(Math.hypot(dzdx, dzdy)) * 180) / Math.PI;
+    }
+  }
+  return slopes;
+}
+
 async function fetchGrid(g) {
   const lats = [];
   const lons = [];
@@ -227,7 +256,15 @@ async function fetchGrid(g) {
   const url =
     `https://api.open-meteo.com/v1/forecast?latitude=${lats.join(",")}&longitude=${lons.join(",")}` +
     `&current=temperature_2m,wind_speed_10m,wind_direction_10m,uv_index,cloud_cover&wind_speed_unit=ms`;
-  const data = await fetch(url).then((r) => r.json());
+  // Stessi punti della griglia meteo, un'altra API Open-Meteo (Copernicus
+  // DEM, globale — niente più tile pregenerati per una sola "area pilota"):
+  // in parallelo con /forecast, non in coda, e mai bloccante se fallisce —
+  // niente pendenza quel giro, il resto della griglia resta valido.
+  const elevUrl = `https://api.open-meteo.com/v1/elevation?latitude=${lats.join(",")}&longitude=${lons.join(",")}`;
+  const [data, elevData] = await Promise.all([
+    fetch(url).then((r) => r.json()),
+    fetch(elevUrl).then((r) => r.json()).catch(() => null),
+  ]);
   const list = Array.isArray(data) ? data : [data];
   if (list.length !== g.nx * g.ny) throw new Error("griglia meteo incompleta");
   const u = [];
@@ -244,6 +281,10 @@ async function fetchGrid(g) {
     uvs.push(p.current.uv_index ?? 0);
     clouds.push(p.current.cloud_cover ?? 0);
   }
+  const elevations = Array.isArray(elevData?.elevation) && elevData.elevation.length === g.nx * g.ny
+    ? elevData.elevation
+    : null;
+  const slopes = elevations ? computeSlopes(elevations, g.nx, g.ny, g.dx, g.dy, g.la1) : null;
   const header = {
     parameterUnit: "m.s-1", parameterCategory: 2, nx: g.nx, ny: g.ny,
     lo1: g.lo1, la1: g.la1, lo2: g.lo2, la2: g.la2,
@@ -254,7 +295,7 @@ async function fetchGrid(g) {
       { header: { ...header, parameterNumber: 2 }, data: u },
       { header: { ...header, parameterNumber: 3 }, data: v },
     ],
-    temps, uvs, clouds, nx: g.nx, ny: g.ny, lo1: g.lo1, la1: g.la1, lo2: g.lo2, la2: g.la2,
+    temps, uvs, clouds, slopes, nx: g.nx, ny: g.ny, lo1: g.lo1, la1: g.la1, lo2: g.lo2, la2: g.la2,
   };
 }
 
@@ -303,6 +344,35 @@ function fieldCanvas(values, nx, ny, colorFn, opts = {}) {
   return blur ? blurredDataUrl(cv, blur) : cv.toDataURL();
 }
 const tempCanvas = (temps, nx, ny) => fieldCanvas(temps, nx, ny, tempColor);
+
+// Pendenza → heatmap: sotto i 30° il punto resta piano/trasparente (si vede
+// solo la mappa), da lì in su le fasce ricalcano esattamente le soglie già
+// annunciate nel titolo del layer (giallo/arancio/rosso/viola) — nessun
+// gradiente continuo perché quelle soglie sono una promessa già fatta
+// all'utente, non solo un'estetica. L'opacità cresce con la pendenza (non
+// solo il colore): è l'effetto "zone ripide mostrate diversamente da quelle
+// piatte" richiesto, non un semplice ricolorare uniforme.
+const SLOPE_STOPS = [
+  [30, [250, 204, 21]],  // giallo
+  [35, [249, 115, 22]],  // arancio
+  [40, [239, 68, 68]],   // rosso
+  [45, [168, 85, 247]],  // viola
+];
+function slopeColor(deg) {
+  for (let i = SLOPE_STOPS.length - 1; i >= 0; i--) {
+    if (deg >= SLOPE_STOPS[i][0]) return SLOPE_STOPS[i][1];
+  }
+  return SLOPE_STOPS[0][1];
+}
+function slopeAlpha(deg) {
+  if (deg < 30) return 0;
+  return Math.min(0.8, 0.4 + (deg - 30) / 40);
+}
+const slopeCanvas = (slopes, nx, ny) =>
+  fieldCanvas(slopes, nx, ny, slopeColor, { alphaFn: slopeAlpha });
+const SLOPE_GRADIENT = `linear-gradient(90deg, ${SLOPE_STOPS.map(
+  ([, c]) => `rgb(${c.join(",")})`
+).join(",")})`;
 
 // Dissolvenza incrociata per i campi meteo (temp/UV/nuvole): al posto dello
 // scatto secco removeLayer+addTo, il nuovo overlay nasce a opacity 0 e sale
@@ -459,27 +529,6 @@ const AURORA_GRADIENT = "linear-gradient(90deg, rgba(60,255,170,0), rgba(60,255,
 const RADAR_GRADIENT =
   "linear-gradient(90deg, #6dd1f7, #34a1e0, #34c759, #ffd60a, #ff9500, #ff3b30, #af52de)";
 
-function popupHtml(area, route) {
-  const b = area?.bulletin;
-  const f = area?.forecast;
-  // Avalanche block only when a bulletin is in force, or when it SHOULD be
-  // verifiable and isn't (safety warning). Off-season: nothing at all.
-  const danger =
-    b?.status === "in_vigore"
-      ? `<div style="margin:7px 0"><span style="background:${DANGER_COLORS[b.danger_level]};color:${dangerInk(b.danger_level)};padding:2px 9px;border-radius:999px;font-weight:700;font-size:12px;font-variant-numeric:tabular-nums">Valanghe ${b.danger_level}/5</span>
-         <a href="${b.source_url}" target="_blank" rel="noopener" style="margin-left:8px;font-size:12px">${b.service} →</a></div>`
-      : b?.status === "non_verificabile"
-      ? `<div style="margin:7px 0;display:flex;align-items:center;gap:6px;color:var(--warn)"><em style="font-size:12px;font-style:normal">${GLYPH.warning} Bollettino valanghe non verificabile — prudenza</em></div>`
-      : "";
-  const meteo = f
-    ? `<div style="margin-top:7px;font-size:12.5px;font-variant-numeric:tabular-nums">0°C <b>${f.freezing_level_m} m</b> · vento ${f.wind_avg_kmh} km/h · temporali ${Math.round(f.thunderstorm_prob * 100)}%${f.source === "mock" ? " <em>(demo)</em>" : ""}</div>`
-    : "";
-  return `<div style="min-width:220px;line-height:1.55">
-    <b style="font-size:14px">${route.name}</b><br/><span style="font-size:12px;opacity:.7">${route.activity} · ${area?.area_name || ""}</span>
-    ${danger}${meteo}
-    <a href="/routes/${route.slug}" style="display:inline-block;margin-top:7px;font-size:13px;font-weight:600">Scheda itinerario →</a>
-  </div>`;
-}
 
 function popupHtmlCrag(c) {
   const sun =
@@ -524,10 +573,36 @@ const PISTE_COLOR = {
   novice: "#22c55e", easy: "#3b82f6", intermediate: "#ef4444",
   advanced: "#111827", expert: "#111827", freeride: "#f97316",
 };
-const NORDIC_COLOR = "#06b6d4";
+const NORDIC_COLOR = "#34d399";
 
-function pisteColor(p) {
-  if (p.kind === "nordic") return NORDIC_COLOR;
+// Colore predefinito per attività — differenzia scialpinismo/alpinismo/
+// via_ferrata/escursionismo, prima tutte lo stesso azzurro (distinguibili
+// solo dal colore-pericolo, quando in vigore). Sovrascrivibile dalle
+// Impostazioni (settings.activityColors, vedi ACTIVITY_COLOR_KEYS in
+// lib/settings.js) — activityColor() guarda prima lì. "falesie" non ha un
+// default qui apposta: segue --marker-crag (varia col tema), un valore
+// fisso lo romperebbe — l'override utente lo scavalca comunque quando c'è.
+const DEFAULT_ACTIVITY_COLORS = {
+  escursionismo: "#38bdf8",
+  scialpinismo: "#818cf8",
+  alpinismo: "#c084fc",
+  via_ferrata: "#fb7185",
+  mtb_alpino: "#f59e0b",
+  skifondo: NORDIC_COLOR,
+};
+
+function activityColor(key, settings) {
+  return settings?.activityColors?.[key] || DEFAULT_ACTIVITY_COLORS[key];
+}
+
+// Solo l'eventuale override, senza fallback — per "falesie", che non ha un
+// colore predefinito in JS (segue --marker-crag, dipendente dal tema).
+function activityColorOverride(key, settings) {
+  return settings?.activityColors?.[key] || null;
+}
+
+function pisteColor(p, settings) {
+  if (p.kind === "nordic") return activityColor("skifondo", settings);
   return PISTE_COLOR[p.difficulty] || "#94a3b8";
 }
 
@@ -572,7 +647,13 @@ export default function MapView({
   const [windRange, setWindRange] = useState(null); // [min,max] m/s nella vista corrente
   const [season, setSeason] = useState(false); // true = a bulletin is in force somewhere
   const [slope, setSlope] = useState(false);
-  const [hasSlope, setHasSlope] = useState(false); // tile generati? (area pilota)
+  const slopeWarnedRef = useRef(false); // un solo avviso per accensione se le quote non arrivano
+  // Anteprima grande di un itinerario/MTB cliccato sulla mappa (sovraimpressione,
+  // non il minuscolo popup Leaflet di prima) — null quando non c'è nulla di
+  // selezionato. "Scheda itinerario" dentro la card porta alla pagina piena
+  // (ora un pannello laterale, vedi app/(map)/routes/[slug]/page.js), non
+  // rimpiazza questa anteprima.
+  const [selectedRoute, setSelectedRoute] = useState(null);
   const [gridVersion, setGridVersion] = useState(0); // bump → ridisegna temp/vento sulla griglia corrente
   const [viewVersion, setViewVersion] = useState(0); // bump → ridisegna layer client-only (giorno/notte), SUBITO su ogni moveend, senza aspettare il fetch meteo
   const [uv, setUv] = useState(false);
@@ -592,6 +673,11 @@ export default function MapView({
   const [showSkifondo, setShowSkifondo] = useState(false);
 
   const { settings, setSetting, ready: settingsReady } = useSettings();
+  // Letto dai closure di lunga vita (iconCreateFunction dei cluster, stringhe
+  // di stile costruite una volta sola alla creazione del layer) che altrimenti
+  // resterebbero legati al valore di `settings` catturato in quel momento —
+  // vedi l'effect di ricolorazione più sotto, che aggiorna anche questi.
+  S.current.settings = settings;
 
   // Sfondo mappa (Chiaro/Terreno/Scuro): niente più uno switch rapido sulla
   // mappa (era il segmented prima del trigger Meteo) — si sceglie dalle
@@ -705,12 +791,6 @@ export default function MapView({
         };
         bases.chiaro.addTo(map);
         S.current = { L, map, bases, radarLayers: {} };
-
-        // Layer pendenze fatto in casa (Copernicus DEM → gdaldem): il toggle
-        // appare solo se i tile sono stati generati (scripts/build_slope_tiles.py).
-        fetch("/tiles/slope/12/2166/1453.png", { method: "HEAD" })
-          .then((r) => !dead && setHasSlope(r.ok))
-          .catch(() => {});
 
         // Riepilogo meteo (striscia giorni): non segue più il pan della
         // mappa (regola di questa modifica — un giro sulla mappa non deve
@@ -832,6 +912,9 @@ export default function MapView({
         // Marker clustering: grouped pins show a count at wide zoom, colored
         // by the worst avalanche danger among the routes they hold, and break
         // apart into individual markers as you zoom in (state-of-the-art map UX).
+        // Sotto pericolo, il colore del cluster segue l'attività SOLO se tutti
+        // i marker che contiene sono della stessa (un blob non può mostrarne
+        // due insieme) — altrimenti resta l'azzurro neutro di prima.
         const clusters = L.markerClusterGroup({
           maxClusterRadius: 55,
           disableClusteringAtZoom: 15,
@@ -840,7 +923,11 @@ export default function MapView({
           iconCreateFunction: (cluster) => {
             const children = cluster.getAllChildMarkers();
             const maxDanger = Math.max(0, ...children.map((c) => c.options.dangerLevel || 0));
-            const color = maxDanger > 0 ? DANGER_COLORS[maxDanger] : "#38bdf8";
+            const activities = new Set(children.map((c) => c.options.activityKey));
+            const sameActivity = activities.size === 1 ? [...activities][0] : null;
+            const color = maxDanger > 0
+              ? DANGER_COLORS[maxDanger]
+              : sameActivity ? activityColor(sameActivity, S.current.settings) : "#38bdf8";
             return L.divIcon({
               className: "",
               html: `<span class="rt-cluster" style="--c:${color}">${cluster.getChildCount()}</span>`,
@@ -859,15 +946,14 @@ export default function MapView({
         // MTB in un gruppo a parte, con un suo pulsante "MTB" nel rail
         // indipendente da "Itinerari": non è un'attività da neve (niente
         // bollettino valanghe, vedi backend/app/safety_filters.py
-        // SNOW_ACTIVITIES), quindi niente colore-pericolo sui marker — un
-        // solo colore fisso, distinto dal blu delle altre attività.
-        const MTB_COLOR = "#f59e0b";
+        // SNOW_ACTIVITIES), quindi niente colore-pericolo sui marker — solo
+        // il suo colore attività (predefinito o personalizzato).
         const mtbClusters = L.markerClusterGroup({
           maxClusterRadius: 55, disableClusteringAtZoom: 15, spiderfyOnMaxZoom: true,
           showCoverageOnHover: false,
           iconCreateFunction: (cluster) => L.divIcon({
             className: "",
-            html: `<span class="rt-cluster" style="--c:${MTB_COLOR}">${cluster.getChildCount()}</span>`,
+            html: `<span class="rt-cluster" style="--c:${activityColor("mtb_alpino", S.current.settings)}">${cluster.getChildCount()}</span>`,
             iconSize: [38, 38], iconAnchor: [19, 19],
           }),
         });
@@ -899,17 +985,22 @@ export default function MapView({
           const isMtb = r.activity === "mtb_alpino";
           const area = byArea[r.area_id];
           // Danger color only when a bulletin is actually in force (MTB has
-          // none to check — not a snow activity).
+          // none to check — not a snow activity) — vince sempre sul colore
+          // attività, è l'informazione più importante delle due.
           const dangerLevel = !isMtb && area?.bulletin?.status === "in_vigore" ? area.bulletin.danger_level : 0;
-          const color = isMtb ? MTB_COLOR : (dangerLevel > 0 ? DANGER_COLORS[dangerLevel] || "#38bdf8" : "#38bdf8");
+          const color = dangerLevel > 0 ? DANGER_COLORS[dangerLevel] || "#38bdf8" : activityColor(r.activity, settings);
           const pts = (detail?.track_points || []).map((p) => [p.lat, p.lon]);
           const tracksGroup = isMtb ? mtbTracks : routeTracks;
+          // Riferimento alla polilinea colorata (non quella d'ombra sotto)
+          // tenuto per il ricolorare-in-diretta più sotto — senza, l'unico
+          // modo per aggiornarla sarebbe ricreare l'intero layer.
+          let line = null;
           if (pts.length > 1) {
             L.polyline(pts, { color: "#0b1722", weight: 5, opacity: 0.25 }).addTo(tracksGroup);
-            L.polyline(pts, { color: "#1272d3", weight: 2.5, opacity: 0.95 }).addTo(tracksGroup);
+            line = L.polyline(pts, { color, weight: 2.5, opacity: 0.95 }).addTo(tracksGroup);
           }
           const m = L.marker([r.start_lat, r.start_lon], {
-            dangerLevel,
+            dangerLevel, activityKey: r.activity,
             icon: L.divIcon({
               className: "",
               html: `<span class="rt-dot" style="--c:${color}"></span>`,
@@ -917,9 +1008,25 @@ export default function MapView({
             }),
           });
           m.bindTooltip(r.name, { direction: "top", offset: [0, -10] });
-          m.bindPopup(popupHtml(area, r));
+          // Anteprima grande (React, sovraimpressione) al posto del vecchio
+          // popup minuscolo — vedi selectedRoute più sopra. `detail` è già
+          // quello che serve a RouteCard, solo l'area va appiattita in
+          // area_name (get_route ritorna un oggetto area annidato, list_routes
+          // invece la stringa piatta che RouteCard si aspetta).
+          const preview = detail
+            ? {
+                ...detail, area_name: detail.area?.name, country: detail.area?.country,
+                // Bollettino/meteo dell'area — RouteCard non li mostra (è la
+                // stessa card della lista Itinerari), l'anteprima sulla mappa
+                // sì: era l'informazione utile del vecchio popup, non va persa.
+                bulletin: area?.bulletin, forecast: area?.forecast,
+              }
+            : null;
+          if (preview) {
+            m.on("click", () => setSelectedRoute(preview));
+          }
           (isMtb ? mtbClusters : clusters).addLayer(m);
-          routeMarkers[r.slug] = { marker: m, pts, isMtb, lat: r.start_lat, lon: r.start_lon, name: r.name };
+          routeMarkers[r.slug] = { marker: m, line, pts, isMtb, lat: r.start_lat, lon: r.start_lon, name: r.name, preview };
         });
         // Initial add matches showRoutes/showMtb defaults; the dedicated
         // effects below (keyed on showRoutes/showMtb) handle it from here on.
@@ -1131,72 +1238,189 @@ export default function MapView({
           .then((r) => (r.ok ? r.json() : []))
           .catch(() => []);
         if (dead) return;
+        // Predefinito: --marker-crag segue il tema (vedi globals.css, un
+        // colore per Scuro/Chiaro/Bosco/Mare) — un override esplicito lo
+        // scavalca con uno stile inline, così vince sulla variabile CSS
+        // ereditata senza dover riscrivere le regole del tema. Letto da
+        // S.current.settings (non `settings` di chiusura) sia qui sia
+        // nell'iconCreateFunction, così un cambio colore resta live anche
+        // se questo layer è stato costruito tempo fa — vedi l'effect di
+        // ricolorazione più sotto, che chiama cragStyleAttr() di nuovo.
+        const cragStyleAttr = () => {
+          const ov = activityColorOverride("falesie", S.current.settings);
+          return ov ? ` style="--marker-crag:${ov};--marker-crag-ink:#04121f"` : "";
+        };
         const group = L.markerClusterGroup({
           maxClusterRadius: 50, disableClusteringAtZoom: 15, showCoverageOnHover: false,
           iconCreateFunction: (cluster) => L.divIcon({
-            className: "", html: `<span class="crag-cluster">${cluster.getChildCount()}</span>`,
+            className: "", html: `<span class="crag-cluster"${cragStyleAttr()}>${cluster.getChildCount()}</span>`,
             iconSize: [34, 34], iconAnchor: [17, 17],
           }),
         });
+        const cragMarkers = [];
         for (const c of crags) {
           if (c.lat == null || c.lon == null) continue;
           const m = L.marker([c.lat, c.lon], {
             icon: L.divIcon({
-              className: "", html: `<span class="crag-dot"></span>`,
+              className: "", html: `<span class="crag-dot"${cragStyleAttr()}></span>`,
               iconSize: [16, 16], iconAnchor: [8, 8], popupAnchor: [0, -8],
             }),
           });
           m.bindTooltip(c.name, { direction: "top", offset: [0, -8] });
           m.bindPopup(popupHtmlCrag(c));
           group.addLayer(m);
+          cragMarkers.push(m);
         }
         S.current.cragsLayer = group;
+        S.current.cragMarkers = cragMarkers;
+        S.current.cragStyleAttr = cragStyleAttr;
       }
       if (!dead) map.addLayer(S.current.cragsLayer);
     })();
     return () => { dead = true; };
   }, [showCrags, ready]);
 
-  // Piste (discesa + fondo): stesso pattern lazy di Falesie — un solo fetch
-  // condiviso da /pistes, split per kind in due layer indipendenti così i
-  // due toggle del rail (Piste/Sci fondo) restano liberi l'uno dall'altro.
+  // Piste (discesa + fondo): stesso accorpamento di Itinerari/MTB/Falesie —
+  // un marker per pista (nel punto medio del tracciato) dentro un
+  // L.markerClusterGroup, così a zoom molto in fuori si vede un unico blob
+  // col conteggio invece di centinaia di linee sovrapposte (l'espansione
+  // internazionale ne porta ben più delle poche decine di prima). Il
+  // tracciato vero resta comunque sempre disegnato, in un layer separato
+  // non raggruppato — stesso schema di routeTracks/mtbTracks. Colore
+  // cluster fisso per kind (blu discesa generico, ciano fondo): un "colore
+  // peggiore vince" come per il pericolo valanghe non avrebbe un ordine
+  // onesto per un grado sci (nero non è "più pericoloso" di rosso, solo una
+  // convenzione di classificazione diversa).
   useEffect(() => {
     const { L, map } = S.current;
     if (!map) return;
     if (!showSki && !showSkifondo) {
-      if (S.current.skiLayer) map.removeLayer(S.current.skiLayer);
-      if (S.current.skifondoLayer) map.removeLayer(S.current.skifondoLayer);
+      [S.current.skiCluster, S.current.skiTracks,
+       S.current.skifondoCluster, S.current.skifondoTracks]
+        .forEach((layer) => layer && map.removeLayer(layer));
       return;
     }
     let dead = false;
     (async () => {
-      if (!S.current.skiLayer || !S.current.skifondoLayer) {
+      if (!S.current.skiCluster) {
         const pistes = await fetch(`${API_BASE}/pistes`)
           .then((r) => (r.ok ? r.json() : []))
           .catch(() => []);
         if (dead) return;
-        const downhill = L.layerGroup();
-        const nordic = L.layerGroup();
+        // getColor() invece di un colore fisso alla creazione: "fondo" è
+        // personalizzabile (S.current.settings letto live), "discesa" resta
+        // sempre blu (convenzione reale, vedi commento sopra) ma la stessa
+        // forma di chiamata evita due percorsi diversi qui sotto.
+        const makeCluster = (getColor) => L.markerClusterGroup({
+          maxClusterRadius: 50, disableClusteringAtZoom: 15, showCoverageOnHover: false,
+          iconCreateFunction: (cluster) => L.divIcon({
+            className: "", html: `<span class="rt-cluster" style="--c:${getColor()}">${cluster.getChildCount()}</span>`,
+            iconSize: [34, 34], iconAnchor: [17, 17],
+          }),
+        });
+        const skiCluster = makeCluster(() => "#3b82f6");
+        const skifondoCluster = makeCluster(() => activityColor("skifondo", S.current.settings));
+        const skiTracks = L.layerGroup();
+        const skifondoTracks = L.layerGroup();
+        // Riferimenti marker+linea per pista, tenuti per il ricolorare-in-
+        // diretta (solo "fondo" è personalizzabile — vedi l'effect sotto).
+        const pisteEntries = [];
         for (const p of pistes) {
           if (!Array.isArray(p.coords) || p.coords.length < 2) continue;
-          const line = L.polyline(p.coords, {
-            color: pisteColor(p), weight: 3, opacity: 0.85,
-          });
+          const color = pisteColor(p, settings);
+          const line = L.polyline(p.coords, { color, weight: 3, opacity: 0.85 });
           line.bindTooltip(p.name, { sticky: true });
           line.bindPopup(popupHtmlPiste(p));
-          (p.kind === "nordic" ? nordic : downhill).addLayer(line);
+          const mid = p.coords[Math.floor(p.coords.length / 2)];
+          const marker = L.marker(mid, {
+            icon: L.divIcon({
+              className: "", html: `<span class="rt-dot" style="--c:${color}"></span>`,
+              iconSize: [18, 18], iconAnchor: [9, 9], popupAnchor: [0, -10],
+            }),
+          });
+          marker.bindTooltip(p.name, { direction: "top", offset: [0, -10] });
+          marker.bindPopup(popupHtmlPiste(p));
+          const isNordic = p.kind === "nordic";
+          (isNordic ? skifondoTracks : skiTracks).addLayer(line);
+          (isNordic ? skifondoCluster : skiCluster).addLayer(marker);
+          if (isNordic) pisteEntries.push({ marker, line });
         }
-        S.current.skiLayer = downhill;
-        S.current.skifondoLayer = nordic;
+        S.current.pisteEntries = pisteEntries;
+        S.current.skiCluster = skiCluster;
+        S.current.skifondoCluster = skifondoCluster;
+        S.current.skiTracks = skiTracks;
+        S.current.skifondoTracks = skifondoTracks;
       }
       if (dead) return;
-      if (showSki) map.addLayer(S.current.skiLayer);
-      else map.removeLayer(S.current.skiLayer);
-      if (showSkifondo) map.addLayer(S.current.skifondoLayer);
-      else map.removeLayer(S.current.skifondoLayer);
+      [S.current.skiCluster, S.current.skiTracks].forEach((layer) => {
+        if (showSki) map.addLayer(layer);
+        else map.removeLayer(layer);
+      });
+      [S.current.skifondoCluster, S.current.skifondoTracks].forEach((layer) => {
+        if (showSkifondo) map.addLayer(layer);
+        else map.removeLayer(layer);
+      });
     })();
     return () => { dead = true; };
   }, [showSki, showSkifondo, ready]);
+
+  // Ricolorazione in diretta: quando l'utente cambia un colore attività in
+  // Impostazioni, l'utente vuole vederlo SUBITO sulla mappa per valutare se
+  // gli piace, non al prossimo caricamento. I layer sopra sono costruiti una
+  // sola volta (mount, o al primo toggle-on) e restano vivi tra le pagine —
+  // qui si aggiornano i marker/tracciati già disegnati invece di ricrearli.
+  // I badge dei cluster si aggiornano da soli: le loro iconCreateFunction
+  // sopra leggono già S.current.settings (mai la `settings` di chiusura),
+  // refreshClusters() le richiama con lo stato attuale.
+  useEffect(() => {
+    const { L, map } = S.current;
+    if (!map || !ready) return;
+    // refreshClusters() presuppone che il gruppo sia già stato aggiunto alla
+    // mappa (onAdd inizializza le strutture interne del plugin) — un layer
+    // spento di default (tutte le attività partono spente) esiste ma non è
+    // ancora "montato": chiamarlo comunque rompe con un TypeError interno.
+    const refresh = (group) => { if (group && map.hasLayer(group)) group.refreshClusters(); };
+
+    const routeMarkers = S.current.routeMarkers || {};
+    for (const slug in routeMarkers) {
+      const entry = routeMarkers[slug];
+      const dangerLevel = entry.marker.options.dangerLevel || 0;
+      const color = dangerLevel > 0
+        ? DANGER_COLORS[dangerLevel] || "#38bdf8"
+        : activityColor(entry.marker.options.activityKey, settings);
+      entry.marker.setIcon(L.divIcon({
+        className: "",
+        html: `<span class="rt-dot" style="--c:${color}"></span>`,
+        iconSize: [18, 18], iconAnchor: [9, 9], popupAnchor: [0, -10],
+      }));
+      entry.line?.setStyle({ color });
+    }
+    refresh(S.current.clusters);
+    refresh(S.current.mtbClusters);
+
+    if (S.current.cragMarkers) {
+      const cragStyle = S.current.cragStyleAttr?.() || "";
+      for (const m of S.current.cragMarkers) {
+        m.setIcon(L.divIcon({
+          className: "", html: `<span class="crag-dot"${cragStyle}></span>`,
+          iconSize: [16, 16], iconAnchor: [8, 8], popupAnchor: [0, -8],
+        }));
+      }
+      refresh(S.current.cragsLayer);
+    }
+
+    if (S.current.pisteEntries) {
+      const color = activityColor("skifondo", settings);
+      for (const { marker, line } of S.current.pisteEntries) {
+        marker.setIcon(L.divIcon({
+          className: "", html: `<span class="rt-dot" style="--c:${color}"></span>`,
+          iconSize: [18, 18], iconAnchor: [9, 9], popupAnchor: [0, -10],
+        }));
+        line.setStyle({ color });
+      }
+      refresh(S.current.skifondoCluster);
+    }
+  }, [settings.activityColors, ready]);
 
   // temperature color field — dissolvenza incrociata, vedi swapFieldOverlay
   useEffect(() => {
@@ -1252,23 +1476,40 @@ export default function MapView({
     }
   }, [clouds, ready, gridVersion]);
 
-  // slope layer fatto in casa (statico, viaggia col frontend: zero dipendenze)
+  // Pendenza: heatmap dinamica sulla vista corrente (Copernicus DEM via
+  // Open-Meteo elevation, stessa griglia del meteo — vedi computeSlopes) al
+  // posto dei tile statici pregenerati per una sola area pilota: funziona
+  // ovunque nel mondo, stesso trattamento (dissolvenza + copie ±360°) di
+  // temp/UV/nuvole.
   useEffect(() => {
-    const { L, map } = S.current;
+    const { L, map, grid } = S.current;
     if (!map) return;
-    if (S.current.slopeLayer) {
-      map.removeLayer(S.current.slopeLayer);
-      S.current.slopeLayer = null;
+    if (!slope) {
+      slopeWarnedRef.current = false;
+      fadeOutFieldOverlay(S, map, "slopeOverlay");
+      return;
     }
-    if (slope) {
-      S.current.slopeLayer = L.tileLayer("/tiles/slope/{z}/{x}/{y}.png", {
-        opacity: 0.62, maxNativeZoom: 15, minZoom: 8,
-        attribution: "pendenze: Copernicus DEM © ESA — elaborazione Zerotermico",
-        errorTileUrl:
-          "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==",
-      }).addTo(map);
+    if (grid?.slopes) {
+      slopeWarnedRef.current = false;
+      swapFieldOverlay(
+        S, map, "slopeOverlay",
+        () => ({
+          url: slopeCanvas(grid.slopes, grid.nx, grid.ny),
+          bounds: [[grid.la2, grid.lo1], [grid.la1, grid.lo2]],
+        }),
+        1
+      );
+    } else if (grid && !slopeWarnedRef.current) {
+      // La griglia meteo è arrivata ma le quote no (tipicamente: quota
+      // giornaliera dell'elevation API di Open-Meteo esaurita, indipendente
+      // da quella oraria del meteo) — un avviso esplicito una volta sola per
+      // accensione, non un fallimento silenzioso: senza, il toggle sembra
+      // rotto invece che "dati momentaneamente non disponibili". Non si
+      // ripete a ogni pan finché resta acceso, altrimenti sarebbe spam.
+      slopeWarnedRef.current = true;
+      showTransientMsg("Pendenze non disponibili al momento (quote non raggiungibili) — riprova più tardi.");
     }
-  }, [slope, ready]);
+  }, [slope, ready, gridVersion]);
 
   // wind particles (color scale adapts to what's beneath)
   useEffect(() => {
@@ -1582,13 +1823,11 @@ export default function MapView({
       key: "mtb", label: "MTB", icon: Icon.Bike, on: showMtb, group: "bici",
       toggle: () => setShowMtb(!showMtb), title: "Itinerari MTB: pin e tracce",
     },
-    ...(hasSlope
-      ? [{
-          key: "slope", label: "Pendenze", icon: Icon.Slope, on: slope, group: "terreno",
-          toggle: () => setSlope(!slope),
-          title: "Pendenze dal DEM Copernicus: giallo ≥30° · arancio ≥35° · rosso ≥40° · viola ≥45° (area pilota)",
-        }]
-      : []),
+    {
+      key: "slope", label: "Pendenze", icon: Icon.Slope, on: slope, group: "terreno",
+      toggle: () => setSlope(!slope),
+      title: "Pendenze dal DEM Copernicus: giallo ≥30° · arancio ≥35° · rosso ≥40° · viola ≥45°",
+    },
     {
       key: "skifondo", label: "Sci fondo", icon: Icon.CrossCountrySki, on: showSkifondo, group: "invernali",
       toggle: () => setShowSkifondo(!showSkifondo), title: "Piste da fondo: geometria reale da OpenStreetMap",
@@ -1626,6 +1865,7 @@ export default function MapView({
     clouds && { key: "clouds", label: "Nuvole", min: "0%", max: "100%", gradient: CLOUD_GRADIENT },
     radar && { key: "radar", label: "Pioggia", min: "leggera", max: "intensa", gradient: RADAR_GRADIENT },
     aurora && { key: "aurora", label: "Aurora", min: "bassa", max: "alta", gradient: AURORA_GRADIENT },
+    slope && { key: "slope", label: "Pendenze", min: "30°", max: "45°+", gradient: SLOPE_GRADIENT },
   ].filter(Boolean);
 
   // La nota del terminatore ("tutta la vista è di giorno") deve poter
@@ -1713,6 +1953,54 @@ export default function MapView({
 
       {/* Legenda, timeline radar e striscia giorni: un solo sistema di layout. */}
       <MapDock legend={legend} radar={radarProps} days={days} />
+
+      {/* Anteprima itinerario/MTB — sovraimpressione grande al posto del
+          vecchio popup Leaflet minuscolo (vedi selectedRoute). "Scheda
+          itinerario" dentro RouteCard porta alla pagina piena, ora un
+          pannello laterale come Itinerari/Pianifica, non una navigazione
+          che smonta la mappa. */}
+      {selectedRoute && (
+        <div className="map-route-preview">
+          <button
+            type="button"
+            className="map-route-preview-close"
+            onClick={() => setSelectedRoute(null)}
+            aria-label="Chiudi anteprima"
+          >
+            ×
+          </button>
+          {(selectedRoute.bulletin?.status === "in_vigore" ||
+            selectedRoute.bulletin?.status === "non_verificabile" ||
+            selectedRoute.forecast) && (
+            <div className="map-route-preview-meteo">
+              {selectedRoute.bulletin?.status === "in_vigore" && (
+                <span
+                  className="map-route-preview-danger tnum"
+                  style={{
+                    background: DANGER_COLORS[selectedRoute.bulletin.danger_level],
+                    color: dangerInk(selectedRoute.bulletin.danger_level),
+                  }}
+                >
+                  Valanghe {selectedRoute.bulletin.danger_level}/5
+                </span>
+              )}
+              {selectedRoute.bulletin?.status === "non_verificabile" && (
+                <span className="map-route-preview-warn">
+                  <Icon.Warning size={13} /> Bollettino non verificabile
+                </span>
+              )}
+              {selectedRoute.forecast && (
+                <span className="map-route-preview-fc tnum">
+                  0°C {selectedRoute.forecast.freezing_level_m} m · vento{" "}
+                  {selectedRoute.forecast.wind_avg_kmh} km/h
+                  {selectedRoute.forecast.source === "mock" ? " (demo)" : ""}
+                </span>
+              )}
+            </div>
+          )}
+          <RouteCard route={selectedRoute} alwaysDetail />
+        </div>
+      )}
 
       {msg && <div className="mapmsg">{msg}</div>}
     </div>

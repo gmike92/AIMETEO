@@ -129,6 +129,11 @@ export default function ConditionsTable({ areas = [], routes = [], sort = "nome"
 
   const inSeason = areas.some((a) => a?.bulletin?.status === "in_vigore");
   const anyDemo = areas.some((a) => a.forecast && a.forecast_is_demo);
+  // Servizi bollettino REALMENTE presenti tra le aree mostrate — mai un
+  // fallback fisso "AINEVA": con l'espansione internazionale molte viste
+  // (es. solo itinerari USA/Giappone) non hanno alcun bollettino ufficiale
+  // integrato, e affermarlo comunque sarebbe un'attribuzione falsa.
+  const bulletinServices = [...new Set(areas.map((a) => a?.bulletin?.service).filter(Boolean))];
   const href = (key) =>
     `/itinerari?${activity ? `activity=${encodeURIComponent(activity)}&` : ""}sort=${key}#condizioni`;
 
@@ -206,7 +211,9 @@ export default function ConditionsTable({ areas = [], routes = [], sort = "nome"
       )}
 
       <p className="ctable-note">
-        {areas[0]?.bulletin?.service || "AINEVA"} / Meteomont {t("conditions.prevails")}
+        {bulletinServices.length > 0
+          ? `${bulletinServices.join(" / ")} ${t("conditions.prevails")}`
+          : t("conditions.prevails_generic")}
         {anyDemo && ` ${t("conditions.demo_note")}`}
       </p>
     </section>

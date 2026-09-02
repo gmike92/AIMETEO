@@ -26,6 +26,27 @@ export const ACTIVITY_KEYS = ["rt", "fal", "mtb", "skifondo", "ski"];
 // qui le Impostazioni decidono solo quali partono già accesi.
 export const FIELD_KEYS = ["temp", "wind", "radar", "uv", "clouds", "sun", "aurora", "lightning"];
 
+// Elementi con un colore personalizzabile sulla mappa — più fine delle 5
+// voci del rail (ACTIVITY_KEYS sopra): "rt" lì è UN pulsante, ma qui le sue
+// 4 attività (scialpinismo/alpinismo/via_ferrata/escursionismo) hanno un
+// colore ciascuna, altrimenti resterebbero indistinguibili tra loro sulla
+// mappa. "ski" (piste da discesa) resta FUORI apposta: quei colori sono la
+// scala alpina standard (verde/blu/rosso/nero), una convenzione reale, non
+// una scelta estetica nostra — l'utente non dovrebbe poterla rompere.
+export const ACTIVITY_COLOR_KEYS = [
+  "scialpinismo", "alpinismo", "via_ferrata", "escursionismo", "mtb_alpino", "falesie", "skifondo",
+];
+
+// Tavolozza offerta per ogni elemento — apposta un set CURATO (chip da
+// scegliere), non un color picker libero: tutte scelte per restare leggibili
+// col testo scuro fisso dei badge cluster (#04121f), come i colori già
+// esistenti (pericolo valanghe, MTB, sci di fondo) — niente calcolo di
+// contrasto in più da fare in JS.
+export const COLOR_SWATCHES = [
+  "#38bdf8", "#818cf8", "#c084fc", "#f472b6", "#fb7185",
+  "#f59e0b", "#eab308", "#34d399", "#06b6d4", "#94a3b8",
+];
+
 export const DEFAULTS = Object.freeze({
   units: "metric", // metric | imperial
   theme: "dark", // dark | light | bosco | mare | system
@@ -42,6 +63,11 @@ export const DEFAULTS = Object.freeze({
   // mappa all'avvio parte "pulita", non con una scelta implicita nostra.
   defaultFields: [], // campi meteo già accesi all'avvio dell'app
   defaultActivities: [], // attività già accese all'avvio dell'app
+  // chiave attività -> hex scelto dall'utente (una di COLOR_SWATCHES).
+  // Assente/non impostata = colore predefinito dell'app per quell'attività
+  // (vedi DEFAULT_ACTIVITY_COLORS in MapView.js) — mai un default già
+  // scritto qui, altrimenti "torna al predefinito" non avrebbe più senso.
+  activityColors: {},
 });
 
 const VALID = {
@@ -83,6 +109,18 @@ export function readSettings() {
     // sarebbe attiva sulla mappa senza modo di spegnerla dal pannello —
     // "nascosta" vince sempre su "accesa di default".
     out.defaultActivities = out.defaultActivities.filter((k) => out.visibleActivities.includes(k));
+    // Oggetto, non un array: si tengono solo le chiavi ancora note con un
+    // valore ancora tra le tavolozze offerte — un vecchio swatch rimosso da
+    // COLOR_SWATCHES non deve sopravvivere come colore "fantasma".
+    if (parsed?.activityColors && typeof parsed.activityColors === "object") {
+      const knownKeys = new Set(ACTIVITY_COLOR_KEYS);
+      const knownColors = new Set(COLOR_SWATCHES);
+      out.activityColors = Object.fromEntries(
+        Object.entries(parsed.activityColors).filter(
+          ([k, v]) => knownKeys.has(k) && knownColors.has(v)
+        )
+      );
+    }
     return out;
   } catch {
     return { ...DEFAULTS };

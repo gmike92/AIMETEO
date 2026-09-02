@@ -17,12 +17,14 @@ import { Icon } from "./WxIcon";
 // app/(map)/layout.js): la navbar ci si comporta come sulla mappa pura
 // (overlay flottante a scomparsa), non come una pagina normale col proprio
 // scroll — il contenuto qui è un pannello, la mappa resta sempre sotto.
+// "/routes/..." è dinamico (uno slug per itinerario) quindi non entra nel
+// Set a valori fissi — controllato a parte con startsWith.
 const MAP_SHELL_PATHS = new Set(["/", "/itinerari", "/falesie", "/planner"]);
 
 export default function SiteNav() {
   const pathname = usePathname();
   const router = useRouter();
-  const immersive = MAP_SHELL_PATHS.has(pathname);
+  const immersive = MAP_SHELL_PATHS.has(pathname) || pathname.startsWith("/routes/");
   const { hidden, onMouseEnter, onMouseLeave, onFocus, onBlur } = useTopEdgeAutoHide(immersive);
 
   return (

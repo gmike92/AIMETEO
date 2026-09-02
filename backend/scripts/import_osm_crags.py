@@ -65,6 +65,54 @@ AREAS = {
     "area-etna": (37.65, 14.95, 37.85, 15.15),
     "area-san-vito-lo-capo": (38.15, 12.70, 38.22, 12.80),
     "area-costiera-amalfitana": (40.60, 14.48, 40.68, 14.68),
+    # Espansione internazionale (falesie note, tag sport=climbing globale) —
+    # bbox (s, w, n, e).
+    "area-yosemite-us": (37.50, -119.90, 38.05, -119.15),
+    "area-zion-us": (37.10, -113.10, 37.45, -112.75),
+    "area-jotunheimen-no": (61.35, 8.05, 61.75, 8.90),
+    "area-lofoten-no": (67.85, 12.80, 68.35, 15.30),
+    "area-banff-ca": (51.05, -116.30, 51.55, -115.30),
+    "area-queenstown-nz": (-45.15, 168.55, -44.85, 168.90),
+    "area-hakuba-jp": (36.55, 137.75, 36.85, 137.95),
+}
+
+#: area_id -> (country ISO2, region). Assente da questo script finora (le 258
+#: falesie IT/FR esistenti hanno country/region da un backfill manuale
+#: one-off, vedi commit b3b4dcc) — da qui in poi ogni nuova falesia importata
+#: lo porta già, senza passaggi a parte.
+AREA_META: dict[str, tuple[str, str]] = {
+    "area-ortles-cevedale": ("IT", "Trentino-Alto Adige"),
+    "area-dolomiti-fassa": ("IT", "Trentino-Alto Adige"),
+    "area-gran-paradiso": ("IT", "Valle d'Aosta"),
+    "area-dolomiti-ampezzo": ("IT", "Veneto"),
+    "area-orobie": ("IT", "Lombardia"),
+    "area-alta-valcamonica": ("IT", "Lombardia"),
+    "area-gran-sasso": ("IT", "Abruzzo"),
+    "area-majella": ("IT", "Abruzzo"),
+    "area-sibillini": ("IT", "Marche"),
+    "area-ecrins": ("FR", "Hautes-Alpes"),
+    "area-vanoise": ("FR", "Savoie"),
+    "area-mont-blanc-fr": ("FR", "Haute-Savoie"),
+    "area-alpi-giulie": ("IT", "Friuli-Venezia Giulia"),
+    "area-grigna-resegone": ("IT", "Lombardia"),
+    "area-alpi-marittime": ("IT", "Piemonte"),
+    "area-monte-rosa-it": ("IT", "Piemonte"),
+    "area-adamello-presanella": ("IT", "Trentino-Alto Adige"),
+    "area-apuane": ("IT", "Toscana"),
+    "area-pollino": ("IT", "Calabria"),
+    "area-finale-ligure": ("IT", "Liguria"),
+    "area-sardegna-iglesiente": ("IT", "Sardegna"),
+    "area-sardegna-supramonte": ("IT", "Sardegna"),
+    "area-etna": ("IT", "Sicilia"),
+    "area-san-vito-lo-capo": ("IT", "Sicilia"),
+    "area-costiera-amalfitana": ("IT", "Campania"),
+    "area-yosemite-us": ("US", "California"),
+    "area-zion-us": ("US", "Utah"),
+    "area-jotunheimen-no": ("NO", "Innlandet"),
+    "area-lofoten-no": ("NO", "Nordland"),
+    "area-banff-ca": ("CA", "Alberta"),
+    "area-queenstown-nz": ("NZ", "Otago"),
+    "area-hakuba-jp": ("JP", "Nagano"),
 }
 
 VALID_ASPECTS = {"N", "NE", "E", "SE", "S", "SW", "W", "NW"}
@@ -183,9 +231,11 @@ def main() -> None:
                 ele = round(float(tags.get("ele", "").replace("m", "").strip()))
             except (ValueError, AttributeError):
                 pass
+            country, region = AREA_META.get(area_id, (None, None))
             crag = {
                 "slug": slug, "name": name,
                 "area_id": area_id,
+                "country": country, "region": region,
                 "lat": round(float(lat), 6), "lon": round(float(lon), 6),
                 "ele_m": ele,  # None → riempito dal DEM sotto
                 "aspect": normalize_aspect(tags.get("climbing:orientation")),

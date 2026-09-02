@@ -16,7 +16,7 @@ import { useEffect, useState } from "react";
 import { fmtNum } from "@/lib/fmt";
 import { useT } from "@/lib/i18n";
 import { useUnits } from "@/lib/units";
-import { useSettings } from "../../components/SettingsProvider";
+import { useSettings } from "@/app/components/SettingsProvider";
 
 const W = 720, H = 260, L = 54, R = 18, TOP = 18, B = 46;
 const PLOT_H = H - TOP - B;

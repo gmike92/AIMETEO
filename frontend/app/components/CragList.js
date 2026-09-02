@@ -15,10 +15,19 @@ import { useT } from "@/lib/i18n";
 import { useUnits } from "@/lib/units";
 import { useSettings } from "./SettingsProvider";
 
-function fmt(iso, lang) {
+// L'ora locale VERA della falesia richiederebbe un lookup geografico
+// fuso-orario↔confini politici che non abbiamo (e sarebbe una dipendenza
+// pesante per una sola stringa d'orario) — "Europe/Rome" fisso era corretto
+// solo finché tutte le falesie erano italiane/francesi. Con l'espansione
+// internazionale si stima il fuso dalla longitudine (15°/ora, arrotondato),
+// niente DST/confini politici ma molto più vicino al vero per una falesia
+// in California o Giappone che un fuso italiano fisso.
+function fmt(iso, lang, lon) {
   if (!iso) return "—";
-  return new Date(iso).toLocaleTimeString(lang === "en" ? "en-GB" : "it-IT", {
-    hour: "2-digit", minute: "2-digit", timeZone: "Europe/Rome",
+  const offsetH = lon != null ? Math.round(lon / 15) : 1;
+  const shifted = new Date(new Date(iso).getTime() + offsetH * 3600000);
+  return shifted.toLocaleTimeString(lang === "en" ? "en-GB" : "it-IT", {
+    hour: "2-digit", minute: "2-digit", timeZone: "UTC",
   });
 }
 
@@ -53,7 +62,7 @@ function CragCard({ c, lang }) {
           {c.finestre_sole.map((w, i) => (
             <span key={i}>
               {i > 0 && " · "}
-              {fmt(w.dalle, lang)}–{fmt(w.alle, lang)}
+              {fmt(w.dalle, lang, c.lon)}–{fmt(w.alle, lang, c.lon)}
             </span>
           ))}
         </p>

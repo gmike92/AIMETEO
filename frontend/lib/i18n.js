@@ -34,7 +34,7 @@ const it = {
     "Copernicus DEM © ESA (30 m, indicative: la risoluzione non vede canali e rocce — " +
     "la valutazione del terreno resta tua).",
 
-  "itinerari.eyebrow": "Italia-first · per la montagna",
+  "itinerari.eyebrow": "Dalle Alpi al mondo · per la montagna",
   "itinerari.h1_a": "Itinerari e",
   "itinerari.h1_em": "condizioni",
   "itinerari.sub":
@@ -72,6 +72,9 @@ const it = {
   "conditions.unverifiable": "non verif.",
   "conditions.demo_note": "Meteo dimostrativo: nessuna chiave API configurata.",
   "conditions.prevails": "prevale sempre. Supporto alla decisione, non una raccomandazione.",
+  "conditions.prevails_generic":
+    "Nessun bollettino ufficiale ancora integrato per quest'area. Supporto alla " +
+    "decisione, non una raccomandazione: verifica sempre una fonte locale ufficiale.",
   "danger.1": "Debole",
   "danger.2": "Moderato",
   "danger.3": "Marcato",
@@ -283,6 +286,11 @@ const it = {
     "partono già accesi all'avvio.",
   "settings.col_visible": "Visibile",
   "settings.col_default": "All'avvio",
+  "settings.activity_colors": "Colori attività",
+  "settings.activity_colors_note":
+    "Scegli l'attività, poi il colore per i suoi pin e tracciati sulla mappa: " +
+    "il cambio si vede subito, così puoi valutarlo prima di tenerlo.",
+  "settings.color_default": "Predefinito",
   "layer.rt": "Itinerari",
   "layer.fal": "Falesie",
   "layer.mtb": "MTB",
@@ -314,7 +322,7 @@ const en = {
     "(30 m, indicative: the resolution can't see gullies and rock bands — terrain " +
     "assessment is still yours).",
 
-  "itinerari.eyebrow": "Italy-first · for the mountains",
+  "itinerari.eyebrow": "From the Alps to the world · for the mountains",
   "itinerari.h1_a": "Routes and",
   "itinerari.h1_em": "conditions",
   "itinerari.sub":
@@ -350,6 +358,9 @@ const en = {
   "conditions.unverifiable": "unverif.",
   "conditions.demo_note": "Demo weather: no API key configured.",
   "conditions.prevails": "always prevails. Decision support, not a recommendation.",
+  "conditions.prevails_generic":
+    "No official bulletin integrated yet for this area. Decision support, not a " +
+    "recommendation: always check a local official source.",
   "danger.1": "Low",
   "danger.2": "Moderate",
   "danger.3": "Considerable",
@@ -561,6 +572,11 @@ const en = {
     "start already on at launch.",
   "settings.col_visible": "Visible",
   "settings.col_default": "At launch",
+  "settings.activity_colors": "Activity colors",
+  "settings.activity_colors_note":
+    "Pick the activity, then the color for its pins and tracks on the map: " +
+    "the change shows up right away, so you can judge it before keeping it.",
+  "settings.color_default": "Default",
   "layer.rt": "Routes",
   "layer.fal": "Crags",
   "layer.mtb": "MTB",
