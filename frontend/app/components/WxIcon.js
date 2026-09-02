@@ -123,6 +123,34 @@ const Bolt = (p) => (
   </Glyph>
 );
 
+// Temperatura — sagoma da termometro reale (stelo + bulbo), non un numero:
+// coerente con le altre icone "campo meteo" che restano forme, mai testo.
+const Thermometer = (p) => (
+  <Glyph {...p}>
+    <rect x="10.2" y="3.5" width="3.6" height="11" rx="1.8" />
+    <circle cx="12" cy="17.5" r="3.1" />
+    <path d="M12 8v7" />
+  </Glyph>
+);
+
+// UV — arco + raggi invece del cerchio pieno di Sun: un indice/misuratore,
+// non "che tempo fa adesso", così le due si distinguono a colpo d'occhio.
+const Uv = (p) => (
+  <Glyph {...p}>
+    <path d="M4.5 16.5a7.5 7.5 0 0 1 15 0" />
+    <path d="M12 4v3.4M6.3 7.3l1.8 1.8M17.7 7.3l-1.8 1.8" />
+  </Glyph>
+);
+
+// Aurora — due nastri ondulati sovrapposti, la sagoma comune per l'aurora
+// boreale, invece di un colore da solo che non reggerebbe a stroke/fill fissi.
+const Aurora = (p) => (
+  <Glyph {...p}>
+    <path d="M3 16c1.8-3 3.6 3 5.4 0s3.6 3 5.4 0 3.6 3 5.4 0" />
+    <path d="M3 11c1.8-3 3.6 3 5.4 0s3.6 3 5.4 0 3.6 3 5.4 0" opacity=".55" />
+  </Glyph>
+);
+
 // ── stato / azioni ─────────────────────────────────────────────────
 const Check = (p) => (
   <Glyph {...p}>
@@ -306,7 +334,7 @@ const ArrowLeft = (p) => (
 
 export const Icon = {
   Sun, PartlyCloudy, Cloud, Rain, Storm, Snow,
-  Freezing, Wind, Drop, Moon, Bolt,
+  Freezing, Wind, Drop, Moon, Bolt, Thermometer, Uv, Aurora,
   Settings, Info, Crosshair,
   Check, Warning, Blocked, Compass, Bell, Search, Download,
   Play, Pause, Cycle,

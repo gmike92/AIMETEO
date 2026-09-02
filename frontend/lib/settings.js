@@ -26,6 +26,14 @@ export const ACTIVITY_KEYS = ["rt", "fal", "mtb", "skifondo", "ski"];
 // qui le Impostazioni decidono solo quali partono già accesi.
 export const FIELD_KEYS = ["temp", "wind", "radar", "uv", "clouds", "sun", "aurora", "lightning"];
 
+// I tre pulsanti rapidi accanto alla ricerca, sopra la mappa (Itinerari/
+// Falesie/Pianifica gita — vedi .mapcta in app/(map)/layout.js): aprono lo
+// stesso pannello del corrispondente in alto in SiteNav, sono solo una
+// scorciatoia. Nascondibili dalle Impostazioni come le attività del rail
+// (visibleActivities sopra) — stesso principio, "quali offrire" non "quali
+// sono accesi", qui non c'è nemmeno uno stato acceso/spento da preservare.
+export const MAP_CTA_KEYS = ["itinerari", "falesie", "planner"];
+
 // Elementi con un colore personalizzabile sulla mappa — più fine delle 5
 // voci del rail (ACTIVITY_KEYS sopra): "rt" lì è UN pulsante, ma qui le sue
 // 4 attività (scialpinismo/alpinismo/via_ferrata/escursionismo) hanno un
@@ -36,6 +44,24 @@ export const FIELD_KEYS = ["temp", "wind", "radar", "uv", "clouds", "sun", "auro
 export const ACTIVITY_COLOR_KEYS = [
   "scialpinismo", "alpinismo", "via_ferrata", "escursionismo", "mtb_alpino", "falesie", "skifondo",
 ];
+
+// Colore predefinito per attività — unica fonte, condivisa tra la mappa
+// (MapView.js, dove colora davvero i pin) e le Impostazioni (mostra il
+// colore vero nel chip "Predefinito" di ActivityColorPicker, invece di un
+// chip di solo testo). Differenzia scialpinismo/alpinismo/via_ferrata/
+// escursionismo, prima tutti lo stesso azzurro. Sovrascrivibile da
+// settings.activityColors — questo resta il valore a cui "Predefinito"
+// riporta. "falesie" non ha voce qui apposta: segue --marker-crag (varia
+// col tema), un hex fisso lo romperebbe — i chiamanti usano quel token
+// direttamente per lei.
+export const DEFAULT_ACTIVITY_COLORS = {
+  escursionismo: "#38bdf8",
+  scialpinismo: "#818cf8",
+  alpinismo: "#c084fc",
+  via_ferrata: "#fb7185",
+  mtb_alpino: "#f59e0b",
+  skifondo: "#34d399",
+};
 
 // Tavolozza offerta per ogni elemento — apposta un set CURATO (chip da
 // scegliere), non un color picker libero: tutte scelte per restare leggibili
@@ -55,6 +81,7 @@ export const DEFAULTS = Object.freeze({
   // macchina senza dirlo all'utente).
   density: "grid", // grid | list — solo per gli elenchi (itinerari, falesie)
   visibleActivities: ACTIVITY_KEYS, // quali voci del rail Attività mostrare
+  visibleMapCta: MAP_CTA_KEYS, // quali pulsanti rapidi mostrare (Itinerari/Falesie/Pianifica gita)
   mapBase: "chiaro", // chiaro | terreno | scuro — sfondo della mappa; scelto
   // qui invece che con uno switch rapido sulla mappa, l'ultimo scelto resta
   // il default per la prossima apertura (nessuna distinzione "ora" / "di
@@ -96,6 +123,10 @@ export function readSettings() {
     if (Array.isArray(parsed?.visibleActivities)) {
       const known = new Set(ACTIVITY_KEYS);
       out.visibleActivities = parsed.visibleActivities.filter((k) => known.has(k));
+    }
+    if (Array.isArray(parsed?.visibleMapCta)) {
+      const known = new Set(MAP_CTA_KEYS);
+      out.visibleMapCta = parsed.visibleMapCta.filter((k) => known.has(k));
     }
     if (Array.isArray(parsed?.defaultFields)) {
       const known = new Set(FIELD_KEYS);

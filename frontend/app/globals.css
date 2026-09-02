@@ -7,6 +7,13 @@
   --ink:#f2f7fb; --muted:#8fa5b8; --faint:#5c7186;
   --accent:#38bdf8; --accent-soft:rgba(56,189,248,.12);
   --accent2:#5eead4;
+  /* Gradiente di quota (BRAND_ZEROTERMICO.md §4, confermato 2 set 2026):
+     ambra a bassa quota → ciano → ghiaccio in vetta, "un colore = una
+     quota, ovunque". Va sempre mappato in userSpaceOnUse sulla fascia di
+     quota disegnata, mai su objectBoundingBox — altrimenti la stessa
+     tinta cambierebbe quota da una card all'altra. */
+  --ele-low:#f5b544; --ele-mid:#38bdf8; --ele-high:#e2f4ff;
+  --ramp-ele:linear-gradient(90deg,var(--ele-low),var(--ele-mid),var(--ele-high));
   --line:rgba(148,180,208,.14); --line-strong:rgba(148,180,208,.28);
   --card:rgba(255,255,255,.03); --card-hover:rgba(56,189,248,.05);
   --warn:#fbbf24; --danger:#fb7185;
@@ -61,6 +68,12 @@
   --card:rgba(11,23,34,.025); --card-hover:rgba(56,189,248,.07);
   --glass:rgba(255,255,255,.78);
   --shadow:0 10px 30px rgba(15,35,55,.10);
+  /* Sullo sfondo chiaro il fermo "ghiaccio" diventa un blu pallido, non
+     quasi bianco: su questo fondo sparirebbe. --ramp-ele va ridichiarato
+     qui perché sostituisce i suoi var() dove è dichiarato — quello di
+     :root conserverebbe altrimenti gli stop scuri. */
+  --ele-low:#d98324; --ele-mid:#0284c7; --ele-high:#5b8fa8;
+  --ramp-ele:linear-gradient(90deg,var(--ele-low),var(--ele-mid),var(--ele-high));
   /* varianti scurite della stessa tinta (non un colore nuovo) — leggibili
      come testo su fondo quasi bianco: contrasto ≥ 5:1 verificato. */
   --accent-text:#0369a1; --accent2-text:#0f766e;
@@ -93,6 +106,10 @@
   --shadow:0 10px 40px rgba(3,8,4,.5);
   --accent-text:var(--accent); --accent2-text:var(--accent2);
   --warn-text:var(--warn); --danger-text:var(--danger);
+  /* --ramp-ele ridichiarato qui: sostituisce i suoi var() dove è
+     dichiarato, quindi quello di :root conserverebbe gli stop scuri. */
+  --ele-low:#d9a25a; --ele-mid:#84cc16; --ele-high:#e8f3d4;
+  --ramp-ele:linear-gradient(90deg,var(--ele-low),var(--ele-mid),var(--ele-high));
 
   /* Skin marker bosco: tan/legno/verde foresta/oliva — terra e sottobosco. */
   --marker-home:#d9b382; --marker-home-ink:#04121f;
@@ -118,6 +135,10 @@
   --shadow:0 10px 30px rgba(10,50,65,.10);
   --accent-text:#0e7490; --accent2-text:#8a5a20;
   --warn-text:#b45309; --danger-text:#be123c;
+  /* Come il tema chiaro: "ghiaccio" diventa blu pallido, non quasi
+     bianco. --ramp-ele ridichiarato per lo stesso motivo degli altri temi. */
+  --ele-low:#c98a3c; --ele-mid:#0e7490; --ele-high:#4f93a5;
+  --ramp-ele:linear-gradient(90deg,var(--ele-low),var(--ele-mid),var(--ele-high));
 
   /* Skin marker mare: sabbia/blu profondo/acqua/verde smeraldo — spiaggia e onde. */
   --marker-home:#e9d8a6; --marker-home-ink:#04121f;
@@ -587,7 +608,7 @@ html.flyout-pinned .flyout:not(.expanded):hover .flyout-panel{
    uno shrink-to-fit su un solo offset assoluto con dentro un figlio
    flex-wrap è ambiguo nei motori di rendering e collassava a una singola
    colonna invece di andare a capo su più righe. */
-.mapfields-flyout .flyout-panel{left:auto;right:calc(100% + 8px);width:264px}
+.mapfields-flyout .flyout-panel{left:auto;right:calc(100% + 8px)}
 /* Attività e strumenti sono ora anche loro nella colonna di destra (sotto
    Meteo): stesso motivo di sopra, il pannello si apre verso sinistra. */
 .maprail .flyout-panel,
@@ -629,6 +650,45 @@ html:has(.navbar.chrome-hidden) .map-right-col{top:16px}
 .railbtn:active:not(:disabled){transform:translateY(1px)}
 .railbtn.on{background:var(--accent-soft);color:var(--accent-text)}
 .railbtn:disabled{color:var(--faint)}
+/* Attività con un vero colore proprio sulla mappa (Falesie, MTB, Sci di
+   fondo — vedi `color` in MapView.js, letto da activityColor()/
+   --marker-crag, quindi già coerente col tema e con l'eventuale override
+   utente) si evidenziano in QUEL colore da accese, non nell'accento neutro
+   di .railbtn.on sopra — stesso principio delle tinte per campo di Meteo
+   qui sotto. color-mix() invece di una tinta pre-calcolata: --rail-c qui
+   arriva a runtime (hex o var(--marker-crag)), non è un set fisso di otto
+   valori noti in anticipo come per Meteo. */
+.railbtn.on.tinted{
+  background:color-mix(in srgb, var(--rail-c) 16%, transparent);
+  color:var(--rail-c);
+}
+/* Palette per campo meteo (v-temp…v-lightning) — stessa dei .segbtn di
+   prima quando "Meteo" era una griglia di pillole, qui una tinta morbida +
+   colore testo/icona invece del riempimento pieno: un chip pieno ha senso
+   per un controllo isolato, una voce di lista con icona no. Restano tinte
+   nette e diverse tra loro perché con più campi accesi insieme uno solo
+   colore (l'accent di .railbtn.on sopra) li renderebbe indistinguibili. */
+.railbtn.on.v-temp{background:rgba(251,113,133,.16);color:#fb7185}
+.railbtn.on.v-wind{background:rgba(245,158,11,.16);color:#f59e0b}
+.railbtn.on.v-radar{background:rgba(56,189,248,.16);color:#38bdf8}
+.railbtn.on.v-uv{background:rgba(168,85,247,.16);color:#a855f7}
+.railbtn.on.v-clouds{background:rgba(148,163,184,.16);color:#94a3b8}
+/* Palette per campo meteo (v-temp…v-lightning) — stessa dei .segbtn di
+   prima quando "Meteo" era una griglia di pillole, qui una tinta morbida +
+   colore testo/icona invece del riempimento pieno: un chip pieno ha senso
+   per un controllo isolato, una voce di lista con icona no. Restano tinte
+   nette e diverse tra loro perché con più campi accesi insieme uno solo
+   colore (l'accent di .railbtn.on sopra) li renderebbe indistinguibili. */
+.railbtn.on.v-temp{background:rgba(251,113,133,.16);color:#fb7185}
+.railbtn.on.v-wind{background:rgba(245,158,11,.16);color:#f59e0b}
+.railbtn.on.v-radar{background:rgba(56,189,248,.16);color:#38bdf8}
+.railbtn.on.v-uv{background:rgba(168,85,247,.16);color:#a855f7}
+.railbtn.on.v-clouds{background:rgba(148,163,184,.16);color:#94a3b8}
+.railbtn.on.v-sun{background:rgba(253,224,71,.16);color:#fde047}
+.railbtn.on.v-aurora{background:rgba(52,211,153,.16);color:#34d399}
+.railbtn.on.v-lightning{background:rgba(244,114,182,.16);color:#f472b6}
+.railbtn .railtag{font-size:7.5px;font-weight:800;letter-spacing:.4px;
+  text-transform:uppercase;opacity:.7;font-style:normal;margin-left:3px}
 
 /* campi meteo — trigger "Meteo", figlio in flusso di .map-right-col (vedi
    sopra). Lo sfondo mappa non è più qui (spostato nelle Impostazioni). */
@@ -640,10 +700,6 @@ html:has(.navbar.chrome-hidden) .map-right-col{top:16px}
   backdrop-filter:var(--blur);box-shadow:var(--shadow);
   max-width:100%;overflow-x:auto;scrollbar-width:none}
 .segmented::-webkit-scrollbar{display:none}
-/* dentro un .flyout-panel che ha già il suo vetro — niente vetro doppio,
-   e più respiro per andare a capo invece di scorrere in orizzontale */
-.segmented-flyout{background:none;border:0;box-shadow:none;backdrop-filter:none;
-  padding:0;overflow:visible;flex-wrap:wrap;max-width:300px}
 .segbtn{flex:none;border:0;border-radius:999px;padding:7px 14px;cursor:pointer;
   font-family:inherit;font-size:11.5px;font-weight:700;letter-spacing:.3px;
   background:transparent;color:var(--muted);white-space:nowrap;
@@ -652,20 +708,6 @@ html:has(.navbar.chrome-hidden) .map-right-col{top:16px}
 /* 1.4 · il riempimento pieno è riservato allo stato attivo di un controllo */
 .segbtn.on{background:var(--accent);color:#04121f}
 .segbtn.on.light{background:rgba(242,247,251,.9);color:var(--ink-on-l)}
-/* Palette categorica per campo — prima solo il vento aveva un colore
-   diverso (teal) da acceso, tutti gli altri diventavano lo stesso blu
-   accent: con più campi accesi insieme erano indistinguibili a colpo
-   d'occhio. Otto tinte nette, staccate tra loro sulla ruota colore. */
-.segbtn.on.v-temp{background:#fb7185}
-.segbtn.on.v-wind{background:#f59e0b}
-.segbtn.on.v-radar{background:#38bdf8}
-.segbtn.on.v-uv{background:#a855f7}
-.segbtn.on.v-clouds{background:#94a3b8}
-.segbtn.on.v-sun{background:#fde047}
-.segbtn.on.v-aurora{background:#34d399}
-.segbtn.on.v-lightning{background:#f472b6}
-.segtag{font-size:8.5px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;
-  opacity:.7;font-style:normal;margin-left:4px}
 
 /* strumenti — impostazioni/info/mirino, colonna destra sotto Attività:
    stessa logica di comparsa/posizione di rail e campi (vedi sopra). */
@@ -1042,12 +1084,16 @@ html:has(.navbar.chrome-hidden) .mapshell.full .leaflet-top{top:6px}
    Impostazioni che offre sempre scelte da un set, mai un campo libero. */
 .colorpicker{display:flex;flex-direction:column;gap:10px}
 .colorpicker-swatches{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-.colorpicker-default{padding:6px 12px;font-size:11px}
 .colorswatch{width:24px;height:24px;border-radius:50%;padding:0;cursor:pointer;
   background:var(--sw);border:2px solid transparent;box-shadow:0 0 0 1px var(--line-strong) inset;
   transition:transform .15s,box-shadow .15s}
 .colorswatch:hover{transform:scale(1.12)}
 .colorswatch.on{border-color:var(--card);box-shadow:0 0 0 2px var(--sw)}
+/* "Predefinito" è uno swatch come gli altri (stesso colore vero
+   dell'attività), ma un anello tratteggiato lo distingue sempre dalla
+   tavolozza scelta a mano — altrimenti, se il default coincidesse col
+   colore già impostato, sembrerebbe lo stesso pulsante ripetuto due volte. */
+.colorswatch.colorpicker-default:not(.on){outline:1.5px dashed var(--sw);outline-offset:2px}
 
 .plan-filterbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;
   padding:10px 14px;border-radius:var(--r-md);border:1px solid rgba(94,234,212,.3);

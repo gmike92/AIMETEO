@@ -6,7 +6,15 @@
 import { useState } from "react";
 import { useSettings } from "./SettingsProvider";
 import { useT } from "@/lib/i18n";
-import { DEFAULTS, writeSettings, ACTIVITY_KEYS, FIELD_KEYS, ACTIVITY_COLOR_KEYS, COLOR_SWATCHES } from "@/lib/settings";
+import {
+  DEFAULTS, writeSettings, ACTIVITY_KEYS, FIELD_KEYS, MAP_CTA_KEYS,
+  ACTIVITY_COLOR_KEYS, COLOR_SWATCHES, DEFAULT_ACTIVITY_COLORS,
+} from "@/lib/settings";
+
+// Come DEFAULT_ACTIVITY_COLORS, con "falesie" aggiunta: segue --marker-crag
+// (varia col tema) invece di un hex fisso, perché lì non esiste un default
+// unico — vedi la nota sulla stessa costante in lib/settings.js.
+const ACTIVITY_DEFAULT_SWATCHES = { ...DEFAULT_ACTIVITY_COLORS, falesie: "var(--marker-crag)" };
 
 export function Section({ title, sub, children, compact = false }) {
   return (
@@ -132,11 +140,13 @@ function ActivityMatrix({ visible, defaults, onToggleVisible, onToggleDefault, o
 // UNA sola tavolozza condivisa: un selettore a chip sceglie QUALE attività
 // si sta colorando (fa da "menu a tendina", ma coerente con .chip — niente
 // <select> nativo, vedi la nota su .chip in globals.css), poi sotto compare
-// solo la riga di swatch per quella voce. "Predefinito" (un chip di testo,
-// non un cerchio colorato: il default di "falesie" cambia col tema, un
-// unico swatch fisso non potrebbe rappresentarlo) toglie l'override e torna
-// al colore scelto dall'app.
-function ActivityColorPicker({ colors, onPick, onReset, options, swatches, defaultLabel }) {
+// solo la riga di swatch per quella voce. "Predefinito" è ora uno swatch
+// come gli altri, nel VERO colore predefinito di quell'attività (prima era
+// un chip di solo testo) — per "falesie" `defaults.falesie` arriva come
+// `var(--marker-crag)`, non un hex fisso, quindi segue comunque il tema.
+// Il bordo tratteggiato lo distingue dalla tavolozza scelta a mano: stesso
+// colore di uno degli swatch sotto è una coincidenza, non lo stesso pulsante.
+function ActivityColorPicker({ colors, onPick, onReset, options, swatches, defaults, defaultLabel }) {
   const [selected, setSelected] = useState(options[0][0]);
   const current = colors[selected];
   return (
@@ -145,12 +155,13 @@ function ActivityColorPicker({ colors, onPick, onReset, options, swatches, defau
       <div className="colorpicker-swatches">
         <button
           type="button"
-          className={`chip colorpicker-default ${!current ? "on" : ""}`}
+          className={`colorswatch colorpicker-default ${!current ? "on" : ""}`}
+          style={{ "--sw": defaults[selected] }}
           aria-pressed={!current}
+          aria-label={defaultLabel}
+          title={defaultLabel}
           onClick={() => onReset(selected)}
-        >
-          {defaultLabel}
-        </button>
+        />
         {swatches.map((hex) => (
           <button
             key={hex}
@@ -258,6 +269,7 @@ export default function SettingsFields({ compact = false }) {
             <ActivityColorPicker
               colors={settings.activityColors}
               swatches={COLOR_SWATCHES}
+              defaults={ACTIVITY_DEFAULT_SWATCHES}
               defaultLabel={t("settings.color_default")}
               onPick={(key, hex) => setSetting("activityColors", { ...settings.activityColors, [key]: hex })}
               onReset={(key) => {
@@ -325,6 +337,22 @@ export default function SettingsFields({ compact = false }) {
                 setSetting("defaultActivities", next);
               }}
               options={ACTIVITY_KEYS.map((k) => [k, t(`layer.${k}`)])}
+            />
+          </Section>
+
+          <Section title={t("settings.map_cta")} sub={compact ? null : t("settings.map_cta_note")} compact={compact}>
+            <ToggleChipGroup
+              values={settings.visibleMapCta}
+              onToggle={(key) => {
+                const next = settings.visibleMapCta.includes(key)
+                  ? settings.visibleMapCta.filter((k) => k !== key)
+                  : [...settings.visibleMapCta, key];
+                setSetting("visibleMapCta", next);
+              }}
+              options={MAP_CTA_KEYS.map((k) => [
+                k,
+                k === "itinerari" ? t("nav.itinerari") : k === "falesie" ? t("nav.falesie") : t("nav.pianifica"),
+              ])}
             />
           </Section>
         </>

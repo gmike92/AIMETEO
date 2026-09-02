@@ -16,7 +16,7 @@ const it = {
   "nav.cerca": "Cerca",
   "nav.itinerari": "Itinerari",
   "nav.falesie": "Falesie",
-  "nav.pianifica": "Pianifica",
+  "nav.pianifica": "Pianifica gita",
   "nav.impostazioni": "Impostazioni",
 
   "footer.credit": "Zerotermico · nome di lavoro · Bollettini: fonte ufficiale AINEVA / Meteomont",
@@ -286,6 +286,10 @@ const it = {
     "partono già accesi all'avvio.",
   "settings.col_visible": "Visibile",
   "settings.col_default": "All'avvio",
+  "settings.map_cta": "Pannelli rapidi",
+  "settings.map_cta_note":
+    "Quali pulsanti mostrare accanto alla ricerca, sopra la mappa: aprono lo stesso " +
+    "pannello del corrispondente in alto.",
   "settings.activity_colors": "Colori attività",
   "settings.activity_colors_note":
     "Scegli l'attività, poi il colore per i suoi pin e tracciati sulla mappa: " +
@@ -304,7 +308,7 @@ const en = {
   "nav.cerca": "Search",
   "nav.itinerari": "Routes",
   "nav.falesie": "Crags",
-  "nav.pianifica": "Plan",
+  "nav.pianifica": "Plan a trip",
   "nav.impostazioni": "Settings",
 
   "footer.credit": "Zerotermico · working name · Bulletins: official source AINEVA / Meteomont",
@@ -572,6 +576,10 @@ const en = {
     "start already on at launch.",
   "settings.col_visible": "Visible",
   "settings.col_default": "At launch",
+  "settings.map_cta": "Quick panels",
+  "settings.map_cta_note":
+    "Which buttons to show next to search, above the map: they open the same " +
+    "panel as the matching one at the top.",
   "settings.activity_colors": "Activity colors",
   "settings.activity_colors_note":
     "Pick the activity, then the color for its pins and tracks on the map: " +

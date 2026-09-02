@@ -10,7 +10,7 @@ import { Icon } from "@/app/components/WxIcon";
 import { useAutoHide } from "@/lib/useAutoHide";
 import { FooterLinks } from "@/app/components/SiteFooter";
 import { useSettings } from "@/app/components/SettingsProvider";
-import { ACTIVITY_KEYS } from "@/lib/settings";
+import { ACTIVITY_KEYS, DEFAULT_ACTIVITY_COLORS } from "@/lib/settings";
 import { MapRail, MapFields, MapTools, MapDock } from "./MapChrome";
 import RouteCard from "@/app/components/RouteCard";
 
@@ -573,24 +573,9 @@ const PISTE_COLOR = {
   novice: "#22c55e", easy: "#3b82f6", intermediate: "#ef4444",
   advanced: "#111827", expert: "#111827", freeride: "#f97316",
 };
-const NORDIC_COLOR = "#34d399";
-
-// Colore predefinito per attività — differenzia scialpinismo/alpinismo/
-// via_ferrata/escursionismo, prima tutte lo stesso azzurro (distinguibili
-// solo dal colore-pericolo, quando in vigore). Sovrascrivibile dalle
-// Impostazioni (settings.activityColors, vedi ACTIVITY_COLOR_KEYS in
-// lib/settings.js) — activityColor() guarda prima lì. "falesie" non ha un
-// default qui apposta: segue --marker-crag (varia col tema), un valore
-// fisso lo romperebbe — l'override utente lo scavalca comunque quando c'è.
-const DEFAULT_ACTIVITY_COLORS = {
-  escursionismo: "#38bdf8",
-  scialpinismo: "#818cf8",
-  alpinismo: "#c084fc",
-  via_ferrata: "#fb7185",
-  mtb_alpino: "#f59e0b",
-  skifondo: NORDIC_COLOR,
-};
-
+// DEFAULT_ACTIVITY_COLORS vive in lib/settings.js — unica fonte, letta
+// anche dalle Impostazioni per colorare il chip "Predefinito" col vero
+// colore dell'attività invece di un chip di solo testo.
 function activityColor(key, settings) {
   return settings?.activityColors?.[key] || DEFAULT_ACTIVITY_COLORS[key];
 }
@@ -654,6 +639,35 @@ export default function MapView({
   // (ora un pannello laterale, vedi app/(map)/routes/[slug]/page.js), non
   // rimpiazza questa anteprima.
   const [selectedRoute, setSelectedRoute] = useState(null);
+  // Esc chiude l'anteprima grande di un itinerario/MTB, come la × —
+  // nessun listener quando non c'è nulla di selezionato.
+  useEffect(() => {
+    if (!selectedRoute) return;
+    const onKeyDown = (e) => {
+      if (e.key === "Escape") setSelectedRoute(null);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [selectedRoute]);
+  // Esc rimuove anche lo spillo dell'ultimo click sulla mappa
+  // (S.current.pinMarker, piazzato dal listener "click" più sotto): prima
+  // non c'era modo di tornare a una mappa senza segnaposto una volta
+  // piazzato — un nuovo click lo spostava, ma nulla lo toglieva. Vive in
+  // S.current (non stato React), quindi legge/scrive quel ref direttamente
+  // invece di dipendere da uno stato che farebbe ri-registrare l'effetto
+  // ad ogni click.
+  useEffect(() => {
+    const onKeyDown = (e) => {
+      if (e.key !== "Escape") return;
+      const { map, pinMarker } = S.current;
+      if (map && pinMarker) {
+        map.removeLayer(pinMarker);
+        S.current.pinMarker = null;
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, []);
   const [gridVersion, setGridVersion] = useState(0); // bump → ridisegna temp/vento sulla griglia corrente
   const [viewVersion, setViewVersion] = useState(0); // bump → ridisegna layer client-only (giorno/notte), SUBITO su ogni moveend, senza aspettare il fetch meteo
   const [uv, setUv] = useState(false);
@@ -1781,35 +1795,54 @@ export default function MapView({
   // Nessuno stato nuovo: sono gli stessi toggle di prima, elencati invece
   // che scritti a mano uno per uno dentro il JSX.
   // `variant` dà a ciascun campo un colore distinto da acceso (vedi
-  // .segbtn.on.v-* in globals.css) — prima solo vento aveva un colore
+  // .railbtn.on.v-* in globals.css) — prima solo vento aveva un colore
   // diverso (alt/teal), tutti gli altri diventavano lo stesso blu accent:
   // con più campi accesi insieme erano indistinguibili a colpo d'occhio.
+  // `icon` è il glifo rappresentativo del campo, stesso principio delle
+  // voci di Attività: la lista Meteo ora è verticale con icona come quella,
+  // non più una griglia di pillole di solo testo.
   const fields = [
-    { key: "temp", label: "Temp", on: temp, toggle: () => setTemp(!temp), variant: "temp" },
-    { key: "wind", label: "Vento", on: wind, toggle: () => setWind(!wind), variant: "wind" },
+    {
+      key: "temp", label: "Temp", on: temp, toggle: () => setTemp(!temp), variant: "temp",
+      icon: Icon.Thermometer,
+    },
+    {
+      key: "wind", label: "Vento", on: wind, toggle: () => setWind(!wind), variant: "wind",
+      icon: Icon.Wind,
+    },
     {
       key: "radar", label: "Pioggia", on: radar, toggle: () => setRadar(!radar),
-      disabled: !frames.length, variant: "radar",
+      disabled: !frames.length, variant: "radar", icon: Icon.Rain,
       title: frames.length ? undefined : "Radar RainViewer non raggiungibile",
     },
-    { key: "uv", label: "UV", on: uv, toggle: () => setUv(!uv), variant: "uv" },
-    { key: "clouds", label: "Nuvole", on: clouds, toggle: () => setClouds(!clouds), variant: "clouds" },
+    { key: "uv", label: "UV", on: uv, toggle: () => setUv(!uv), variant: "uv", icon: Icon.Uv },
     {
-      key: "sun", label: "Sole", on: sun, toggle: () => setSun(!sun), variant: "sun",
+      key: "clouds", label: "Nuvole", on: clouds, toggle: () => setClouds(!clouds), variant: "clouds",
+      icon: Icon.Cloud,
+    },
+    {
+      key: "sun", label: "Sole", on: sun, toggle: () => setSun(!sun), variant: "sun", icon: Icon.Sun,
       title: "Terminatore giorno/notte — calcolo astronomico reale",
     },
     {
       key: "aurora", label: "Aurora", on: aurora, toggle: () => setAurora(!aurora), variant: "aurora",
-      tag: aurora && !auroraReady ? "…" : undefined,
+      icon: Icon.Aurora, tag: aurora && !auroraReady ? "…" : undefined,
       title: "Probabilità aurora — modello NOAA OVATION",
     },
     {
-      key: "lightning", label: "Fulmini", on: lightning, variant: "lightning",
+      key: "lightning", label: "Fulmini", on: lightning, variant: "lightning", icon: Icon.Bolt,
       toggle: () => setLightning(!lightning), tag: "demo",
       title: "Dati dimostrativi — nessuna fonte gratuita real-time ancora integrata",
     },
   ];
 
+  // `color` è lo stesso colore dei pin di quella voce sulla mappa (vedi
+  // activityColor()/--marker-crag più sopra) — solo dove esiste DAVVERO un
+  // unico colore: "Itinerari" mischia 4 attività ciascuna col suo colore,
+  // "Piste" segue la scala alpina ufficiale (verde/blu/rosso/nero) e
+  // "Pendenze" è un overlay a bande (giallo→viola), nessuna delle tre ha UN
+  // colore da rappresentare — inventarne uno sarebbe falso, restano quindi
+  // senza (evidenziate con l'accento neutro, come prima).
   const allLayers = [
     {
       key: "rt", label: "Itin.", icon: Icon.Route, on: showRoutes, group: "estive",
@@ -1818,10 +1851,12 @@ export default function MapView({
     {
       key: "fal", label: "Falesie", icon: Icon.Crag, on: showCrags, group: "estive",
       toggle: () => setShowCrags(!showCrags),
+      color: activityColorOverride("falesie", settings) || "var(--marker-crag)",
     },
     {
       key: "mtb", label: "MTB", icon: Icon.Bike, on: showMtb, group: "bici",
       toggle: () => setShowMtb(!showMtb), title: "Itinerari MTB: pin e tracce",
+      color: activityColor("mtb_alpino", settings),
     },
     {
       key: "slope", label: "Pendenze", icon: Icon.Slope, on: slope, group: "terreno",
@@ -1831,6 +1866,7 @@ export default function MapView({
     {
       key: "skifondo", label: "Sci fondo", icon: Icon.CrossCountrySki, on: showSkifondo, group: "invernali",
       toggle: () => setShowSkifondo(!showSkifondo), title: "Piste da fondo: geometria reale da OpenStreetMap",
+      color: activityColor("skifondo", settings),
     },
     {
       key: "ski", label: "Piste", icon: Icon.Ski, on: showSki, group: "invernali",

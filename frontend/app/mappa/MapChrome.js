@@ -118,16 +118,23 @@ export function MapRail({
       <div className="flyout-rail">
         {layers.map((l) => {
           const Ico = l.icon || Icon.Layers;
+          // Stessa idea dei campi Meteo: da acceso, una tinta morbida nel
+          // colore VERO di quella voce sulla mappa (i suoi pin), non
+          // l'accento neutro uguale per tutti — così la voce nel pannello si
+          // riconosce subito come "quella coi pin arancioni", per esempio.
+          // Solo dove un unico colore esiste davvero (vedi `color` in
+          // MapView.js); le altre restano sull'accento neutro di prima.
           return (
             <div key={l.key} className="railitem">
               {l.sep && <span className="railsep" aria-hidden />}
               <button
                 type="button"
-                className={`railbtn ${l.on ? "on" : ""}`}
+                className={`railbtn ${l.on ? "on" : ""} ${l.on && l.color ? "tinted" : ""}`}
                 onClick={l.toggle}
                 aria-pressed={!!l.on}
                 disabled={!ready || l.disabled}
                 title={l.title}
+                style={l.color ? { "--rail-c": l.color } : undefined}
               >
                 <Ico size={19} />
                 <span className="rl">{l.label}</span>
@@ -188,21 +195,33 @@ export function MapFields({
             </>
           }
         >
-          <div className="segmented segmented-flyout" role="group" aria-label="Campi meteo">
-            {fields.map((f) => (
-              <button
-                key={f.key}
-                type="button"
-                className={`segbtn ${f.on ? `on ${f.variant ? `v-${f.variant}` : ""}` : ""}`}
-                onClick={f.toggle}
-                aria-pressed={!!f.on}
-                disabled={!ready || f.disabled}
-                title={f.title}
-              >
-                {f.label}
-                {f.tag && <em className="segtag">{f.tag}</em>}
-              </button>
-            ))}
+          {/* Stessa lista verticale con icona di .flyout-rail (Attività),
+              non più la griglia di pillole orizzontali: un'icona per campo
+              si riconosce prima di un'etichetta di testo, e le due liste
+              affiancate nella stessa colonna ora si leggono come un unico
+              linguaggio invece di due stili diversi. */}
+          <div className="flyout-rail" role="group" aria-label="Campi meteo">
+            {fields.map((f) => {
+              const Ico = f.icon || Icon.Layers;
+              return (
+                <div key={f.key} className="railitem">
+                  <button
+                    type="button"
+                    className={`railbtn ${f.on ? `on ${f.variant ? `v-${f.variant}` : ""}` : ""}`}
+                    onClick={f.toggle}
+                    aria-pressed={!!f.on}
+                    disabled={!ready || f.disabled}
+                    title={f.title}
+                  >
+                    <Ico size={19} />
+                    <span className="rl">
+                      {f.label}
+                      {f.tag && <em className="railtag">{f.tag}</em>}
+                    </span>
+                  </button>
+                </div>
+              );
+            })}
           </div>
         </FlyoutGroup>
       )}

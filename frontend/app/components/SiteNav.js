@@ -67,7 +67,7 @@ export default function SiteNav() {
             {[
               ["/itinerari", "Itinerari"],
               ["/falesie", "Falesie"],
-              ["/planner", "Pianifica"],
+              ["/planner", "Pianifica gita"],
             ].map(([href, label]) => {
               const active = pathname === href;
               return (

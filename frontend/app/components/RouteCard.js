@@ -51,7 +51,15 @@ function gradeColor(grade) {
 
 const W = 280, H = 76, PAD = 8;
 
-/** Profilo altimetrico + linea dello zero termico. */
+/** Profilo altimetrico + linea dello zero termico.
+ *
+ *  La traccia porta il gradiente di quota del brand (BRAND_ZEROTERMICO.md
+ *  §4): ambra a bassa quota → ciano → ghiaccio in vetta, mappato in
+ *  userSpaceOnUse sulla fascia di quota disegnata — così un colore indica
+ *  la STESSA quota su card di itinerari diversi, non "la cima di questo
+ *  grafico". La linea dello zero termico resta --accent2 apposta: è un
+ *  valore di riferimento, non parte del profilo, e non va assorbita nel
+ *  gradiente. */
 function Profile({ points, freezingLevel, slug }) {
   const t = useT();
   const units = useUnits();
@@ -95,6 +103,7 @@ function Profile({ points, freezingLevel, slug }) {
     .join(" ");
 
   const gid = `rp-${String(slug || "x").replace(/[^a-zA-Z0-9_-]/g, "")}`;
+  const eid = `${gid}-ele`;
 
   return (
     <div className="rcard-profile">
@@ -105,16 +114,28 @@ function Profile({ points, freezingLevel, slug }) {
         style={{ width: "100%", height: H, display: "block" }}
       >
         <defs>
+          {/* Mappato in coordinate reali del grafico (userSpaceOnUse), non
+              sulla bounding box della traccia: è questo che rende vera la
+              promessa "un colore = una quota" su card con range diversi. */}
+          <linearGradient
+            id={eid}
+            gradientUnits="userSpaceOnUse"
+            x1="0" y1={y(vHi)} x2="0" y2={y(vLo)}
+          >
+            <stop offset="0" stopColor="var(--ele-high)" />
+            <stop offset="0.55" stopColor="var(--ele-mid)" />
+            <stop offset="1" stopColor="var(--ele-low)" />
+          </linearGradient>
           <linearGradient id={gid} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor="var(--accent)" stopOpacity=".26" />
-            <stop offset="1" stopColor="var(--accent)" stopOpacity="0" />
+            <stop offset="0" stopColor="var(--ele-mid)" stopOpacity=".24" />
+            <stop offset="1" stopColor="var(--ele-low)" stopOpacity="0" />
           </linearGradient>
         </defs>
         <polygon points={`0,${H} ${line} ${W},${H}`} fill={`url(#${gid})`} />
         <polyline
           points={line}
           fill="none"
-          stroke="var(--accent)"
+          stroke={`url(#${eid})`}
           strokeWidth="1.8"
           strokeLinejoin="round"
           strokeLinecap="round"

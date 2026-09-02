@@ -55,7 +55,10 @@ function sortRows(rows, key) {
   });
 }
 
-/** Mini profilo dai punti reali della traccia; senza traccia, testo onesto. */
+/** Mini profilo dai punti reali della traccia; senza traccia, testo onesto.
+ *  Non prende il gradiente di quota apposta: a 96×26 la rampa si legge
+ *  come rumore, non come quota — resta un'unica tinta legibile, il colore
+ *  di mezzo della rampa (--ele-mid). */
 function MiniProfile({ points }) {
   const t = useT();
   const eles = (points || []).map((p) => p.ele).filter((e) => e != null);
@@ -70,7 +73,7 @@ function MiniProfile({ points }) {
   return (
     <svg viewBox="0 0 96 26" preserveAspectRatio="none" aria-hidden
       style={{ width: 96, height: 26, display: "block" }}>
-      <polyline points={pts} fill="none" stroke="var(--accent)" strokeWidth="1.6"
+      <polyline points={pts} fill="none" stroke="var(--ele-mid)" strokeWidth="1.6"
         strokeLinejoin="round" strokeLinecap="round" />
     </svg>
   );
