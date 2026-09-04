@@ -162,7 +162,14 @@ def dem_elevations(points: list[tuple[float, float]]) -> list[float]:
         batch = points[i:i + 100]
         url = (f"{ELEV_API}?latitude={','.join(f'{p[0]:.5f}' for p in batch)}"
                f"&longitude={','.join(f'{p[1]:.5f}' for p in batch)}")
-        r = httpx.get(url, timeout=30.0)
+        r = None
+        for pause in (0, 15, 45, 90):
+            if pause:
+                print(f"  … 429 elevation API, attendo {pause}s", file=sys.stderr)
+                time.sleep(pause)
+            r = httpx.get(url, timeout=30.0)
+            if r.status_code != 429:
+                break
         r.raise_for_status()
         vals = r.json().get("elevation", [])
         if len(vals) != len(batch):

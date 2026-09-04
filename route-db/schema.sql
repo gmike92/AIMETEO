@@ -29,7 +29,12 @@ CREATE TYPE difficulty_scale AS ENUM (
   'UIAA',   -- climbing (I–VII+)
   'BSA',    -- ski mountaineering (MS, BS, OS, BSA, OSA)
   'EE_EEA', -- hiking (T, E, EE, EEA)
-  'FERRATA',-- ferrata grade (F, PD, D, TD, ED)
+  'F_ED',   -- French/international adjectival alpine scale (F, PD, D, TD, ED)
+            -- — used for alpinismo AND via_ferrata, wherever a route is rated
+            -- with this scale rather than UIAA/CAI/EE_EEA. Renamed from the
+            -- original "FERRATA" (see AUDIT_2026-06-09.md): that name implied
+            -- it was via-ferrata-only, but F/PD/D/TD/ED is the general alpine
+            -- scale — a Gran Paradiso ALPINISMO route ("F+") used it too.
   'CAI',    -- generic CAI difficulty (Italian hiking network)
   'C2C',    -- grade taken verbatim from Camptocamp.org (scripts/import_c2c.py),
             -- kept as-is rather than remapped into another scale — mixed
@@ -173,6 +178,20 @@ CREATE TABLE route_report (
   source       TEXT                           -- 'app' | 'gulliver' | 'cai_section'
 );
 CREATE INDEX idx_report_route_time ON route_report(route_id, reported_at DESC);
+
+-- Recensioni utenti (voto + testo libero) — distinta da route_report sopra,
+-- che sono aggiornamenti di CONDIZIONI (freschezza per il planner), non
+-- opinioni sull'itinerario. route_slug testuale, non una FK a route.id:
+-- l'API (e la memory store) identificano già tutto per slug, mai per UUID.
+CREATE TABLE route_review (
+  id           UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  route_slug   TEXT NOT NULL,
+  author_name  TEXT NOT NULL,
+  rating       SMALLINT NOT NULL CHECK (rating BETWEEN 1 AND 5),
+  text         TEXT NOT NULL,
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX idx_review_route_time ON route_review(route_slug, created_at DESC);
 
 -- ─────────────────────────────────────────────────────────────
 -- Live data caches (written by ETL, read by safety engine; AI reads, never writes)

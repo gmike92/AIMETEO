@@ -77,14 +77,37 @@ AREAS: dict[str, tuple[float, float, float, float]] = {
     "area-etna": (37.65, 37.85, 14.95, 15.15),
     "area-san-vito-lo-capo": (38.15, 38.22, 12.70, 12.80),
     "area-costiera-amalfitana": (40.60, 40.68, 14.48, 14.68),
-    # Alpi svizzere (CH) / austriache (AT) / slovene (SI) — connettore
-    # bollettino non ancora integrato (placeholder, vedi area._note).
+    # Alpi svizzere (CH) / austriache (AT) / slovene (SI) — copertura
+    # SLF/LWD/ARSO reale, stesso mirror EAWS gratuito di AINEVA (vedi
+    # connectors/eaws_mirror.py e area._note in seed_routes.json).
     "area-zermatt-ch": (45.95, 46.05, 7.65, 7.85),
     "area-engadin-ch": (46.40, 46.60, 9.80, 10.10),
     "area-jungfrau-ch": (46.50, 46.70, 7.85, 8.10),
     "area-oetztal-at": (46.80, 47.05, 10.75, 11.05),
     "area-zillertal-at": (47.00, 47.20, 11.70, 12.00),
     "area-triglav-si": (46.28, 46.45, 13.70, 13.95),
+    # Seconda passata di espansione (2026-09-03): più aree negli stessi 5
+    # paesi già coperti da un connettore reale o dal placeholder onesto — mai
+    # un paese nuovo senza registrarlo prima in connectors/registry.py,
+    # altrimenti il planner darebbe 503 sull'INTERA richiesta (vedi il
+    # commento lì) appena incontrasse una di queste rotte tra i candidati.
+    "area-saas-fee-ch": (45.95, 46.15, 7.85, 8.05),
+    "area-davos-ch": (46.75, 46.95, 9.75, 9.95),
+    "area-ticino-ch": (46.45, 46.65, 8.45, 8.75),
+    "area-stubai-at": (46.95, 47.15, 11.15, 11.45),
+    "area-kitzbuhel-at": (47.35, 47.55, 12.30, 12.60),
+    "area-arlberg-at": (47.10, 47.20, 10.15, 10.35),
+    "area-pyrenees-ariege-fr": (42.65, 42.85, 1.35, 1.75),
+    "area-pyrenees-neouvielle-fr": (42.75, 42.90, 0.05, 0.25),
+    "area-corse-fr": (42.15, 42.45, 8.85, 9.20),
+    "area-vosges-fr": (47.95, 48.15, 6.95, 7.15),
+    "area-jura-fr": (46.35, 46.65, 5.85, 6.15),
+    "area-mercantour-fr": (44.05, 44.25, 6.95, 7.25),
+    "area-queyras-fr": (44.65, 44.85, 6.75, 7.00),
+    "area-chablais-fr": (46.05, 46.20, 6.65, 6.90),
+    "area-dolomiti-sesto-it": (46.68, 46.78, 12.35, 12.60),
+    "area-monviso-it": (44.55, 44.72, 7.05, 7.25),
+    "area-prealpi-bergamasche-it": (45.85, 46.05, 9.55, 9.80),
 }
 
 #: Camptocamp activity -> our activity. Anything else (rock_climbing,
