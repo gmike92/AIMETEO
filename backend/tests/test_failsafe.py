@@ -44,13 +44,13 @@ calls = []
 def fake_get(url, **kw):
     calls.append(url)
     return _resp(404) if "2024-02-15" in url else _resp(200, REAL)
-with patch("app.connectors.aineva.httpx.get", side_effect=fake_get):
+with patch("app.connectors.eaws_mirror.httpx.get", side_effect=fake_get):
     b = c.fetch("IT-25", subzone="IT-25-BG-02", on=ON)
 check("fell back to previous day", len(calls) == 2 and "2024-02-14" in calls[1])
 check("source_url = prev-day file (the one served)", b is not None and "2024-02-14" in b.source_url, str(b and b.source_url))
 
 print("== M2: both days 404 -> None (off-season, verified absence) ==")
-with patch("app.connectors.aineva.httpx.get", return_value=_resp(404)):
+with patch("app.connectors.eaws_mirror.httpx.get", return_value=_resp(404)):
     check("None on double 404", c.fetch("IT-25", on=ON) is None)
 
 print("== M2/H1: failures raise BulletinFetchError (never None) ==")
@@ -61,7 +61,7 @@ FAILURE_MODES = {
 }
 for name, effect in FAILURE_MODES.items():
     try:
-        with patch("app.connectors.aineva.httpx.get",
+        with patch("app.connectors.eaws_mirror.httpx.get",
                    side_effect=effect if isinstance(effect, Exception) else [effect]):
             c.fetch("IT-25", on=ON)
         check(f"{name} raises BulletinFetchError", False)
@@ -72,10 +72,10 @@ print("== M2: expired bulletin -> None (not served as in force) ==")
 expired = json.loads(json.dumps(REAL))
 for bb in expired["bulletins"]:
     bb.setdefault("validTime", {})["endTime"] = "2024-02-13T22:59:59+00:00"  # before ON
-with patch("app.connectors.aineva.httpx.get", return_value=_resp(200, expired)):
+with patch("app.connectors.eaws_mirror.httpx.get", return_value=_resp(200, expired)):
     check("expired -> None", c.fetch("IT-25", subzone="IT-25-BG-02", on=ON) is None)
 # ...but a bulletin valid on the requested (historical) day is served
-with patch("app.connectors.aineva.httpx.get", return_value=_resp(200, REAL)):
+with patch("app.connectors.eaws_mirror.httpx.get", return_value=_resp(200, REAL)):
     check("valid-on-day historical bulletin served",
           c.fetch("IT-25", subzone="IT-25-BG-02", on=ON) is not None)
 
@@ -84,6 +84,13 @@ os.environ["USE_MOCK_DATA"] = "true"
 from fastapi.testclient import TestClient  # noqa: E402
 from app.main import app  # noqa: E402
 from app.connectors import registry  # noqa: E402
+# IT/CH/AT/SI share this one base class (see eaws_mirror.py) — patching it
+# fails ALL FOUR real connectors at once, same as patching each separately.
+# Necessary since scialpinismo/escursionismo routes now exist in all four,
+# not just Italy (France stays deterministic on its own: UnavailableConnector
+# always raises, no patch needed) — keeps this suite fully offline as its own
+# docstring promises, instead of hitting the real mirror for CH/AT/SI.
+from app.connectors.eaws_mirror import EawsMirrorConnector  # noqa: E402
 
 client = TestClient(app)
 payload = {"intent_text": "gita", "activity": "scialpinismo"}
@@ -93,7 +100,7 @@ from app import store  # noqa: E402
 N_SKI = sum(1 for r in store.list_routes() if r["activity"] == "scialpinismo")
 N_HIKE = sum(1 for r in store.list_routes() if r["activity"] == "escursionismo")
 
-with patch.object(type(registry.get_for_country("IT")), "fetch",
+with patch.object(EawsMirrorConnector, "fetch",
                   side_effect=BulletinFetchError("mirror down")), \
      patch("app.services.planner._now_month", return_value=2):
     plan = client.post("/planner/plan", json=payload).json()
@@ -111,7 +118,7 @@ with patch.object(type(registry.get_for_country("IT")), "fetch",
 print("== H1: planner fail-closed when bulletin is None in snow season ==")
 # The mock forecast follows the real calendar; force winter so the
 # snow-season fail-closed rule is exercised regardless of when tests run.
-with patch.object(type(registry.get_for_country("IT")), "fetch", return_value=None), \
+with patch.object(EawsMirrorConnector, "fetch", return_value=None), \
      patch("app.services.planner._season", return_value="winter"), \
      patch("app.services.planner._now_month", return_value=2):
     plan = client.post("/planner/plan", json=payload).json()

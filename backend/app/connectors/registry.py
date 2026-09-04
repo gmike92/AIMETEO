@@ -8,6 +8,10 @@ Expansion = add one line here:
 from __future__ import annotations
 from .base import AvalancheConnector
 from .aineva import AinevaConnector
+from .slf import SlfConnector
+from .lwd import LwdConnector
+from .arso import ArsoConnector
+from .mf import MeteoFranceConnector
 from .unavailable import UnavailableConnector
 
 _BY_SERVICE: dict[str, AvalancheConnector] = {}
@@ -37,15 +41,30 @@ def registered_services() -> list[str]:
     return sorted(_BY_SERVICE)
 
 
-# ── Register connectors at import (Italy live; others to come) ──────
+# ── Register connectors at import ────────────────────────────────────
 register(AinevaConnector())
-# France: area+route data now exists (escursionismo/via_ferrata), but no real
-# Météo-France/ANENA connector yet. Registering an honest "unavailable"
-# placeholder (never invents a danger rating) instead of leaving the country
-# unregistered — an unregistered country would 503 the WHOLE planner request
-# for any activity, not just fail-closed-block the affected snow routes.
-register(UnavailableConnector(service="ANENA-TODO", country="FR"))
-# register(MeteomontConnector())   # IT alternative
-# register(LwdConnector())         # AT
-# register(SlfConnector())         # CH
-# register(ArsoConnector())        # SI
+# Stesso mirror EAWS gratuito di AINEVA (avalanche.report), solo un file
+# regione diverso — vedi eaws_mirror.py e slf.py/lwd.py/arso.py per come
+# sono stati verificati (2026-09-03, data invernale di prova).
+register(SlfConnector())   # CH
+register(LwdConnector())   # AT
+register(ArsoConnector())  # SI
+# Francia: stesso mirror EAWS gratuito di sopra — Météo France pubblica un
+# file nazionale unico ("FR"), verificato 2026-09-03. Sostituisce il vecchio
+# placeholder "ANENA-TODO": ANENA è un ente francese reale ma non è chi
+# pubblica su questo mirror, Météo France sì (vedi mf.py).
+register(MeteoFranceConnector())
+# Paesi extra-europei già nel catalogo (import_osm_hiking.py, prima di
+# questa sessione) — solo escursionismo/MTB oggi, nessuna attività da neve,
+# ma un domani senza placeholder darebbero comunque il 503 di briefing.py
+# sopra. Nome di servizio identico a area.avalanche_service nel seed (deve
+# combaciare, vedi base.py) — un ente reale per paese, mai un segnaposto
+# generico: NWAC (Northwest Avalanche Center, USA), Avalanche Canada, New
+# Zealand Avalanche Advisory, Lawinenwarndienst (Germania, per Land), Japan
+# Avalanche Network.
+register(UnavailableConnector(service="NWAC-TODO", country="US"))
+register(UnavailableConnector(service="AvCan-TODO", country="CA"))
+register(UnavailableConnector(service="NZAA-TODO", country="NZ"))
+register(UnavailableConnector(service="LWZ-TODO", country="DE"))
+register(UnavailableConnector(service="JAN-TODO", country="JP"))
+# register(MeteomontConnector())   # IT alternativa
