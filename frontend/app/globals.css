@@ -294,21 +294,24 @@ html:has(.navbar.chrome-hidden) .mapoverlay-panel{top:16px}
 
 /* ── anteprima itinerario/MTB — sovraimpressione sulla mappa, cliccando un
    marker (MapView.js, selectedRoute) ─────────────────────────────────────
-   Sul lato SINISTRO apposta (non sovrapposta a .mapoverlay-panel a destra):
-   sono comunque mutualmente esclusivi nel flusso d'uso, ma tenerli su lati
-   diversi evita ambiguità visiva se capitasse un cambio rapido tra i due.
-   Altezza al contenuto (non piena come .mapoverlay-panel): RouteCard non
-   ha bisogno di tutto lo spazio verticale, con scroll interno se serve. */
-.map-route-preview{position:fixed;left:16px;top:calc(var(--navbar-h) + 76px);
-  z-index:1150;width:min(92vw,340px);max-height:calc(100vh - var(--navbar-h) - 140px);
+   Stesso angolo di .mapoverlay-panel (destra, sotto la navbar): stessa
+   sensazione "è lo stesso pannello" di quando si apre Itinerari/Falesie/
+   Pianifica gita, richiesta esplicitamente invece della vecchia posizione a
+   sinistra. La colonna Meteo/Attività/Strumenti occupa lo stesso angolo, e
+   si fa da parte finché l'anteprima è aperta (vedi .route-preview-open più
+   sotto, stesso trattamento già usato per .overlay-open). Altezza al
+   contenuto e limitata (non piena come .mapoverlay-panel): resta una card
+   compatta, non un pannello a pagina intera, con scroll interno se serve. */
+.map-route-preview{position:fixed;right:16px;top:calc(var(--navbar-h) + 16px);
+  z-index:1150;width:min(92vw,340px);max-height:min(70vh,calc(100vh - var(--navbar-h) - 32px));
   display:flex;flex-direction:column;
   background:var(--glass);backdrop-filter:var(--blur);
   border:1px solid var(--line-strong);border-radius:var(--r-lg);
   box-shadow:var(--shadow);overflow:hidden;
   animation:paneldrop .28s ease;transition:top .32s ease}
-html:has(.navbar.chrome-hidden) .map-route-preview{top:76px}
-.map-route-preview .rcard{border:0;border-radius:0;background:transparent;
-  overflow-y:auto;flex:1;min-height:0}
+html:has(.navbar.chrome-hidden) .map-route-preview{top:16px}
+.map-route-preview-scroll{flex:1;min-height:0;overflow-y:auto}
+.map-route-preview .rcard{border:0;border-radius:0;background:transparent}
 .map-route-preview .rcard:hover{transform:none;box-shadow:none;background:transparent}
 .map-route-preview-close{position:absolute;top:8px;right:8px;z-index:1;
   width:26px;height:26px;border-radius:50%;border:1px solid var(--line-strong);
@@ -321,15 +324,59 @@ html:has(.navbar.chrome-hidden) .map-route-preview{top:76px}
 .map-route-preview-warn{display:inline-flex;align-items:center;gap:5px;
   color:var(--warn-text);font-size:12px}
 .map-route-preview-fc{font-size:12px;color:var(--muted)}
+
+/* ── anteprima falesia/pista — stesso pannello, contenuto senza RouteCard
+   (CragPreview/PistePreview in MapChrome.js). Stesso padding orizzontale
+   del resto del pannello, un po' di respiro sopra visto che qui non c'è la
+   riga meteo che normalmente lo precede. */
+.marker-preview{padding:20px 20px 22px}
+.marker-preview h3{margin:6px 0 4px;font-size:19px;letter-spacing:-.2px}
+.marker-preview-sub{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:7px}
+.marker-preview-fact{margin-top:10px}
+.marker-preview-swatch{width:10px;height:10px;border-radius:50%;flex:none}
+
+/* ── recensioni — dentro l'anteprima itinerario sulla mappa ─────────
+   Sezione compatta, non un'altra card: hairline sopra invece di un bordo
+   proprio (stesso principio delle righe .stats), niente shadow — vive già
+   dentro il vetro del pannello. */
+.route-reviews{padding:16px 20px 20px;border-top:1px solid var(--line)}
+.route-reviews-head{display:flex;align-items:center;justify-content:space-between;
+  gap:10px;margin-bottom:10px}
+.route-reviews-avg{display:flex;align-items:center;gap:5px;font-size:12.5px;color:var(--muted)}
+.stars{display:inline-flex;gap:1px;color:var(--faint)}
+.stars svg{color:inherit}
+/* Riempita = voto assegnato: stesso linguaggio di Bolt/Play (fill
+   deliberato). --warn invece di --accent: un voto è un giudizio, non un
+   controllo "acceso" — il linguaggio di rule 1.4 resta per gli stati on/off. */
+.stars svg[fill="currentColor"]{color:var(--warn-text)}
+.starbtn{background:none;border:0;padding:1px;cursor:pointer;color:inherit;
+  display:flex;transition:transform .12s}
+.starbtn:hover{transform:scale(1.15)}
+.route-reviews-list{display:flex;flex-direction:column;gap:12px;margin-bottom:14px}
+.route-review{border-top:1px solid var(--line);padding-top:10px}
+.route-review:first-child{border-top:0;padding-top:0}
+.route-review-head{display:flex;align-items:center;justify-content:space-between;
+  gap:8px;margin-bottom:3px;font-size:13px}
+.route-review p{font-size:13px;color:var(--muted);line-height:1.5}
+.route-review-form{display:flex;flex-direction:column;gap:8px}
+.route-review-form textarea{resize:vertical;min-height:52px}
+.route-review-form .btn{align-self:flex-start;padding:9px 16px;font-size:12.5px}
+
 @media (max-width:720px){
   .map-route-preview{left:10px;right:10px;width:auto;top:auto;bottom:16px;max-height:70vh}
 }
 /* La colonna Meteo/Attività/Strumenti (destra) e i controlli Leaflet in
    basso a destra ci finirebbero sotto: si fanno da parte finché il
-   pannello è aperto, stesso trattamento chrome-hidden del resto. */
+   pannello è aperto, stesso trattamento chrome-hidden del resto. Vale anche
+   per route-preview-open: ora che l'anteprima è sul lato destro condivide
+   lo stesso angolo della colonna, non solo dei pannelli Itinerari/Falesie/
+   Pianifica gita. */
 html.overlay-open .maprail,
 html.overlay-open .maptools,
-html.overlay-open .mapfields{opacity:0;pointer-events:none;transition:opacity .2s ease}
+html.overlay-open .mapfields,
+html.route-preview-open .maprail,
+html.route-preview-open .maptools,
+html.route-preview-open .mapfields{opacity:0;pointer-events:none;transition:opacity .2s ease}
 html.overlay-open .mapshell .leaflet-bottom.leaflet-right{opacity:0;pointer-events:none;
   transition:opacity .2s ease}
 

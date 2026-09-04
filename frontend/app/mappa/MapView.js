@@ -11,8 +11,9 @@ import { useAutoHide } from "@/lib/useAutoHide";
 import { FooterLinks } from "@/app/components/SiteFooter";
 import { useSettings } from "@/app/components/SettingsProvider";
 import { ACTIVITY_KEYS, DEFAULT_ACTIVITY_COLORS } from "@/lib/settings";
-import { MapRail, MapFields, MapTools, MapDock } from "./MapChrome";
+import { MapRail, MapFields, MapTools, MapDock, CragPreview, PistePreview } from "./MapChrome";
 import RouteCard from "@/app/components/RouteCard";
+import RouteReviews from "@/app/components/RouteReviews";
 
 // CARTO ora richiede una chiave (gratuita, 5M richieste/mese) sui suoi
 // raster basemap — senza, i tile arrivano comunque ma con un watermark
@@ -564,6 +565,13 @@ function popupHtmlPlan(place, week) {
   </div>`;
 }
 
+// Spessore di un tracciato (itinerario/MTB/pista) a riposo e al passaggio
+// del mouse — vedi i vari line.on("mouseover"/"mouseout") più sotto, stesso
+// paio di valori per tutti i layer così l'"espansione" si sente uguale
+// ovunque sulla mappa.
+const TRACK_WEIGHT = 2.5;
+const TRACK_WEIGHT_HOVER = 6;
+
 //: colore pista da sci — scala alpina standard (verde/blu/rosso/nero) per
 //  discesa; il fondo non segue quella scala (tecnica libera/classica, non
 //  difficoltà), un solo colore lo distingue a colpo d'occhio dalle piste da
@@ -596,19 +604,20 @@ const PISTE_DIFFICULTY_LABEL = {
   advanced: "Difficile", expert: "Molto difficile", freeride: "Fuoripista",
 };
 
-function popupHtmlPiste(p) {
-  const diff = p.kind === "nordic"
-    ? "Sci di fondo"
-    : PISTE_DIFFICULTY_LABEL[p.difficulty] || "Difficoltà non censita";
-  return `<div style="min-width:180px;line-height:1.55">
-    <b style="font-size:14px">${p.name}</b><br/><span style="font-size:12px;opacity:.7">${diff}</span>
-  </div>`;
-}
-
 // useFlyoutMenu è stato cancellato, non ristilizzato (regola 1.7): livelli e
 // campi meteo sono rail e segmented sempre visibili, e un menu che si apre
 // sopra la mappa nasconde proprio la cosa che stai guardando mentre cambi
 // il modo in cui è disegnata.
+
+// Zoom sul cluster cliccato — sostituisce lo zoomToBoundsOnClick di
+// default del plugin (fitBounds semplice): Leaflet anima un fitBounds solo
+// se il salto di zoom resta sotto zoomAnimationThreshold, quindi un
+// cluster lontano (spesso più di 4 livelli, es. tutta Europa → una valle)
+// scattava di colpo invece di scorrerci sopra. flyToBounds anima sempre,
+// qualunque sia la distanza — stesso pulsante, uno zoom morbido e continuo.
+function smoothClusterZoom(map) {
+  return (e) => map.flyToBounds(e.layer.getBounds(), { padding: [40, 40], duration: 0.85, easeLinearity: 0.2 });
+}
 
 const BASES = ["chiaro", "terreno", "scuro"];
 
@@ -633,22 +642,27 @@ export default function MapView({
   const [season, setSeason] = useState(false); // true = a bulletin is in force somewhere
   const [slope, setSlope] = useState(false);
   const slopeWarnedRef = useRef(false); // un solo avviso per accensione se le quote non arrivano
-  // Anteprima grande di un itinerario/MTB cliccato sulla mappa (sovraimpressione,
+  // Anteprima grande di UN segnaposto cliccato sulla mappa (sovraimpressione,
   // non il minuscolo popup Leaflet di prima) — null quando non c'è nulla di
-  // selezionato. "Scheda itinerario" dentro la card porta alla pagina piena
-  // (ora un pannello laterale, vedi app/(map)/routes/[slug]/page.js), non
-  // rimpiazza questa anteprima.
-  const [selectedRoute, setSelectedRoute] = useState(null);
-  // Esc chiude l'anteprima grande di un itinerario/MTB, come la × —
-  // nessun listener quando non c'è nulla di selezionato.
+  // selezionato. `kind` decide cosa renderizzare dentro lo stesso pannello:
+  // "route" (itinerari e MTB, stessa RouteCard di prima) | "crag" (Falesie)
+  // | "piste" (Piste da discesa e Sci di fondo) — prima solo gli itinerari
+  // aprivano questo pannello, le altre tre attività restavano sul minuscolo
+  // popup Leaflet nativo, l'unica incoerenza che questo risolve. "Scheda
+  // itinerario" dentro la card porta alla pagina piena (un pannello
+  // laterale, vedi app/(map)/routes/[slug]/page.js), non rimpiazza
+  // l'anteprima.
+  const [selectedItem, setSelectedItem] = useState(null);
+  // Esc chiude l'anteprima, come la × — nessun listener quando non c'è
+  // nulla di selezionato.
   useEffect(() => {
-    if (!selectedRoute) return;
+    if (!selectedItem) return;
     const onKeyDown = (e) => {
-      if (e.key === "Escape") setSelectedRoute(null);
+      if (e.key === "Escape") setSelectedItem(null);
     };
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
-  }, [selectedRoute]);
+  }, [selectedItem]);
   // Esc rimuove anche lo spillo dell'ultimo click sulla mappa
   // (S.current.pinMarker, piazzato dal listener "click" più sotto): prima
   // non c'era modo di tornare a una mappa senza segnaposto una volta
@@ -668,6 +682,14 @@ export default function MapView({
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
   }, []);
+  // L'anteprima ora si apre nello stesso angolo (destra) della colonna
+  // Meteo/Attività/Strumenti — questa classe la fa da parte finché
+  // l'anteprima è aperta, stesso trattamento già usato per .overlay-open
+  // (vedi OverlayPanel.js) quando è aperto Itinerari/Falesie/Pianifica gita.
+  useEffect(() => {
+    document.documentElement.classList.toggle("route-preview-open", !!selectedItem);
+    return () => document.documentElement.classList.remove("route-preview-open");
+  }, [selectedItem]);
   const [gridVersion, setGridVersion] = useState(0); // bump → ridisegna temp/vento sulla griglia corrente
   const [viewVersion, setViewVersion] = useState(0); // bump → ridisegna layer client-only (giorno/notte), SUBITO su ogni moveend, senza aspettare il fetch meteo
   const [uv, setUv] = useState(false);
@@ -934,6 +956,7 @@ export default function MapView({
           disableClusteringAtZoom: 15,
           spiderfyOnMaxZoom: true,
           showCoverageOnHover: false,
+          zoomToBoundsOnClick: false,
           iconCreateFunction: (cluster) => {
             const children = cluster.getAllChildMarkers();
             const maxDanger = Math.max(0, ...children.map((c) => c.options.dangerLevel || 0));
@@ -950,6 +973,7 @@ export default function MapView({
             });
           },
         });
+        clusters.on("clusterclick", smoothClusterZoom(map));
         S.current.clusters = clusters;
         // Track polylines live in their own group (not directly on the map)
         // so the whole "Itinerari" layer — pins and tracks together — can be
@@ -964,13 +988,14 @@ export default function MapView({
         // il suo colore attività (predefinito o personalizzato).
         const mtbClusters = L.markerClusterGroup({
           maxClusterRadius: 55, disableClusteringAtZoom: 15, spiderfyOnMaxZoom: true,
-          showCoverageOnHover: false,
+          showCoverageOnHover: false, zoomToBoundsOnClick: false,
           iconCreateFunction: (cluster) => L.divIcon({
             className: "",
             html: `<span class="rt-cluster" style="--c:${activityColor("mtb_alpino", S.current.settings)}">${cluster.getChildCount()}</span>`,
             iconSize: [38, 38], iconAnchor: [19, 19],
           }),
         });
+        mtbClusters.on("clusterclick", smoothClusterZoom(map));
         S.current.mtbClusters = mtbClusters;
         const mtbTracks = L.layerGroup();
         S.current.mtbTracks = mtbTracks;
@@ -1011,7 +1036,13 @@ export default function MapView({
           let line = null;
           if (pts.length > 1) {
             L.polyline(pts, { color: "#0b1722", weight: 5, opacity: 0.25 }).addTo(tracksGroup);
-            line = L.polyline(pts, { color, weight: 2.5, opacity: 0.95 }).addTo(tracksGroup);
+            line = L.polyline(pts, { color, weight: TRACK_WEIGHT, opacity: 0.95 }).addTo(tracksGroup);
+            // A zoom alto lo spillo di partenza può restare fuori schermo,
+            // senza altro punto ovvio su cui cliccare per l'anteprima —
+            // passandoci sopra il tracciato si "espande" (più spesso, hit-box
+            // più larga insieme) invece di restare un filo di pochi px.
+            line.on("mouseover", () => line.setStyle({ weight: TRACK_WEIGHT_HOVER }));
+            line.on("mouseout", () => line.setStyle({ weight: TRACK_WEIGHT }));
           }
           const m = L.marker([r.start_lat, r.start_lon], {
             dangerLevel, activityKey: r.activity,
@@ -1023,7 +1054,7 @@ export default function MapView({
           });
           m.bindTooltip(r.name, { direction: "top", offset: [0, -10] });
           // Anteprima grande (React, sovraimpressione) al posto del vecchio
-          // popup minuscolo — vedi selectedRoute più sopra. `detail` è già
+          // popup minuscolo — vedi selectedItem più sopra. `detail` è già
           // quello che serve a RouteCard, solo l'area va appiattita in
           // area_name (get_route ritorna un oggetto area annidato, list_routes
           // invece la stringa piatta che RouteCard si aspetta).
@@ -1037,7 +1068,9 @@ export default function MapView({
               }
             : null;
           if (preview) {
-            m.on("click", () => setSelectedRoute(preview));
+            const open = () => setSelectedItem({ ...preview, kind: "route" });
+            m.on("click", open);
+            line?.on("click", open);
           }
           (isMtb ? mtbClusters : clusters).addLayer(m);
           routeMarkers[r.slug] = { marker: m, line, pts, isMtb, lat: r.start_lat, lon: r.start_lon, name: r.name, preview };
@@ -1266,11 +1299,13 @@ export default function MapView({
         };
         const group = L.markerClusterGroup({
           maxClusterRadius: 50, disableClusteringAtZoom: 15, showCoverageOnHover: false,
+          zoomToBoundsOnClick: false,
           iconCreateFunction: (cluster) => L.divIcon({
             className: "", html: `<span class="crag-cluster"${cragStyleAttr()}>${cluster.getChildCount()}</span>`,
             iconSize: [34, 34], iconAnchor: [17, 17],
           }),
         });
+        group.on("clusterclick", smoothClusterZoom(map));
         const cragMarkers = [];
         for (const c of crags) {
           if (c.lat == null || c.lon == null) continue;
@@ -1281,7 +1316,10 @@ export default function MapView({
             }),
           });
           m.bindTooltip(c.name, { direction: "top", offset: [0, -8] });
-          m.bindPopup(popupHtmlCrag(c));
+          // Stesso pannello a destra degli itinerari (rule: tutte le
+          // attività si comportano allo stesso modo), non più il minuscolo
+          // popup Leaflet — vedi CragPreview in MapChrome.js.
+          m.on("click", () => setSelectedItem({ ...c, kind: "crag" }));
           group.addLayer(m);
           cragMarkers.push(m);
         }
@@ -1325,13 +1363,18 @@ export default function MapView({
         // personalizzabile (S.current.settings letto live), "discesa" resta
         // sempre blu (convenzione reale, vedi commento sopra) ma la stessa
         // forma di chiamata evita due percorsi diversi qui sotto.
-        const makeCluster = (getColor) => L.markerClusterGroup({
-          maxClusterRadius: 50, disableClusteringAtZoom: 15, showCoverageOnHover: false,
-          iconCreateFunction: (cluster) => L.divIcon({
-            className: "", html: `<span class="rt-cluster" style="--c:${getColor()}">${cluster.getChildCount()}</span>`,
-            iconSize: [34, 34], iconAnchor: [17, 17],
-          }),
-        });
+        const makeCluster = (getColor) => {
+          const c = L.markerClusterGroup({
+            maxClusterRadius: 50, disableClusteringAtZoom: 15, showCoverageOnHover: false,
+            zoomToBoundsOnClick: false,
+            iconCreateFunction: (cluster) => L.divIcon({
+              className: "", html: `<span class="rt-cluster" style="--c:${getColor()}">${cluster.getChildCount()}</span>`,
+              iconSize: [34, 34], iconAnchor: [17, 17],
+            }),
+          });
+          c.on("clusterclick", smoothClusterZoom(map));
+          return c;
+        };
         const skiCluster = makeCluster(() => "#3b82f6");
         const skifondoCluster = makeCluster(() => activityColor("skifondo", S.current.settings));
         const skiTracks = L.layerGroup();
@@ -1342,9 +1385,25 @@ export default function MapView({
         for (const p of pistes) {
           if (!Array.isArray(p.coords) || p.coords.length < 2) continue;
           const color = pisteColor(p, settings);
-          const line = L.polyline(p.coords, { color, weight: 3, opacity: 0.85 });
+          const isNordic = p.kind === "nordic";
+          const line = L.polyline(p.coords, { color, weight: TRACK_WEIGHT, opacity: 0.85 });
           line.bindTooltip(p.name, { sticky: true });
-          line.bindPopup(popupHtmlPiste(p));
+          // Stesso pannello a destra degli itinerari, non più il popup
+          // Leaflet nativo — vedi PistePreview in MapChrome.js. Stesso
+          // "espandersi" al passaggio del mouse dei tracciati itinerario/MTB.
+          const openPiste = () => setSelectedItem({
+            // `kind` DOPO lo spread di `p`: l'oggetto pista porta già un suo
+            // `kind` ("downhill" | "nordic", il tipo di pista), che altrimenti
+            // sovrascriverebbe silenziosamente il discriminante del pannello.
+            ...p,
+            kind: "piste",
+            kindLabel: isNordic ? "Sci di fondo" : "Pista da discesa",
+            diffLabel: isNordic ? "Sci di fondo" : (PISTE_DIFFICULTY_LABEL[p.difficulty] || "Difficoltà non censita"),
+            color,
+          });
+          line.on("click", openPiste);
+          line.on("mouseover", () => line.setStyle({ weight: TRACK_WEIGHT_HOVER }));
+          line.on("mouseout", () => line.setStyle({ weight: TRACK_WEIGHT }));
           const mid = p.coords[Math.floor(p.coords.length / 2)];
           const marker = L.marker(mid, {
             icon: L.divIcon({
@@ -1353,8 +1412,7 @@ export default function MapView({
             }),
           });
           marker.bindTooltip(p.name, { direction: "top", offset: [0, -10] });
-          marker.bindPopup(popupHtmlPiste(p));
-          const isNordic = p.kind === "nordic";
+          marker.on("click", openPiste);
           (isNordic ? skifondoTracks : skiTracks).addLayer(line);
           (isNordic ? skifondoCluster : skiCluster).addLayer(marker);
           if (isNordic) pisteEntries.push({ marker, line });
@@ -1990,51 +2048,83 @@ export default function MapView({
       {/* Legenda, timeline radar e striscia giorni: un solo sistema di layout. */}
       <MapDock legend={legend} radar={radarProps} days={days} />
 
-      {/* Anteprima itinerario/MTB — sovraimpressione grande al posto del
-          vecchio popup Leaflet minuscolo (vedi selectedRoute). "Scheda
-          itinerario" dentro RouteCard porta alla pagina piena, ora un
-          pannello laterale come Itinerari/Pianifica, non una navigazione
-          che smonta la mappa. */}
-      {selectedRoute && (
+      {/* Anteprima di un segnaposto — sovraimpressione a destra al posto del
+          vecchio popup Leaflet minuscolo (vedi selectedItem sopra). Stesso
+          pannello per tutte le attività (itinerari, MTB, falesie, piste),
+          contenuto diverso secondo `kind`. "Scheda itinerario" dentro
+          RouteCard porta alla pagina piena, un pannello laterale come
+          Itinerari/Pianifica, non una navigazione che smonta la mappa. */}
+      {selectedItem && (
         <div className="map-route-preview">
           <button
             type="button"
             className="map-route-preview-close"
-            onClick={() => setSelectedRoute(null)}
+            onClick={() => setSelectedItem(null)}
             aria-label="Chiudi anteprima"
           >
             ×
           </button>
-          {(selectedRoute.bulletin?.status === "in_vigore" ||
-            selectedRoute.bulletin?.status === "non_verificabile" ||
-            selectedRoute.forecast) && (
-            <div className="map-route-preview-meteo">
-              {selectedRoute.bulletin?.status === "in_vigore" && (
-                <span
-                  className="map-route-preview-danger tnum"
-                  style={{
-                    background: DANGER_COLORS[selectedRoute.bulletin.danger_level],
-                    color: dangerInk(selectedRoute.bulletin.danger_level),
-                  }}
-                >
-                  Valanghe {selectedRoute.bulletin.danger_level}/5
-                </span>
+          {selectedItem.kind === "route" && (
+            <>
+              {(selectedItem.bulletin?.status === "in_vigore" ||
+                selectedItem.bulletin?.status === "non_verificabile" ||
+                selectedItem.forecast) && (
+                <div className="map-route-preview-meteo">
+                  {selectedItem.bulletin?.status === "in_vigore" && (
+                    <span
+                      className="map-route-preview-danger tnum"
+                      style={{
+                        background: DANGER_COLORS[selectedItem.bulletin.danger_level],
+                        color: dangerInk(selectedItem.bulletin.danger_level),
+                      }}
+                    >
+                      Valanghe {selectedItem.bulletin.danger_level}/5
+                    </span>
+                  )}
+                  {selectedItem.bulletin?.status === "non_verificabile" && (
+                    <span className="map-route-preview-warn">
+                      <Icon.Warning size={13} /> Bollettino non verificabile
+                    </span>
+                  )}
+                  {selectedItem.forecast && (
+                    <span className="map-route-preview-fc tnum">
+                      0°C {selectedItem.forecast.freezing_level_m} m · vento{" "}
+                      {selectedItem.forecast.wind_avg_kmh} km/h
+                      {selectedItem.forecast.source === "mock" ? " (demo)" : ""}
+                    </span>
+                  )}
+                </div>
               )}
-              {selectedRoute.bulletin?.status === "non_verificabile" && (
-                <span className="map-route-preview-warn">
-                  <Icon.Warning size={13} /> Bollettino non verificabile
-                </span>
-              )}
-              {selectedRoute.forecast && (
-                <span className="map-route-preview-fc tnum">
-                  0°C {selectedRoute.forecast.freezing_level_m} m · vento{" "}
-                  {selectedRoute.forecast.wind_avg_kmh} km/h
-                  {selectedRoute.forecast.source === "mock" ? " (demo)" : ""}
-                </span>
-              )}
+              {/* Un solo scroll per card + recensioni (non uno a testa): con
+                  le recensioni sotto, la card da sola non deve più farsi
+                  carico di tutto lo spazio verticale disponibile. */}
+              <div className="map-route-preview-scroll">
+                <RouteCard route={selectedItem} alwaysDetail />
+                <RouteReviews slug={selectedItem.slug} />
+              </div>
+            </>
+          )}
+          {selectedItem.kind === "crag" && (
+            <div className="map-route-preview-scroll">
+              <CragPreview
+                name={selectedItem.name}
+                region={selectedItem.region}
+                eleM={selectedItem.ele_m}
+                sunState={selectedItem.in_sole_adesso}
+                note={selectedItem.nota}
+              />
             </div>
           )}
-          <RouteCard route={selectedRoute} alwaysDetail />
+          {selectedItem.kind === "piste" && (
+            <div className="map-route-preview-scroll">
+              <PistePreview
+                name={selectedItem.name}
+                kindLabel={selectedItem.kindLabel}
+                diffLabel={selectedItem.diffLabel}
+                color={selectedItem.color}
+              />
+            </div>
+          )}
         </div>
       )}
 

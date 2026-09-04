@@ -281,6 +281,48 @@ export function MapTools({
   );
 }
 
+/* ── anteprima falesia/pista — stesso pannello a destra di RouteCard
+   (MapView.js, .map-route-preview), contenuto diverso perché non sono
+   "itinerari": niente RouteCard, che si aspetta campi come diff_grade e
+   track_points che qui non esistono. Solo dati veri, come il resto del
+   prodotto: sunState null → la nota onesta del backend ("esposizione non
+   censita"), mai un orario di sole/ombra inventato. */
+export function CragPreview({ name, region, eleM, sunState, note }) {
+  const sub = [region, eleM != null ? `${eleM} m` : null].filter(Boolean).join(" · ");
+  return (
+    <div className="marker-preview">
+      <span className="eyebrow">Falesia</span>
+      <h3>{name}</h3>
+      {sub && <p className="marker-preview-sub">{sub}</p>}
+      <div className="marker-preview-fact">
+        {sunState === true && (
+          <span className="c-warn"><Icon.Sun size={14} /> Al sole ora</span>
+        )}
+        {sunState === false && (
+          <span className="note" style={{ marginTop: 0, display: "inline-flex", alignItems: "center", gap: 6 }}>
+            <Icon.Moon size={14} /> In ombra ora
+          </span>
+        )}
+        {sunState == null && <span className="c-none">{note}</span>}
+      </div>
+      <a className="btn ghost" href="/falesie" style={{ marginTop: 16 }}>Tutte le falesie →</a>
+    </div>
+  );
+}
+
+export function PistePreview({ name, kindLabel, diffLabel, color }) {
+  return (
+    <div className="marker-preview">
+      <span className="eyebrow">{kindLabel}</span>
+      <h3>{name}</h3>
+      <p className="marker-preview-sub">
+        <span className="marker-preview-swatch" style={{ background: color }} />
+        {diffLabel}
+      </p>
+    </div>
+  );
+}
+
 /* ── legenda: le scale attualmente attive ──────────────────────────── */
 function Legend({ rows = [], danger = false, note }) {
   if (!rows.length && !danger && !note) return null;

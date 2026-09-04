@@ -123,6 +123,17 @@ const Bolt = (p) => (
   </Glyph>
 );
 
+// Stella — voto delle recensioni. `fill` la rende piena (stella assegnata),
+// senza resta il solo contorno (stella non assegnata): stesso linguaggio di
+// Bolt/Play/Pause, un riempimento pieno solo dove è deliberato. Niente
+// carattere unicode "★": cambierebbe forma da un sistema all'altro come
+// un'emoji (regola 1.2), anche se tecnicamente non lo è.
+const Star = (p) => (
+  <Glyph {...p}>
+    <path d="M12 3.2l2.7 5.6 6.1.7-4.5 4.2 1.2 6-5.5-3-5.5 3 1.2-6-4.5-4.2 6.1-.7z" />
+  </Glyph>
+);
+
 // Temperatura — sagoma da termometro reale (stelo + bulbo), non un numero:
 // coerente con le altre icone "campo meteo" che restano forme, mai testo.
 const Thermometer = (p) => (
@@ -334,7 +345,7 @@ const ArrowLeft = (p) => (
 
 export const Icon = {
   Sun, PartlyCloudy, Cloud, Rain, Storm, Snow,
-  Freezing, Wind, Drop, Moon, Bolt, Thermometer, Uv, Aurora,
+  Freezing, Wind, Drop, Moon, Bolt, Star, Thermometer, Uv, Aurora,
   Settings, Info, Crosshair,
   Check, Warning, Blocked, Compass, Bell, Search, Download,
   Play, Pause, Cycle,
