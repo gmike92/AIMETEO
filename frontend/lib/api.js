@@ -49,4 +49,10 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ email, source, locale }),
     }),
+  getReviews: (slug) => req(`/routes/${encodeURIComponent(slug)}/reviews`),
+  postReview: (slug, { author_name, rating, text }) =>
+    req(`/routes/${encodeURIComponent(slug)}/reviews`, {
+      method: "POST",
+      body: JSON.stringify({ author_name, rating, text }),
+    }),
 };
