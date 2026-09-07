@@ -470,10 +470,10 @@
    "country": "NO",
    "region": "Innlandet",
    "default_locale": "en",
-   "avalanche_service": "Varsom-TODO",
-   "avalanche_zone": null,
+   "avalanche_service": "Varsom",
+   "avalanche_zone": "NO",
    "avalanche_subzone": null,
-   "_note": "Norvegia: nessun connettore bollettino valanghe reale ancora integrato (placeholder onesto, mai inventa dati). Attivita non da neve (escursionismo/mtb_alpino) importate qui; scialpinismo/alpinismo resterebbero bloccati fail-closed dal planner in mancanza di bollettino."
+   "_note": "Norvegia: bollettino EAWS reale via lo stesso mirror gratuito di AINEVA/SLF/LWD/ARSO/Meteo France (avalanche.report) — pubblicato da NVE col marchio pubblico varsom.no. Nessuna micro-regione pinnata ancora: fetch() prende il bollettino piu' severo del file (fallback prudente, mai un dato inventato)."
   },
   {
    "id": "area-lofoten-no",
@@ -481,10 +481,10 @@
    "country": "NO",
    "region": "Nordland",
    "default_locale": "en",
-   "avalanche_service": "Varsom-TODO",
-   "avalanche_zone": null,
+   "avalanche_service": "Varsom",
+   "avalanche_zone": "NO",
    "avalanche_subzone": null,
-   "_note": "Norvegia: nessun connettore bollettino valanghe reale ancora integrato (placeholder onesto, mai inventa dati). Attivita non da neve (escursionismo/mtb_alpino) importate qui; scialpinismo/alpinismo resterebbero bloccati fail-closed dal planner in mancanza di bollettino."
+   "_note": "Norvegia: bollettino EAWS reale via lo stesso mirror gratuito di AINEVA/SLF/LWD/ARSO/Meteo France (avalanche.report) — pubblicato da NVE col marchio pubblico varsom.no. Nessuna micro-regione pinnata ancora: fetch() prende il bollettino piu' severo del file (fallback prudente, mai un dato inventato)."
   },
   {
    "id": "area-lillehammer-no",
@@ -492,10 +492,10 @@
    "country": "NO",
    "region": "Innlandet",
    "default_locale": "en",
-   "avalanche_service": "Varsom-TODO",
-   "avalanche_zone": null,
+   "avalanche_service": "Varsom",
+   "avalanche_zone": "NO",
    "avalanche_subzone": null,
-   "_note": "Norvegia: nessun connettore bollettino valanghe reale ancora integrato (placeholder onesto, mai inventa dati). Attivita non da neve (escursionismo/mtb_alpino) importate qui; scialpinismo/alpinismo resterebbero bloccati fail-closed dal planner in mancanza di bollettino."
+   "_note": "Norvegia: bollettino EAWS reale via lo stesso mirror gratuito di AINEVA/SLF/LWD/ARSO/Meteo France (avalanche.report) — pubblicato da NVE col marchio pubblico varsom.no. Nessuna micro-regione pinnata ancora: fetch() prende il bollettino piu' severo del file (fallback prudente, mai un dato inventato)."
   },
   {
    "id": "area-morzine-fr",

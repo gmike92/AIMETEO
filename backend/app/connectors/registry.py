@@ -12,6 +12,7 @@ from .slf import SlfConnector
 from .lwd import LwdConnector
 from .arso import ArsoConnector
 from .mf import MeteoFranceConnector
+from .varsom import VarsomConnector
 from .unavailable import UnavailableConnector
 
 _BY_SERVICE: dict[str, AvalancheConnector] = {}
@@ -54,6 +55,12 @@ register(ArsoConnector())  # SI
 # placeholder "ANENA-TODO": ANENA è un ente francese reale ma non è chi
 # pubblica su questo mirror, Météo France sì (vedi mf.py).
 register(MeteoFranceConnector())
+# Norvegia: stesso mirror EAWS gratuito di sopra — un file nazionale unico
+# ("NO") con piu' micro-regioni dentro, come i file per regione dell'Italia.
+# Pubblicato da NVE con il marchio pubblico varsom.no (stessa situazione di
+# ANENA/Meteo France in mf.py: attribuiamo al nome che il pubblico conosce).
+# Sostituisce il vecchio placeholder "Varsom-TODO" nel seed.
+register(VarsomConnector())
 # Paesi extra-europei già nel catalogo (import_osm_hiking.py, prima di
 # questa sessione) — solo escursionismo/MTB oggi, nessuna attività da neve,
 # ma un domani senza placeholder darebbero comunque il 503 di briefing.py
