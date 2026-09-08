@@ -831,6 +831,204 @@
    "name": "Rifugio Vittorio Emanuele II",
    "type": "rifugio",
    "altitude_m": 2732
+  },
+  {
+   "id": "ref-rifugio-benevolo",
+   "name": "Rifugio Benevolo",
+   "type": "rifugio",
+   "altitude_m": 2285,
+   "lat": 45.51573,
+   "lon": 7.08451,
+   "source": "refuges.info (CC BY-SA 2.0) — point 1172",
+   "source_url": "https://www.refuges.info/point/1172/refuge-garde/rifugio-Benevolo/",
+   "source_type": "refuge gardé"
+  },
+  {
+   "id": "ref-refuge-de-lepee",
+   "name": "Refuge de l’Epée",
+   "type": "rifugio",
+   "altitude_m": 2370,
+   "lat": 45.5889,
+   "lon": 7.0602,
+   "source": "refuges.info (CC BY-SA 2.0) — point 2228",
+   "source_url": "https://www.refuges.info/point/2228/refuge-garde/refuge-de-lEpee/",
+   "source_type": "refuge gardé"
+  },
+  {
+   "id": "ref-refuge-de-l-etang-fourcat",
+   "name": "Refuge de l'étang Fourcat",
+   "type": "rifugio",
+   "altitude_m": 2445,
+   "lat": 42.66501,
+   "lon": 1.48976,
+   "source": "refuges.info (CC BY-SA 2.0) — point 3943",
+   "source_url": "https://www.refuges.info/point/3943/refuge-garde/refuge-de-l-etang-Fourcat/",
+   "source_type": "refuge gardé"
+  },
+  {
+   "id": "ref-cabane-de-coms-de-jan",
+   "name": "Cabane de Coms de Jan",
+   "type": "bivacco",
+   "altitude_m": 2218,
+   "lat": 42.61846,
+   "lon": 1.63878,
+   "source": "refuges.info (CC BY-SA 2.0) — point 5411",
+   "source_url": "https://www.refuges.info/point/5411/cabane-non-gardee/cabane-de-Coms-de-Jan/",
+   "source_type": "cabane non gardée"
+  },
+  {
+   "id": "ref-cabane-de-la-collada-de-meners",
+   "name": "Cabane de la Collada de Meners",
+   "type": "bivacco",
+   "altitude_m": 2675,
+   "lat": 42.62141,
+   "lon": 1.60722,
+   "source": "refuges.info (CC BY-SA 2.0) — point 5410",
+   "source_url": "https://www.refuges.info/point/5410/cabane-non-gardee/cabane-de-la-Collada-de-Meners/",
+   "source_type": "cabane non gardée"
+  },
+  {
+   "id": "ref-cabana-sorda",
+   "name": "Cabana Sorda",
+   "type": "bivacco",
+   "altitude_m": 2295,
+   "lat": 42.6115,
+   "lon": 1.67233,
+   "source": "refuges.info (CC BY-SA 2.0) — point 5412",
+   "source_url": "https://www.refuges.info/point/5412/cabane-non-gardee/cabana-Sorda/",
+   "source_type": "cabane non gardée"
+  },
+  {
+   "id": "ref-cabana-de-pleta-serrera",
+   "name": "Cabana de Pleta Serrera",
+   "type": "bivacco",
+   "altitude_m": 2210,
+   "lat": 42.62115,
+   "lon": 1.57975,
+   "source": "refuges.info (CC BY-SA 2.0) — point 6317",
+   "source_url": "https://www.refuges.info/point/6317/cabane-non-gardee/cabana-de-Pleta-Serrera/",
+   "source_type": "cabane non gardée"
+  },
+  {
+   "id": "ref-cabana-de-siscaro",
+   "name": "Cabana de Siscaró",
+   "type": "bivacco",
+   "altitude_m": 2145,
+   "lat": 42.59486,
+   "lon": 1.706,
+   "source": "refuges.info (CC BY-SA 2.0) — point 5419",
+   "source_url": "https://www.refuges.info/point/5419/cabane-non-gardee/cabana-de-Siscaro/",
+   "source_type": "cabane non gardée"
+  },
+  {
+   "id": "ref-refuge-riu-dels-orris",
+   "name": "Refuge Riu dels Orris",
+   "type": "bivacco",
+   "altitude_m": 2230,
+   "lat": 42.48501,
+   "lon": 1.63981,
+   "source": "refuges.info (CC BY-SA 2.0) — point 5444",
+   "source_url": "https://www.refuges.info/point/5444/cabane-non-gardee/refuge-Riu-dels-Orris/",
+   "source_type": "cabane non gardée"
+  },
+  {
+   "id": "ref-cabane-estany-de-la-bova",
+   "name": "Cabane Estany de la Bova",
+   "type": "bivacco",
+   "altitude_m": 2425,
+   "lat": 42.49076,
+   "lon": 1.64888,
+   "source": "refuges.info (CC BY-SA 2.0) — point 5462",
+   "source_url": "https://www.refuges.info/point/5462/cabane-non-gardee/cabane-Estany-de-la-Bova/",
+   "source_type": "cabane non gardée"
+  },
+  {
+   "id": "ref-refuge-de-l-illa",
+   "name": "Refuge de l'Illa",
+   "type": "rifugio",
+   "altitude_m": 2480,
+   "lat": 42.495,
+   "lon": 1.6563,
+   "source": "refuges.info (CC BY-SA 2.0) — point 5435",
+   "source_url": "https://www.refuges.info/point/5435/refuge-garde/refuge-de-l-Illa/",
+   "source_type": "refuge gardé"
+  },
+  {
+   "id": "ref-refuge-de-fontverd",
+   "name": "Refuge de Fontverd",
+   "type": "bivacco",
+   "altitude_m": 1875,
+   "lat": 42.49211,
+   "lon": 1.59453,
+   "source": "refuges.info (CC BY-SA 2.0) — point 5413",
+   "source_url": "https://www.refuges.info/point/5413/cabane-non-gardee/refuge-de-Fontverd/",
+   "source_type": "cabane non gardée"
+  },
+  {
+   "id": "ref-cabane-plat-riu-del-orris",
+   "name": "Cabane Plat Riu del Orris",
+   "type": "bivacco",
+   "altitude_m": 2265,
+   "lat": 42.48614,
+   "lon": 1.64204,
+   "source": "refuges.info (CC BY-SA 2.0) — point 5461",
+   "source_url": "https://www.refuges.info/point/5461/cabane-non-gardee/cabane-Plat-Riu-del-Orris/",
+   "source_type": "cabane non gardée"
+  },
+  {
+   "id": "ref-cabana-dels-esparvers",
+   "name": "Cabana dels Esparvers",
+   "type": "bivacco",
+   "altitude_m": 2060,
+   "lat": 42.48563,
+   "lon": 1.70325,
+   "source": "refuges.info (CC BY-SA 2.0) — point 5428",
+   "source_url": "https://www.refuges.info/point/5428/cabane-non-gardee/cabana-dels-Esparvers/",
+   "source_type": "cabane non gardée"
+  },
+  {
+   "id": "ref-refuge-de-perafita",
+   "name": "Refuge de Perafita",
+   "type": "bivacco",
+   "altitude_m": 2200,
+   "lat": 42.47975,
+   "lon": 1.57824,
+   "source": "refuges.info (CC BY-SA 2.0) — point 5451",
+   "source_url": "https://www.refuges.info/point/5451/cabane-non-gardee/refuge-de-Perafita/",
+   "source_type": "cabane non gardée"
+  },
+  {
+   "id": "ref-refuge-estanys-de-la-pera",
+   "name": "Refuge Estanys de la Pera",
+   "type": "rifugio",
+   "altitude_m": 2357,
+   "lat": 42.4566,
+   "lon": 1.5988,
+   "source": "refuges.info (CC BY-SA 2.0) — point 5530",
+   "source_url": "https://www.refuges.info/point/5530/refuge-garde/refuge-Estanys-de-la-Pera/",
+   "source_type": "refuge gardé"
+  },
+  {
+   "id": "ref-orry-de-perafita",
+   "name": "Orry de Perafita",
+   "type": "bivacco",
+   "altitude_m": 2190,
+   "lat": 42.48108,
+   "lon": 1.57569,
+   "source": "refuges.info (CC BY-SA 2.0) — point 5524",
+   "source_url": "https://www.refuges.info/point/5524/cabane-non-gardee/orry-de-Perafita/",
+   "source_type": "cabane non gardée"
+  },
+  {
+   "id": "ref-cabane-forestiere-de-font-de-pollineres",
+   "name": "Cabane forestière de Font de Pollineres",
+   "type": "bivacco",
+   "altitude_m": 2130,
+   "lat": 42.4453,
+   "lon": 1.6103,
+   "source": "refuges.info (CC BY-SA 2.0) — point 5536",
+   "source_url": "https://www.refuges.info/point/5536/cabane-non-gardee/cabane-forestiere-de-Font-de-Pollineres/",
+   "source_type": "cabane non gardée"
   }
  ],
  "routes": [
@@ -97446,7 +97644,12 @@
    "max_slope_deg": null,
    "ideal_conditions": null,
    "exposure_notes": null,
-   "refuges": [],
+   "refuges": [
+    {
+     "id": "ref-rifugio-benevolo",
+     "role": null
+    }
+   ],
    "season_months": null,
    "source": "Rete Escursionistica CAI via OpenStreetMap (ODbL) — relation 6580909",
    "source_url": "https://www.openstreetmap.org/relation/6580909",
@@ -97749,7 +97952,12 @@
    "max_slope_deg": null,
    "ideal_conditions": null,
    "exposure_notes": null,
-   "refuges": [],
+   "refuges": [
+    {
+     "id": "ref-refuge-de-lepee",
+     "role": null
+    }
+   ],
    "season_months": null,
    "source": "Rete Escursionistica CAI via OpenStreetMap (ODbL) — relation 9893325",
    "source_url": "https://www.openstreetmap.org/relation/9893325",
@@ -115140,7 +115348,12 @@
    "max_slope_deg": null,
    "ideal_conditions": null,
    "exposure_notes": null,
-   "refuges": [],
+   "refuges": [
+    {
+     "id": "ref-refuge-de-l-etang-fourcat",
+     "role": null
+    }
+   ],
    "season_months": null,
    "source": "OpenStreetMap (ODbL) — relation 3342037",
    "source_url": "https://www.openstreetmap.org/relation/3342037",
@@ -115618,7 +115831,24 @@
    "max_slope_deg": null,
    "ideal_conditions": null,
    "exposure_notes": null,
-   "refuges": [],
+   "refuges": [
+    {
+     "id": "ref-cabane-de-coms-de-jan",
+     "role": null
+    },
+    {
+     "id": "ref-cabane-de-la-collada-de-meners",
+     "role": null
+    },
+    {
+     "id": "ref-cabana-sorda",
+     "role": null
+    },
+    {
+     "id": "ref-cabana-de-pleta-serrera",
+     "role": null
+    }
+   ],
    "season_months": null,
    "source": "OpenStreetMap (ODbL) — relation 3360496",
    "source_url": "https://www.openstreetmap.org/relation/3360496",
@@ -116506,7 +116736,12 @@
    "max_slope_deg": null,
    "ideal_conditions": null,
    "exposure_notes": null,
-   "refuges": [],
+   "refuges": [
+    {
+     "id": "ref-cabana-de-siscaro",
+     "role": null
+    }
+   ],
    "season_months": null,
    "source": "OpenStreetMap (ODbL) — relation 3360574",
    "source_url": "https://www.openstreetmap.org/relation/3360574",
@@ -117494,7 +117729,28 @@
    "max_slope_deg": null,
    "ideal_conditions": null,
    "exposure_notes": null,
-   "refuges": [],
+   "refuges": [
+    {
+     "id": "ref-refuge-riu-dels-orris",
+     "role": null
+    },
+    {
+     "id": "ref-cabane-estany-de-la-bova",
+     "role": null
+    },
+    {
+     "id": "ref-refuge-de-l-illa",
+     "role": null
+    },
+    {
+     "id": "ref-refuge-de-fontverd",
+     "role": null
+    },
+    {
+     "id": "ref-cabane-plat-riu-del-orris",
+     "role": null
+    }
+   ],
    "season_months": null,
    "source": "OpenStreetMap (ODbL) — relation 5511185",
    "source_url": "https://www.openstreetmap.org/relation/5511185",
@@ -118852,7 +119108,28 @@
    "max_slope_deg": null,
    "ideal_conditions": null,
    "exposure_notes": null,
-   "refuges": [],
+   "refuges": [
+    {
+     "id": "ref-cabana-dels-esparvers",
+     "role": null
+    },
+    {
+     "id": "ref-refuge-de-perafita",
+     "role": null
+    },
+    {
+     "id": "ref-refuge-estanys-de-la-pera",
+     "role": null
+    },
+    {
+     "id": "ref-orry-de-perafita",
+     "role": null
+    },
+    {
+     "id": "ref-cabane-forestiere-de-font-de-pollineres",
+     "role": null
+    }
+   ],
    "season_months": null,
    "source": "OpenStreetMap (ODbL) — relation 6955560",
    "source_url": "https://www.openstreetmap.org/relation/6955560",
