@@ -13,6 +13,13 @@ from .lwd import LwdConnector
 from .arso import ArsoConnector
 from .mf import MeteoFranceConnector
 from .varsom import VarsomConnector
+from .sma import SmaConnector
+from .hs_cr import HsCrConnector
+from .fmi import FmiConnector
+from .sais import SaisConnector
+from .anm import AnmConnector
+from .naturvardsverket import NaturvardsverketConnector
+from .slp_hzs import SlpHzsConnector
 from .unavailable import UnavailableConnector
 
 _BY_SERVICE: dict[str, AvalancheConnector] = {}
@@ -61,6 +68,18 @@ register(MeteoFranceConnector())
 # ANENA/Meteo France in mf.py: attribuiamo al nome che il pubblico conosce).
 # Sostituisce il vecchio placeholder "Varsom-TODO" nel seed.
 register(VarsomConnector())
+# Stesso mirror, 7 paesi in piu' scoperti controllando la lista file mentre
+# si aggiungeva la Norvegia sopra — nessuna area nel catalogo li usava
+# ancora prima di questa sessione, aggiunte insieme al connettore così
+# scialpinismo/alpinismo lì non restano bloccati fail-closed per mancanza
+# di un connettore, non per assenza di bollettino reale.
+register(SmaConnector())              # AD — Andorra
+register(HsCrConnector())             # CZ — Cechia (Krkonose/Jeseniky)
+register(FmiConnector())              # FI — Finlandia (Lapponia)
+register(SaisConnector())             # GB — Scozia
+register(AnmConnector())              # RO — Romania (Carpazi)
+register(NaturvardsverketConnector())  # SE — Svezia (Lapponia)
+register(SlpHzsConnector())           # SK — Slovacchia (Alti Tatra)
 # Paesi extra-europei già nel catalogo (import_osm_hiking.py, prima di
 # questa sessione) — solo escursionismo/MTB oggi, nessuna attività da neve,
 # ma un domani senza placeholder darebbero comunque il 503 di briefing.py

@@ -66,6 +66,13 @@ AREAS: dict[str, tuple[float, float, float, float]] = {
     "area-fiordland-nz": (-45.55, -44.55, 167.30, 168.20),
     "area-jotunheimen-no": (61.35, 61.75, 8.05, 8.90),
     "area-lofoten-no": (67.85, 68.35, 12.80, 15.30),
+    "area-andorra-ad": (42.43, 42.66, 1.40, 1.79),
+    "area-krkonose-cz": (50.68, 50.83, 15.50, 15.85),
+    "area-levi-fi": (67.75, 67.85, 24.75, 24.95),
+    "area-cairngorms-gb": (57.03, 57.15, -3.75, -3.55),
+    "area-bucegi-ro": (45.35, 45.45, 25.40, 25.55),
+    "area-tatra-sk": (49.10, 49.25, 19.90, 20.25),
+    "area-are-se": (63.35, 63.45, 13.00, 13.15),
 }
 
 PHASE_A_LIMIT = 30
