@@ -6,8 +6,8 @@ route-db/crags.json.
         [--country US --country FR ...] [--from-file responses.json]
 
 HARD RULE — nothing is invented: every value comes verbatim dalla risposta
-GraphQL di OpenBeta, o dall'Open-Meteo elevation API (Copernicus DEM) quando
-OpenBeta non ha una quota, o è null. Tutte le falesie importate sono
+GraphQL di OpenBeta, o da un DEM reale (Open-Meteo/Copernicus con fallback
+OpenTopoData, vedi dem.py) quando OpenBeta non ha una quota, o è null. Tutte le falesie importate sono
 UNVERIFIED (verified_at: null) — la curatela avviene dopo.
 
 Perché OpenBeta e non lo stesso importer OSM usato per l'Italia: fuori
@@ -51,11 +51,13 @@ if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import dem  # noqa: E402 — quote DEM condivise (Open-Meteo + fallback OpenTopoData)
+
 REPO = pathlib.Path(__file__).resolve().parents[2]
 CRAGS = REPO / "route-db" / "crags.json"
 
 API = "https://api.openbeta.io"
-ELEV_API = "https://api.open-meteo.com/v1/elevation"
 
 #: Nome esatto dell'area-paese su OpenBeta -> nostro codice ISO2. Verificato
 #: via `query{ countries{ areaName totalClimbs } }` (2026-08-26): questi
@@ -154,22 +156,11 @@ def graphql(query: str, variables: dict) -> dict:
     raise SystemExit(f"OpenBeta non raggiungibile dopo {len(GRAPHQL_RETRY_PAUSES)} tentativi: {last_exc}")
 
 
-def dem_elevations(points: list[tuple[float, float]]) -> list[float]:
-    import httpx
-
-    out: list[float] = []
-    for i in range(0, len(points), 100):
-        batch = points[i:i + 100]
-        url = (f"{ELEV_API}?latitude={','.join(f'{p[0]:.5f}' for p in batch)}"
-               f"&longitude={','.join(f'{p[1]:.5f}' for p in batch)}")
-        r = httpx.get(url, timeout=30.0)
-        r.raise_for_status()
-        vals = r.json().get("elevation", [])
-        if len(vals) != len(batch):
-            raise SystemExit("elevation API: conteggio inatteso")
-        out.extend(float(v) for v in vals)
-        time.sleep(1)
-    return out
+def dem_elevations(points: list[tuple[float, float]]) -> Optional[list[float]]:
+    """Quote reali, Open-Meteo con fallback OpenTopoData (vedi dem.py).
+    None se non risponde nessuna delle due: il chiamante lascia ele_m a null
+    invece di far fallire l'intera run come faceva prima."""
+    return dem.elevations(points)
 
 
 def find_named_area(name: str) -> Optional[dict]:
@@ -370,8 +361,14 @@ def main() -> None:
 
     print(f"Quote DEM per {len(added)} falesie…")
     eles = dem_elevations([(c["lat"], c["lon"]) for c in added])
-    for c, e in zip(added, eles):
-        c["ele_m"] = round(e)
+    if eles is None:
+        # Prima questo caso faceva esplodere la run e si perdeva TUTTO
+        # l'albero gia' esplorato. La quota resta null — onesta.
+        print(f"  ! nessuna fonte DEM disponibile: {len(added)} falesie "
+              f"restano senza quota (ele_m null)", file=sys.stderr)
+    else:
+        for c, e in zip(added, eles):
+            c["ele_m"] = round(e)
 
     data["crags"].extend(added)
     CRAGS.write_text(json.dumps(data, ensure_ascii=False, indent=1) + "\n",

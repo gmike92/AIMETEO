@@ -2,8 +2,9 @@
 Import falesie da OpenStreetMap (sport=climbing, ODbL) → route-db/crags.json.
 
 Come import_osm_cai: fetch Overpass robusto (retry, mirror, skip-non-abort),
-quote dal DEM Copernicus (Open-Meteo elevation) quando OSM non ha `ele`,
-attribuzione ODbL, tutto unverified. MAI dati inventati:
+quote da un DEM reale (Open-Meteo/Copernicus con fallback OpenTopoData, vedi
+dem.py) quando OSM non ha `ele`, attribuzione ODbL, tutto unverified.
+MAI dati inventati:
 - aspect SOLO dal tag `climbing:orientation` (se assente resta null e il
   calcolo sole/ombra si dichiara non disponibile);
 - ele da tag OSM `ele` se presente (dato reale), altrimenti DEM.
@@ -26,12 +27,14 @@ if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import dem  # noqa: E402 — quote DEM condivise (Open-Meteo + fallback OpenTopoData)
+
 REPO = pathlib.Path(__file__).resolve().parents[2]
 CRAGS = REPO / "route-db" / "crags.json"
 
 MAIN_ENDPOINT = "https://overpass-api.de/api/interpreter"
 MIRROR_ENDPOINT = "https://overpass.kumi.systems/api/interpreter"
-ELEV_API = "https://api.open-meteo.com/v1/elevation"
 
 AREAS = {
     "area-ortles-cevedale": (46.25, 10.35, 46.55, 10.80),
@@ -155,28 +158,11 @@ def overpass_get(url_query: str, endpoint_pref: str) -> dict | None:
     return None
 
 
-def dem_elevations(points: list[tuple[float, float]]) -> list[float]:
-    import httpx
-    out: list[float] = []
-    for i in range(0, len(points), 100):
-        batch = points[i:i + 100]
-        url = (f"{ELEV_API}?latitude={','.join(f'{p[0]:.5f}' for p in batch)}"
-               f"&longitude={','.join(f'{p[1]:.5f}' for p in batch)}")
-        r = None
-        for pause in (0, 15, 45, 90):
-            if pause:
-                print(f"  … 429 elevation API, attendo {pause}s", file=sys.stderr)
-                time.sleep(pause)
-            r = httpx.get(url, timeout=30.0)
-            if r.status_code != 429:
-                break
-        r.raise_for_status()
-        vals = r.json().get("elevation", [])
-        if len(vals) != len(batch):
-            raise SystemExit("elevation API: conteggio inatteso")
-        out.extend(float(v) for v in vals)
-        time.sleep(1)
-    return out
+def dem_elevations(points: list[tuple[float, float]]) -> list[float] | None:
+    """Quote reali, Open-Meteo con fallback OpenTopoData (vedi dem.py).
+    None se non risponde nessuna delle due: il chiamante lascia ele_m a null
+    invece di far fallire l'intera run come faceva prima."""
+    return dem.elevations(points)
 
 
 def normalize_aspect(raw: str | None) -> str | None:
@@ -261,8 +247,15 @@ def main() -> None:
     if need_dem and not args.dry_run:
         print(f"Quote DEM per {len(need_dem)} falesie…")
         eles = dem_elevations([(c["lat"], c["lon"]) for c in need_dem])
-        for c, e in zip(need_dem, eles):
-            c["ele_m"] = round(e)
+        if eles is None:
+            # Prima questo caso faceva esplodere la run e si perdeva TUTTO
+            # (nome, coordinate, fonte reali gia' raccolti). La quota resta
+            # null — onesta, e recuperabile con una rirun mirata.
+            print(f"  ! nessuna fonte DEM disponibile: {len(need_dem)} falesie "
+                  f"restano senza quota (ele_m null)", file=sys.stderr)
+        else:
+            for c, e in zip(need_dem, eles):
+                c["ele_m"] = round(e)
 
     print(f"\nadded: {len(added)}")
     if args.dry_run:

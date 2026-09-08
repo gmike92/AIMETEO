@@ -20,7 +20,8 @@ non-Italian networks:
     wrongly discard real trails like Milford Track or Mt. Fuji's summit route.
 
 HARD RULE — nothing is invented: every value comes verbatim from OSM (ODbL)
-or the Open-Meteo elevation API (Copernicus DEM), or is null.
+or from a real DEM (Open-Meteo/Copernicus, con fallback OpenTopoData quando
+Open-Meteo esaurisce la quota — vedi dem.py), or is null.
 All imported routes are UNVERIFIED (verified_at: null).
 
 Modes
@@ -43,6 +44,9 @@ if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 from urllib.parse import quote
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import dem  # noqa: E402 — quote DEM condivise (Open-Meteo + fallback OpenTopoData)
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[2]
 SEED = REPO_ROOT / "route-db" / "seed_routes.json"
@@ -318,30 +322,11 @@ class LiveProvider:
 
     def elevations(self, coords: list[tuple[float, float]]
                    ) -> Optional[list[float]]:
-        import time
-        out: list[float] = []
-        for batch in elevation_batches(coords):
-            url = elevation_url(batch)
-            print(f"GET {ELEVATION_API} ({len(batch)} punti)", file=sys.stderr)
-            resp = None
-            for pause in (0, 10, 30):
-                if pause:
-                    print(f"  … riprovo tra {pause}s", file=sys.stderr)
-                    time.sleep(pause)
-                try:
-                    resp = self._get(url, read_timeout=60.0)
-                    break
-                except Exception as exc:  # noqa: BLE001
-                    print(f"  ! elevation API: {exc}", file=sys.stderr)
-            if resp is None:
-                return None
-            eles = resp.get("elevation") or []
-            if len(eles) != len(batch):
-                print(f"  ! elevation API: attesi {len(batch)} valori, "
-                      f"ricevuti {len(eles)} — salto", file=sys.stderr)
-                return None
-            out.extend(float(e) for e in eles)
-        return out
+        # Open-Meteo con fallback OpenTopoData (vedi dem.py): prima un 429 di
+        # Open-Meteo bastava a far finire l'itinerario in PEND, ora si
+        # prosegue sull'altra fonte. None solo se non risponde nessuna delle
+        # due → il chiamante marca PEND e la run PROSEGUE.
+        return dem.elevations(coords)
 
     def missing(self) -> list[str]:
         return []
