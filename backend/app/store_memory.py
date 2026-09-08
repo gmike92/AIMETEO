@@ -17,7 +17,30 @@ _SEED = _REPO_ROOT / "route-db" / "seed_routes.json"
 @lru_cache(maxsize=1)
 def _data() -> dict:
     with open(_SEED, encoding="utf-8") as f:
-        return json.load(f)
+        data = json.load(f)
+    _hydrate_refuges(data)
+    return data
+
+
+def _hydrate_refuges(data: dict) -> None:
+    """Aggiunge il NOME del rifugio a ogni legame itinerario→rifugio.
+
+    Nel seed il legame è normalizzato ({id, role}) e il nome vive una volta
+    sola nel record del rifugio — giusto per i dati, scomodo per chi legge:
+    prompts.py mostrerebbe "ref-cabane-estany-de-la-bova" al posto di
+    "Cabane Estany de la Bova" nel contesto della relazione AI.
+
+    Lo stesso campo lo produce store_pg con una join (vedi _ROUTE_COLS_BASE):
+    i due backend devono restituire dict identici, è il contratto dichiarato
+    in store.py. Un legame che punta a un rifugio inesistente resta senza
+    nome invece di far saltare tutto — chi legge ricade sull'id.
+    """
+    by_id = {r["id"]: r for r in data.get("refuges", [])}
+    for route in data.get("routes", []):
+        for link in route.get("refuges") or []:
+            refuge = by_id.get(link.get("id"))
+            if refuge is not None:
+                link["name"] = refuge["name"]
 
 
 def list_areas() -> list[dict]:

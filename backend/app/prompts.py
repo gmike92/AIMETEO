@@ -95,7 +95,14 @@ def _forecast_block(fc: Optional[PointForecast]) -> str:
 def route_context(route: dict, bulletin: Optional[Bulletin],
                   forecast: Optional[PointForecast]) -> str:
     """One candidate block of the context payload — all values verbatim from data."""
-    refuges = ", ".join(r.get("id", "?") for r in route.get("refuges", [])) or _ND
+    # Nome reale del rifugio, non lo slug interno: il modello scrive una
+    # relazione per una persona, "Cabane Estany de la Bova" e' un dato,
+    # "ref-cabane-estany-de-la-bova" e' una chiave di database. Il nome lo
+    # aggiungono entrambi i backend dello store (vedi store_memory.
+    # _hydrate_refuges e store_pg._ROUTE_COLS_BASE); l'id resta come ripiego
+    # se un legame punta a un rifugio non piu' presente.
+    refuges = ", ".join(r.get("name") or r.get("id", "?")
+                        for r in route.get("refuges", [])) or _ND
     bl = (
         f"  BOLLETTINO UFFICIALE: grado {bulletin.danger_level}/5 — "
         f"fonte {bulletin.avalanche_service} — {bulletin.source_url}\n"

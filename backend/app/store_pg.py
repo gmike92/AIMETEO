@@ -22,7 +22,8 @@ _ROUTE_COLS_BASE = """
     r.primary_aspects::text[] AS primary_aspects, r.max_slope_deg,
     r.ideal_conditions, r.exposure_notes, r.source, r.verified_at,
     COALESCE((
-        SELECT json_agg(json_build_object('id', rf.slug, 'role', rr.role) ORDER BY rf.slug)
+        SELECT json_agg(json_build_object(
+                   'id', rf.slug, 'name', rf.name, 'role', rr.role) ORDER BY rf.slug)
         FROM route_refuge rr JOIN refuge rf ON rf.id = rr.refuge_id
         WHERE rr.route_id = r.id
     ), '[]'::json) AS refuges

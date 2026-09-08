@@ -99,14 +99,35 @@ for a in areas:
 routes = store.list_routes()
 check("route count", len(routes) == len(seed["routes"]), f"{len(routes)}")
 seed_routes = {r["slug"]: r for r in seed["routes"]}
+seed_refuge_names = {rf["id"]: rf["name"] for rf in seed.get("refuges", [])}
+
+
+def refuges_match(got: list[dict], expected: list[dict]) -> bool:
+    """Il seed tiene il legame normalizzato ({id, role}); ENTRAMBI i backend
+    dello store ci aggiungono il nome del rifugio (store_pg con una join,
+    store_memory con _hydrate_refuges) perche' prompts.py deve mostrare
+    "Rifugio Vioz - Mantova", non "ref-vioz". Qui si verifica che id e role
+    siano quelli del seed E che il nome aggiunto sia quello giusto."""
+    if len(got) != len(expected):
+        return False
+    for g, e in zip(got, expected):
+        if g["id"] != e["id"] or g.get("role") != e.get("role"):
+            return False
+        if g.get("name") != seed_refuge_names.get(e["id"]):
+            return False
+    return True
+
+
 for r in routes:
     exp = seed_routes[r["slug"]]
-    same = all(r[k] == exp[k] for k in exp)
+    same = all(refuges_match(r[k], exp[k]) if k == "refuges" else r[k] == exp[k]
+               for k in exp)
     check(f"route {r['slug']} fields", same,
           str({k: (r[k], exp[k]) for k in exp if r[k] != exp[k]}))
 
 r1 = store.get_route("scialpinismo-monte-vioz-da-pejo")
-check("get_route", r1 is not None and r1["refuges"] == [{"id": "ref-vioz", "role": "appoggio"}])
+check("get_route", r1 is not None and r1["refuges"] == [
+    {"id": "ref-vioz", "name": "Rifugio Vioz - Mantova", "role": "appoggio"}])
 check("get_route missing → None", store.get_route("nope") is None)
 a1 = store.area_for_route(r1)
 check("area_for_route", a1 is not None and a1["avalanche_zone"] == "IT-32-BZ")
