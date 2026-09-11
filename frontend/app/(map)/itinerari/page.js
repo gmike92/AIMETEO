@@ -6,7 +6,8 @@ import { serverFetch } from "@/lib/api";
 import OverlayPanel from "../../components/OverlayPanel";
 import WaitlistSignup from "../../components/WaitlistSignup";
 import ConditionsTable from "../../components/ConditionsTable";
-import { ActivityTabs, RouteGrid } from "../../components/RouteCard";
+import { ActivityTabs } from "../../components/RouteCard";
+import RouteFinder from "../../components/RouteFinder";
 import T from "../../components/T";
 
 export const revalidate = 300;
@@ -40,6 +41,16 @@ export default async function Itinerari({ searchParams }) {
   } catch {
     areas = []; // backend parziale: la pagina sopravvive, la tabella si accorcia
   }
+  // Riquadri reali delle aree, per "vicino a" sugli itinerari senza traccia
+  // (vedi RouteFinder). Oggetto semplice area_id → [s, w, n, e]: un Server
+  // Component non può passare Map né funzioni a un Client Component.
+  let areaBoxes = {};
+  try {
+    const list = await serverFetch("/routes/areas", { revalidate: 3600 });
+    areaBoxes = Object.fromEntries(list.filter((a) => a.bbox).map((a) => [a.id, a.bbox]));
+  } catch {
+    areaBoxes = {}; // senza riquadri "vicino a" usa solo gli itinerari con traccia
+  }
 
   const counts = all.reduce(
     (acc, r) => {
@@ -72,10 +83,10 @@ export default async function Itinerari({ searchParams }) {
 
       {error && <p className="err"><T k="common.backend_down" />: {error}</p>}
 
-      <ConditionsTable areas={areas} routes={routes} sort={sort} activity={activity} />
-
-      <h2 style={{ marginTop: 34 }}><T k="itinerari.heading" /></h2>
-      <RouteGrid routes={routes} freezingLevelByArea={frzByArea} />
+      <RouteFinder routes={routes} freezingLevelByArea={frzByArea} areaBoxes={areaBoxes}>
+        <ConditionsTable areas={areas} routes={routes} sort={sort} activity={activity} />
+        <h2 style={{ marginTop: 34 }}><T k="itinerari.heading" /></h2>
+      </RouteFinder>
       {!error && routes.length === 0 && (
         <p className="note"><T k="itinerari.empty" /></p>
       )}

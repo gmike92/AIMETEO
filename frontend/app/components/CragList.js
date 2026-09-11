@@ -14,6 +14,8 @@ import { Icon } from "./WxIcon";
 import { useT } from "@/lib/i18n";
 import { useUnits } from "@/lib/units";
 import { useSettings } from "./SettingsProvider";
+import { ListFinder, NearBadge, useNearSearch } from "./ListFinder";
+import { haversineKm, matchesQuery } from "@/lib/geo";
 
 // L'ora locale VERA della falesia richiederebbe un lookup geografico
 // fuso-orario↔confini politici che non abbiamo (e sarebbe una dipendenza
@@ -36,7 +38,7 @@ function CountryChip({ country }) {
   return <span className="ctrychip">{country}</span>;
 }
 
-function CragCard({ c, lang }) {
+function CragCard({ c, lang, near }) {
   const t = useT();
   const units = useUnits();
   return (
@@ -47,6 +49,7 @@ function CragCard({ c, lang }) {
       </div>
       <div className="meta">
         <span className="pill">{c.aspect} · {c.region || c.country}</span>
+        {near && <NearBadge near={near} />}
         {c.ele_m != null && <span className="tnum">{units.elevation(c.ele_m)}</span>}
         {c.in_sole_adesso != null && (
           <span style={{ display: "inline-flex", alignItems: "center", gap: 6,
@@ -76,7 +79,7 @@ function CragCard({ c, lang }) {
   );
 }
 
-function CragRow({ c, lang }) {
+function CragRow({ c, lang, near }) {
   const t = useT();
   const units = useUnits();
   return (
@@ -84,7 +87,10 @@ function CragRow({ c, lang }) {
       <CountryChip country={c.country} />
       <span className="crow-name">
         <strong>{c.name}</strong>
-        <span className="crow-sub">{c.aspect || t("falesie.unknown_aspect")} · {c.region || c.country}</span>
+        <span className="crow-sub">
+          {c.aspect || t("falesie.unknown_aspect")} · {c.region || c.country}
+          {near && <> · <NearBadge near={near} /></>}
+        </span>
       </span>
       <span className="crow-ele tnum">{c.ele_m != null ? units.elevation(c.ele_m) : "—"}</span>
       <span className={`crow-sun ${c.in_sole_adesso ? "on" : ""}`}>
@@ -94,7 +100,7 @@ function CragRow({ c, lang }) {
   );
 }
 
-function UnknownCard({ c }) {
+function UnknownCard({ c, near }) {
   const t = useT();
   const units = useUnits();
   return (
@@ -104,6 +110,7 @@ function UnknownCard({ c }) {
         <CountryChip country={c.country} />
       </div>
       <div className="meta">
+        {near && <NearBadge near={near} />}
         {c.ele_m != null && <span className="tnum">{units.elevation(c.ele_m)}</span>}
         <span>{t("falesie.unknown_aspect")}</span>
       </div>
@@ -115,18 +122,47 @@ export default function CragList({ known = [], unknown = [] }) {
   const t = useT();
   const { settings } = useSettings();
   const [country, setCountry] = useState("");
+  const [query, setQuery] = useState("");
+  const near = useNearSearch();
 
   const countries = useMemo(() => {
     const s = new Set([...known, ...unknown].map((c) => c.country).filter(Boolean));
     return [...s].sort();
   }, [known, unknown]);
 
-  const filteredKnown = country ? known.filter((c) => c.country === country) : known;
-  const filteredUnknown = country ? unknown.filter((c) => c.country === country) : unknown;
+  // Paese, poi nome/regione, poi — se "vicino a" è attivo — distanza.
+  // Tutte le falesie hanno coordinate reali: qui la distanza è sempre esatta.
+  const { filteredKnown, filteredUnknown, nearBySlug } = useMemo(() => {
+    const keep = (c) => (!country || c.country === country) &&
+      matchesQuery(query, c.name, c.region, c.country);
+    const k = known.filter(keep);
+    const u = unknown.filter(keep);
+    if (!near.active || !near.ref) return { filteredKnown: k, filteredUnknown: u, nearBySlug: null };
+    const bySlug = {};
+    for (const c of [...k, ...u]) {
+      bySlug[c.slug] = c.lat != null && c.lon != null
+        ? { km: haversineKm(near.ref.lat, near.ref.lng, c.lat, c.lon), approx: false }
+        : null;
+    }
+    const byKm = (a, b) => (bySlug[a.slug]?.km ?? Infinity) - (bySlug[b.slug]?.km ?? Infinity);
+    return { filteredKnown: [...k].sort(byKm), filteredUnknown: [...u].sort(byKm), nearBySlug: bySlug };
+  }, [known, unknown, country, query, near.active, near.ref]);
+
   const isList = settings.density === "list";
+  const getNear = (c) => nearBySlug?.[c.slug] ?? null;
+  const busy = query.trim().length > 0 || Boolean(near.active && near.ref);
+  const total = filteredKnown.length + filteredUnknown.length;
 
   return (
     <div>
+      <ListFinder
+        query={query}
+        onQuery={setQuery}
+        near={near}
+        placeholder={t("finder.search_crags")}
+        resultCount={total}
+      />
+
       {countries.length > 1 && (
         <div className="chips" role="group" aria-label={t("falesie.country_all")} style={{ margin: "18px 0 0" }}>
           <button type="button" className={`chip ${!country ? "on" : ""}`}
@@ -144,20 +180,22 @@ export default function CragList({ known = [], unknown = [] }) {
 
       {isList ? (
         <div className="rlist" style={{ marginTop: 22 }}>
-          {filteredKnown.map((c) => <CragRow key={c.slug} c={c} lang={settings.lang} />)}
+          {filteredKnown.map((c) => <CragRow key={c.slug} c={c} lang={settings.lang} near={getNear(c)} />)}
         </div>
       ) : (
         <div className="grid">
-          {filteredKnown.map((c) => <CragCard key={c.slug} c={c} lang={settings.lang} />)}
+          {filteredKnown.map((c) => <CragCard key={c.slug} c={c} lang={settings.lang} near={getNear(c)} />)}
         </div>
       )}
+
+      {busy && total === 0 && <p className="note">{t("finder.no_results_crags")}</p>}
 
       {filteredUnknown.length > 0 && (
         <>
           <h2>{t("falesie.unknown_heading")}</h2>
           <p className="note">{t("falesie.unknown_note")}</p>
           <div className="grid">
-            {filteredUnknown.map((c) => <UnknownCard key={c.slug} c={c} />)}
+            {filteredUnknown.map((c) => <UnknownCard key={c.slug} c={c} near={getNear(c)} />)}
           </div>
         </>
       )}

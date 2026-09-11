@@ -14,6 +14,9 @@ import { ACTIVITY_KEYS, DEFAULT_ACTIVITY_COLORS } from "@/lib/settings";
 import { MapRail, MapFields, MapTools, MapDock, CragPreview, PistePreview } from "./MapChrome";
 import RouteCard from "@/app/components/RouteCard";
 import RouteReviews from "@/app/components/RouteReviews";
+import {
+  publishMapLocation, clearMapPin, LOCATE_REQUEST_EVENT, LOCATE_FAILED_EVENT,
+} from "@/lib/mapLocation";
 
 // CARTO ora richiede una chiave (gratuita, 5M richieste/mese) sui suoi
 // raster basemap — senza, i tile arrivano comunque ma con un watermark
@@ -792,6 +795,9 @@ export default function MapView({
       if (map && pinMarker) {
         map.removeLayer(pinMarker);
         S.current.pinMarker = null;
+        // un "vicino a" attivo nei pannelli non deve continuare a misurare
+        // da un segnaposto che non c'è più
+        clearMapPin();
       }
     };
     document.addEventListener("keydown", onKeyDown);
@@ -955,8 +961,11 @@ export default function MapView({
         // mappa (regola di questa modifica — un giro sulla mappa non deve
         // stravolgere "le previsioni di casa"), segue invece un riferimento
         // esplicito: casa (geolocalizzazione) o lo spillo dell'ultimo click.
+        // publishMapLocation emette lo stesso "zt-map-center" di prima e in
+        // più ricorda segnaposto/casa per i pannelli "vicino a" (vedi
+        // lib/mapLocation.js).
         const emitLocation = (lat, lng, source, name) =>
-          window.dispatchEvent(new CustomEvent("zt-map-center", { detail: { lat, lng, source, name } }));
+          publishMapLocation({ lat, lng, source, name });
 
         const placeHomeMarker = (lat, lng) => {
           if (S.current.homeMarker) map.removeLayer(S.current.homeMarker);
@@ -1306,8 +1315,7 @@ export default function MapView({
     // zoomare, qui si centra soltanto (stesso zoom di quando ha cliccato).
     map.panTo([lat, lon], { animate: true });
     setTimeout(() => marker.openPopup(), 350);
-    window.dispatchEvent(new CustomEvent("zt-map-center",
-      { detail: { lat, lng: lon, source: "route", name } }));
+    publishMapLocation({ lat, lng: lon, source: "route", name });
   }, [focusRoute, ready]);
 
   // Deep link /?crag=<slug> (Falesie → click una falesia): stessa idea di
@@ -1335,8 +1343,7 @@ export default function MapView({
         // Solo pan: stesso zoom di prima, mai uno automatico (vedi focusRoute sopra).
         map.panTo([c.lat, c.lon], { animate: true });
         setTimeout(() => m.openPopup(), 350);
-        window.dispatchEvent(new CustomEvent("zt-map-center",
-          { detail: { lat: c.lat, lng: c.lon, source: "crag", name: c.name } }));
+        publishMapLocation({ lat: c.lat, lng: c.lon, source: "crag", name: c.name });
       })
       .catch(() => {});
     return () => { dead = true; };
@@ -2038,11 +2045,17 @@ export default function MapView({
   // riferimento del riepilogo meteo, anche se nel frattempo c'era uno
   // spillo piazzato con un click. Un secondo click aggiorna semplicemente
   // marker e vista — niente stato persistito oltre a quello del marker.
+  // Un esito negativo va detto anche ai pannelli "vicino a" che l'hanno
+  // chiesto (vedi requestLocate), non solo con il messaggio sulla mappa.
+  const locateFailed = (message) => {
+    showTransientMsg(message);
+    window.dispatchEvent(new CustomEvent(LOCATE_FAILED_EVENT, { detail: { message } }));
+  };
   const handleLocate = () => {
     const { map } = S.current;
     if (!map) return;
     if (!navigator.geolocation) {
-      showTransientMsg("Geolocalizzazione non supportata da questo browser.");
+      locateFailed("Geolocalizzazione non supportata da questo browser.");
       return;
     }
     setLocating(true);
@@ -2052,12 +2065,11 @@ export default function MapView({
         const { latitude, longitude } = pos.coords;
         map.flyTo([latitude, longitude], Math.max(map.getZoom(), 12), { duration: 1.2 });
         S.current.placeHomeMarker?.(latitude, longitude);
-        window.dispatchEvent(new CustomEvent("zt-map-center",
-          { detail: { lat: latitude, lng: longitude, source: "home" } }));
+        publishMapLocation({ lat: latitude, lng: longitude, source: "home" });
       },
       (err) => {
         setLocating(false);
-        showTransientMsg(
+        locateFailed(
           err.code === err.PERMISSION_DENIED
             ? "Permesso di geolocalizzazione negato."
             : "Posizione non disponibile al momento."
@@ -2066,6 +2078,16 @@ export default function MapView({
       { enableHighAccuracy: true, timeout: 10000 }
     );
   };
+  // I pannelli chiedono la geolocalizzazione con un evento (requestLocate):
+  // la ref tiene sempre l'ultima handleLocate, così il listener si registra
+  // una volta sola e non chiama una versione vecchia.
+  const locateRef = useRef(handleLocate);
+  locateRef.current = handleLocate;
+  useEffect(() => {
+    const onRequest = () => locateRef.current();
+    window.addEventListener(LOCATE_REQUEST_EVENT, onRequest);
+    return () => window.removeEventListener(LOCATE_REQUEST_EVENT, onRequest);
+  }, []);
 
   // ── descrizione dichiarativa del chrome ──────────────────────────
   // Nessuno stato nuovo: sono gli stessi toggle di prima, elencati invece

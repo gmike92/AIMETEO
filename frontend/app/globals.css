@@ -1098,6 +1098,47 @@ html:has(.navbar.chrome-hidden) .mapshell.full .leaflet-top{top:6px}
    il riempimento pieno basta da solo a segnalare lo stato attivo. */
 .chip.on{background:var(--accent);border-color:var(--accent);color:#04121f}
 
+/* Ricerca per nome + "vicino a" (ListFinder) — itinerari e falesie. */
+.finder{margin:18px 0 6px}
+.finder-bar{display:flex;gap:8px;align-items:stretch}
+.finder-search{flex:1;display:flex;align-items:center;gap:8px;min-width:0;
+  border:1px solid var(--line-strong);border-radius:8px;padding:0 10px;color:var(--muted);
+  transition:border-color .18s,color .18s}
+.finder-search:focus-within{border-color:var(--accent);color:var(--ink)}
+.finder-search input{flex:1;min-width:0;border:0;outline:0;background:transparent;
+  color:var(--ink);font:inherit;font-size:14px;padding:10px 0}
+.finder-search input::placeholder{color:var(--faint)}
+/* la × è la nostra, uguale su ogni browser: via quella nativa di type=search */
+.finder-search input::-webkit-search-cancel-button{display:none}
+.finder-x{border:0;background:transparent;color:var(--muted);cursor:pointer;
+  font-family:inherit;font-size:18px;line-height:1;padding:2px 4px}
+.finder-x:hover{color:var(--ink)}
+/* Stesso schema dei .chip (1.4): bordo da spento, riempimento da acceso —
+   è lo stato di un controllo, non un colore decorativo. */
+.finder-near{display:inline-flex;align-items:center;gap:7px;flex:0 0 auto;
+  border:1px solid var(--line-strong);border-radius:8px;padding:0 12px;
+  background:transparent;color:var(--muted);font-family:inherit;font-size:12.5px;
+  font-weight:700;cursor:pointer;transition:color .18s,border-color .18s,background .18s}
+.finder-near:hover{color:var(--ink);border-color:var(--accent)}
+.finder-near.on{background:var(--accent);border-color:var(--accent);color:#04121f}
+.finder-ref{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  margin-top:8px;padding:7px 10px;border:1px dashed var(--line-strong);border-radius:8px;
+  font-size:12.5px;color:var(--muted)}
+.finder-ref strong{color:var(--ink)}
+.finder-ref .err{margin:0;font-size:12.5px}
+.finder-hint{color:var(--faint)}
+.linkbtn{border:0;background:transparent;color:var(--accent-text);cursor:pointer;
+  font:inherit;font-size:12.5px;padding:0 0 0 8px;text-decoration:underline}
+.finder-count{margin:8px 0 0;font-size:12px;color:var(--faint)}
+/* Su schermo stretto resta solo il mirino: l'icona basta, il nome
+   accessibile arriva da aria-label. */
+@media (max-width:480px){.finder-near span{display:none}.finder-near{padding:0 11px}}
+/* Distanza sulle card: è un dato, non un controllo — solo testo, nessun
+   riempimento. text-transform:none perché .rrow-sub/.crow-sub capitalizzano
+   ("12,3 Km" sarebbe sbagliato). Approssimata = in corsivo e più tenue. */
+.dist-badge{text-transform:none;font-weight:600;color:var(--accent-text);white-space:nowrap}
+.dist-badge.approx{font-weight:500;font-style:italic;color:var(--muted)}
+
 /* Attività nelle Impostazioni: due preferenze (visibile nel pannello /
    accesa all'avvio) per la stessa lista di voci, come UNA tabella compatta
    invece di due ToggleChipGroup che ripeterebbero le etichette due volte —

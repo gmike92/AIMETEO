@@ -19,6 +19,7 @@ import { fmtM, fmtMin, fmtNum } from "@/lib/fmt";
 import { useT } from "@/lib/i18n";
 import { useUnits } from "@/lib/units";
 import { useSettings } from "./SettingsProvider";
+import { NearBadge } from "./ListFinder";
 
 //: pagina client-side, non server: il filtro attività/ordinamento resta
 // nell'URL (regola 1c), qui si decide solo quanti dei risultati filtrati
@@ -161,7 +162,7 @@ function Profile({ points, freezingLevel, slug }) {
 // MapView.js) — lì "hasTrack" è sempre vero (la card compare solo cliccando
 // un marker, che esiste solo per itinerari con traccia) ma il link giusto
 // NON è "torna alla mappa" (ci si è già sopra), è la scheda completa.
-export default function RouteCard({ route: r, freezingLevel, alwaysDetail = false }) {
+export default function RouteCard({ route: r, freezingLevel, alwaysDetail = false, near = null }) {
   const t = useT();
   const units = useUnits();
   // Con una traccia reale il link apre la mappa sulla traccia; senza, la scheda.
@@ -185,7 +186,10 @@ export default function RouteCard({ route: r, freezingLevel, alwaysDetail = fals
             {t(ACT_KEY[r.activity]) || r.activity?.replace("_", " ")}
           </span>
           <h3>{r.name}</h3>
-          <p className="rcard-area">{r.area_name}</p>
+          <p className="rcard-area">
+            {r.area_name}
+            {near && <> · <NearBadge near={near} /></>}
+          </p>
         </div>
         {/* BSA e PD vengono da scale diverse: il grado da solo è ambiguo,
             la scala resta nel title. */}
@@ -230,7 +234,7 @@ export default function RouteCard({ route: r, freezingLevel, alwaysDetail = fals
 
 /** Variante compatta a riga, per la densità "elenco". Niente profilo (il
  *  punto dell'elenco è vederne tanti a schermo), stessi dati essenziali. */
-function RouteListRow({ route: r, freezingLevel }) {
+function RouteListRow({ route: r, freezingLevel, near = null }) {
   const t = useT();
   const units = useUnits();
   const hasTrack = r.start_lat != null && r.start_lon != null;
@@ -252,6 +256,7 @@ function RouteListRow({ route: r, freezingLevel }) {
         <strong>{r.name}</strong>
         <span className="rrow-sub">
           {t(ACT_KEY[r.activity]) || r.activity} · {r.area_name}
+          {near && <> · <NearBadge near={near} /></>}
         </span>
       </span>
       <span className="rrow-stat tnum">{tempo || "—"}</span>
@@ -268,10 +273,11 @@ function RouteListRow({ route: r, freezingLevel }) {
  *  freezingLevelByArea è una mappa area_id → quota (oggetto semplice, non
  *  una funzione: page.js è un Server Component e non può passare funzioni
  *  a un Client Component — "Functions cannot be passed directly..."). */
-export function RouteGrid({ routes = [], freezingLevelByArea = {} }) {
+export function RouteGrid({ routes = [], freezingLevelByArea = {}, nearBySlug = null }) {
   const { settings } = useSettings();
   const t = useT();
   const getFrz = (r) => freezingLevelByArea[r.area_id] ?? null;
+  const getNear = (r) => nearBySlug?.[r.slug] ?? null;
 
   const [visible, setVisible] = useState(PAGE_SIZE);
   // Un nuovo set di risultati (cambio tab attività, o sort) riparte dalla
@@ -286,13 +292,13 @@ export function RouteGrid({ routes = [], freezingLevelByArea = {} }) {
     settings.density === "list" ? (
       <div className="rlist">
         {shown.map((r) => (
-          <RouteListRow key={r.slug} route={r} freezingLevel={getFrz(r)} />
+          <RouteListRow key={r.slug} route={r} freezingLevel={getFrz(r)} near={getNear(r)} />
         ))}
       </div>
     ) : (
       <div className="grid">
         {shown.map((r) => (
-          <RouteCard key={r.slug} route={r} freezingLevel={getFrz(r)} />
+          <RouteCard key={r.slug} route={r} freezingLevel={getFrz(r)} near={getNear(r)} />
         ))}
       </div>
     );
