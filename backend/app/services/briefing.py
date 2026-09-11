@@ -16,6 +16,7 @@ from ..connectors import registry
 from ..connectors.base import BulletinFetchError
 from .. import store
 from .. import llm, prompts
+from ..providers import mountain_conditions
 
 router = APIRouter(prefix="/briefing", tags=["briefing"])
 
@@ -57,13 +58,18 @@ def make_briefing(req: BriefingRequest) -> Briefing:
     except Exception:
         rw = None  # no track / live weather down → relazione without the block
 
+    # Neve e alba reali (Open-Meteo, senza chiave): None per gli itinerari
+    # senza coordinate vere o se il servizio non risponde — la relazione
+    # scrive allora "non disponibile", mai un valore di ripiego.
+    conditions = mountain_conditions.for_route(route)
+
     # Try Gemini first (live mode). The payload contains ONLY verified structured
     # data; the enforced JSON schema keeps output predictable and auditable.
     text: str | None = None
     model = "deterministic-stub"
     try:
         payload = prompts.build_briefing_payload(route, bulletin, None, req.locale,
-                                                 route_weather=rw)
+                                                 route_weather=rw, conditions=conditions)
         result = llm.generate_json(
             prompts.SYSTEM_INSTRUCTION, payload, prompts.BRIEFING_SCHEMA
         )

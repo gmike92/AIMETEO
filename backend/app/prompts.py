@@ -92,8 +92,44 @@ def _forecast_block(fc: Optional[PointForecast]) -> str:
     )
 
 
+def _snow_block(c) -> str:
+    """Neve dal modello Open-Meteo (providers/mountain_conditions). La quota va
+    dichiarata: e' la neve al punto di partenza, non sul pendio chiave — senza
+    dirlo il modello potrebbe usarla come se valesse per tutta la gita."""
+    if c is None:
+        return f"  NEVE: {_ND}"
+    demo = " [DATI DIMOSTRATIVI]" if c.source == "mock" else ""
+    where = (f"al punto di partenza, quota {round(c.point_elevation_m)} m"
+             if c.point_elevation_m is not None else "al punto di partenza")
+
+    def cm(v) -> str:
+        return _ND if v is None else f"{v} cm"
+
+    return (
+        f"  NEVE (modello {c.source}, {where} — non sul pendio chiave): "
+        f"al suolo {cm(c.snow_depth_cm)}; "
+        f"fresca ultime 72 h {cm(c.snowfall_past72h_cm)}; "
+        f"prevista prossime 24 h {cm(c.snowfall_next24h_cm)}{demo}"
+    )
+
+
+def _daylight_block(c) -> str:
+    """Alba/tramonto di oggi, ora locale. Nei casi polari Open-Meteo restituisce
+    "00:00" sia col sole di mezzanotte sia con la notte polare: qui arriva gia'
+    distinto (vedi mountain_conditions.parse), mai come orario."""
+    if c is None:
+        return f"  ALBA prevista: {_ND}"
+    demo = " [DATI DIMOSTRATIVI]" if c.source == "mock" else ""
+    if c.polar == "sole_di_mezzanotte":
+        return f"  ALBA prevista: nessuna — sole di mezzanotte, il sole non tramonta oggi{demo}"
+    if c.polar == "notte_polare":
+        return f"  ALBA prevista: nessuna — notte polare, il sole non sorge oggi{demo}"
+    return (f"  ALBA prevista: {_fmt(c.sunrise)}, tramonto {_fmt(c.sunset)} "
+            f"(ora locale){demo}")
+
+
 def route_context(route: dict, bulletin: Optional[Bulletin],
-                  forecast: Optional[PointForecast]) -> str:
+                  forecast: Optional[PointForecast], conditions=None) -> str:
     """One candidate block of the context payload — all values verbatim from data."""
     # Nome reale del rifugio, non lo slug interno: il modello scrive una
     # relazione per una persona, "Cabane Estany de la Bova" e' un dato,
@@ -121,8 +157,9 @@ def route_context(route: dict, bulletin: Optional[Bulletin],
         f"  Note esposizione: {_fmt(route.get('exposure_notes'))}",
         f"  Rifugi: {refuges}",
         _forecast_block(forecast),
+        _snow_block(conditions),
         bl,
-        f"  ALBA prevista: {_ND}",  # wired when the sun/ephemeris helper lands
+        _daylight_block(conditions),
     ])
 
 
@@ -162,11 +199,11 @@ def model_insights_block(m) -> str:
 
 def build_briefing_payload(route: dict, bulletin: Bulletin,
                            forecast: Optional[PointForecast], locale: str,
-                           route_weather=None) -> str:
+                           route_weather=None, conditions=None) -> str:
     return "\n".join([
         f"LINGUA RISPOSTA: {locale}",
         "DATI ITINERARIO E CONDIZIONI (usa solo questi):",
-        route_context(route, bulletin, forecast),
+        route_context(route, bulletin, forecast, conditions),
         *( [weather_along_route_block(route_weather.points)]
            if route_weather and route_weather.points else [] ),
         *( [model_insights_block(route_weather.model)]
@@ -180,8 +217,11 @@ def build_briefing_payload(route: dict, bulletin: Bulletin,
 
 
 def build_trip_payload(req: PlanRequest,
-                       candidates: list[tuple[dict, Optional[Bulletin], Optional[PointForecast]]]) -> str:
-    blocks = "\n".join(route_context(r, b, f) for r, b, f in candidates)
+                       candidates: list[tuple[dict, Optional[Bulletin], Optional[PointForecast]]],
+                       conditions_by_slug: Optional[dict] = None) -> str:
+    cond = conditions_by_slug or {}
+    blocks = "\n".join(route_context(r, b, f, cond.get(r["slug"]))
+                       for r, b, f in candidates)
     return "\n".join([
         "RICHIESTA UTENTE:",
         req.intent_text,

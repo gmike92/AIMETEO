@@ -19,7 +19,7 @@ from ..models import PlanRequest, PlanResponse, PlanCandidate, PointForecast
 from ..config import settings
 from ..connectors import registry
 from ..connectors.base import BulletinFetchError
-from ..providers import google_weather
+from ..providers import google_weather, mountain_conditions
 from .. import store
 from .. import safety_filters as sf
 from .. import llm, prompts
@@ -238,7 +238,14 @@ def plan(req: PlanRequest) -> PlanResponse:
     plan_model = None
     if safe and settings.trip_planner_enabled:
         try:
-            payload = prompts.build_trip_payload(req, safe_ctx[:3])
+            # Neve e alba solo per i 3 candidati che il modello vede davvero:
+            # al piu' 3 chiamate Open-Meteo per richiesta, non una per
+            # itinerario valutato. Aggiungono contesto alla relazione ma NON
+            # entrano nei filtri di sicurezza sopra, gia' eseguiti: la
+            # decisione su cosa e' sicuro non dipende da questo blocco.
+            top = safe_ctx[:3]
+            conditions = {r["slug"]: mountain_conditions.for_route(r) for r, _, _ in top}
+            payload = prompts.build_trip_payload(req, top, conditions)
             plan_json = llm.generate_json(
                 prompts.SYSTEM_INSTRUCTION, payload, prompts.RENDER_TRIP_PLAN_SCHEMA
             )
