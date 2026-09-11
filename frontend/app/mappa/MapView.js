@@ -38,6 +38,10 @@ const GLYPH = {
   sun: svg('<circle cx="12" cy="12" r="4.4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2' +
     'M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6L17 7M7 17l-1.4 1.4"/>'),
   moon: svg('<path d="M20.2 14.8A8.6 8.6 0 019.4 4a8.6 8.6 0 1010.8 10.8z"/>'),
+  // I popup e i divIcon di Leaflet finiscono nel documento, quindi le
+  // custom property di :root cascadono anche qui: niente hex nuovi.
+  bolt: svg('<path d="M13.2 2L5.5 13.2H11l-1 8.8 7.7-11.4H12z"/>',
+    { size: 20, fill: true, stroke: "var(--warn)" }),
 };
 
 // Zoom +/- di Leaflet: sostituisce il carattere di sistema (bruttino, mai
@@ -250,15 +254,9 @@ async function fetchGrid(g) {
       lons.push(normalizeLon(g.lo1 + ix * g.dx).toFixed(2));
     }
   }
-  // `cape` alimenta il campo Temporali: stessa richiesta, zero chiamate in
-  // più. È l'unica variabile temporalesca di Open-Meteo con copertura
-  // globale — lightning_potential sarebbe più diretta, ma è dei soli modelli
-  // ICON (Europa centrale) e fuori da lì torna null (verificato: su Roma già
-  // null). Su una mappa mondiale un campo a macchie farebbe leggere "niente
-  // temporali" dove semplicemente non c'è il dato.
   const url =
     `https://api.open-meteo.com/v1/forecast?latitude=${lats.join(",")}&longitude=${lons.join(",")}` +
-    `&current=temperature_2m,wind_speed_10m,wind_direction_10m,uv_index,cloud_cover,cape&wind_speed_unit=ms`;
+    `&current=temperature_2m,wind_speed_10m,wind_direction_10m,uv_index,cloud_cover&wind_speed_unit=ms`;
   // Stessi punti della griglia meteo, un'altra API Open-Meteo (Copernicus
   // DEM, globale — niente più tile pregenerati per una sola "area pilota"):
   // in parallelo con /forecast, non in coda, e mai bloccante se fallisce —
@@ -275,7 +273,6 @@ async function fetchGrid(g) {
   const temps = [];
   const uvs = [];
   const clouds = [];
-  const capes = [];
   for (const p of list) {
     const s = p.current.wind_speed_10m;
     const d = (p.current.wind_direction_10m * Math.PI) / 180;
@@ -284,7 +281,6 @@ async function fetchGrid(g) {
     temps.push(p.current.temperature_2m);
     uvs.push(p.current.uv_index ?? 0);
     clouds.push(p.current.cloud_cover ?? 0);
-    capes.push(p.current.cape ?? 0);
   }
   const elevations = Array.isArray(elevData?.elevation) && elevData.elevation.length === g.nx * g.ny
     ? elevData.elevation
@@ -300,7 +296,7 @@ async function fetchGrid(g) {
       { header: { ...header, parameterNumber: 2 }, data: u },
       { header: { ...header, parameterNumber: 3 }, data: v },
     ],
-    temps, uvs, clouds, capes, slopes, nx: g.nx, ny: g.ny, lo1: g.lo1, la1: g.la1, lo2: g.lo2, la2: g.la2,
+    temps, uvs, clouds, slopes, nx: g.nx, ny: g.ny, lo1: g.lo1, la1: g.la1, lo2: g.lo2, la2: g.la2,
   };
 }
 
@@ -462,33 +458,95 @@ const cloudCanvas = (clouds, nx, ny) =>
     maxAlpha: 160, alphaFn: (v) => Math.min(1, Math.max(0, v) / 100), blur: 6,
   });
 
-// CAPE (J/kg) — l'energia disponibile per la convezione, il "carburante" dei
-// temporali. È un POTENZIALE previsto dal modello, non fulmini osservati:
-// per questo il campo si chiama Temporali e non più Fulmini. Soglie
-// meteorologiche usuali: sotto 300 trascurabile (trasparente, così una
-// giornata stabile non tinge la mappa), 300–1000 debole, 1000–2500
-// moderata, oltre 2500 forte. Rosa come il pulsante del campo
-// (.railbtn.on.v-lightning), distinto dalla scala UV verde→viola.
-const CAPE_STOPS = [
-  [300, [249, 168, 212]], [1000, [244, 114, 182]],
-  [2500, [219, 39, 119]], [4000, [131, 24, 67]],
-];
-function capeColor(v) {
-  if (v <= CAPE_STOPS[0][0]) return CAPE_STOPS[0][1];
-  for (let i = 1; i < CAPE_STOPS.length; i++) {
-    const [v1, c1] = CAPE_STOPS[i - 1];
-    const [v2, c2] = CAPE_STOPS[i];
-    if (v <= v2) {
-      const k = (v - v1) / (v2 - v1);
-      return c1.map((c, j) => Math.round(c + (c2[j] - c) * k));
+// Fulmini OSSERVATI — Lightning Imager del satellite Meteosat Third
+// Generation (EUMETSAT, prodotto LI Accumulated Flash Area): per ogni
+// fotogramma, dove sono caduti lampi e quanti (1 → 20+ ogni 5 minuti,
+// scala ufficiale giallo→rosso). Servito dal WMS pubblico EUMETView:
+// nessuna chiave, AccessConstraints/Fees "none", CORS aperto (serve per
+// leggere i pixel e mettere le icone dove cadono davvero). Un fotogramma
+// ogni 5 minuti. Copertura: il disco del satellite a 0° — Europa, Africa,
+// Atlantico; niente Americhe occidentali, Asia, Oceania.
+const LIGHTNING_WMS = "https://view.eumetsat.int/geoserver/mtg_fd/li_afa/wms";
+const LIGHTNING_STEP_MS = 5 * 60 * 1000;
+// 6 fotogrammi = ultimi 30 minuti: il più recente pieno, i vecchi sempre
+// più tenui — è così che il layer dice QUANDO, oltre che dove.
+const LIGHTNING_FRAME_OPACITY = [0.95, 0.62, 0.45, 0.33, 0.24, 0.16];
+
+// Ora dell'ultimo fotogramma disponibile. Capabilities del SOLO layer
+// (~7 KB) invece di quelle dell'intero servizio (~280 KB).
+async function fetchLightningLatest() {
+  const xml = await fetch(
+    `${LIGHTNING_WMS}?service=WMS&version=1.3.0&request=GetCapabilities`
+  ).then((r) => r.text());
+  const m = xml.match(/<Dimension name="time"[^>]*default="([^"]+)"/);
+  if (!m) throw new Error("ora ultimo fotogramma fulmini non trovata");
+  const t = new Date(m[1]);
+  if (Number.isNaN(t.getTime())) throw new Error("ora fotogramma fulmini non valida");
+  return t;
+}
+
+// GetMap della vista corrente in EPSG:3857 — la stessa proiezione di
+// Leaflet. Un'immagine in lat/lon stirata sui bordi della mappa sposterebbe
+// i fulmini di decine di km in latitudine a scala continentale. Se la vista
+// è su una copia del mondo (lng oltre ±180) si chiede il tratto equivalente
+// e si ridisegna spostato di k·360°.
+function lightningRequest(L, map, time) {
+  const b = map.getBounds();
+  const k = Math.round(b.getCenter().lng / 360);
+  const clampLat = (v) => Math.max(-85, Math.min(85, v));
+  const sw = L.latLng(clampLat(b.getSouth()), b.getWest() - 360 * k);
+  const ne = L.latLng(clampLat(b.getNorth()), b.getEast() - 360 * k);
+  const pSW = L.CRS.EPSG3857.project(sw);
+  const pNE = L.CRS.EPSG3857.project(ne);
+  const size = map.getSize();
+  const scale = Math.min(1, 1024 / Math.max(size.x, size.y));
+  const w = Math.max(64, Math.round(size.x * scale));
+  const h = Math.max(64, Math.round(size.y * scale));
+  const url =
+    `${LIGHTNING_WMS}?service=WMS&version=1.3.0&request=GetMap&layers=li_afa&styles=` +
+    `&crs=EPSG:3857&bbox=${pSW.x},${pSW.y},${pNE.x},${pNE.y}` +
+    `&width=${w}&height=${h}&format=image/png&transparent=true` +
+    `&time=${time.toISOString().replace(".000Z", "Z")}`;
+  return {
+    url, w, h, k, pSW, pNE,
+    bounds: [[sw.lat, sw.lng + 360 * k], [ne.lat, ne.lng + 360 * k]],
+  };
+}
+
+// Punti dove sta cadendo, dai pixel del fotogramma più recente. Intensità
+// dal canale verde: la scala ufficiale va da giallo pallido (G≈250, 1
+// lampo) ad arancio (G≈140, 10) a rosso scuro (G≈0, 20+), quindi 255−G
+// cresce con il numero di lampi. Si prende il pixel più intenso per cella
+// di ~20 px, così un temporale esteso non diventa mille icone sovrapposte.
+function findStrikeSpots(L, img, req, maxSpots = 16) {
+  const cv = document.createElement("canvas");
+  cv.width = req.w;
+  cv.height = req.h;
+  const ctx = cv.getContext("2d");
+  ctx.drawImage(img, 0, 0, req.w, req.h);
+  const { data } = ctx.getImageData(0, 0, req.w, req.h);
+  const CELL = 20;
+  const best = new Map();
+  for (let y = 0; y < req.h; y++) {
+    for (let x = 0; x < req.w; x++) {
+      const i = (y * req.w + x) * 4;
+      if (data[i + 3] < 60) continue; // trasparente: nessun lampo
+      const intensity = 255 - data[i + 1];
+      const key = `${Math.floor(x / CELL)},${Math.floor(y / CELL)}`;
+      const cur = best.get(key);
+      if (!cur || intensity > cur.intensity) best.set(key, { x, y, intensity });
     }
   }
-  return CAPE_STOPS[CAPE_STOPS.length - 1][1];
+  return [...best.values()]
+    .sort((a, b) => b.intensity - a.intensity)
+    .slice(0, maxSpots)
+    .map(({ x, y, intensity }) => {
+      const px = req.pSW.x + ((x + 0.5) / req.w) * (req.pNE.x - req.pSW.x);
+      const py = req.pNE.y - ((y + 0.5) / req.h) * (req.pNE.y - req.pSW.y);
+      const ll = L.CRS.EPSG3857.unproject(L.point(px, py));
+      return { lat: ll.lat, lng: ll.lng + 360 * req.k, weight: 1 + intensity };
+    });
 }
-const capeCanvas = (capes, nx, ny) =>
-  fieldCanvas(capes, nx, ny, capeColor, {
-    maxAlpha: 170, alphaFn: (v) => Math.min(1, Math.max(0, (v - 300) / 1200)), blur: 4,
-  });
 
 // Day/night terminator, computed per OUTPUT pixel directly (not interpolated
 // off the coarse ~200-point weather grid): the terminator is close to a hard
@@ -553,9 +611,10 @@ const uvGradient = (() => {
 })();
 
 const CLOUD_GRADIENT = "linear-gradient(90deg, rgba(244,240,232,0), rgba(244,240,232,.82))";
-const CAPE_GRADIENT = `linear-gradient(90deg, ${CAPE_STOPS.map(
-  ([, c]) => `rgb(${c.join(",")})`
-).join(",")})`;
+// Stessi colori della legenda ufficiale EUMETSAT del prodotto (1 → 10 → 20+
+// lampi ogni 5 minuti): la legenda non può divergere da quello che si vede.
+const LIGHTNING_GRADIENT =
+  "linear-gradient(90deg, rgb(255,250,200), rgb(247,178,86) 45%, rgb(222,70,40) 75%, rgb(128,0,38))";
 const AURORA_GRADIENT = "linear-gradient(90deg, rgba(60,255,170,0), rgba(60,255,170,.9))";
 // Il radar RainViewer arriva già come tile colorate (nessun valore numerico
 // per pixel, a differenza di temp/UV/nuvole che disegniamo noi): scala
@@ -736,6 +795,13 @@ export default function MapView({
   const [auroraReady, setAuroraReady] = useState(false);
   const [auroraDataVersion, setAuroraDataVersion] = useState(0); // bump → nuovo fetch NOAA disegnato
   const [lightning, setLightning] = useState(false);
+  // Ora dell'ultimo fotogramma fulmini (null = in caricamento o non
+  // raggiungibile) e quanti punti attivi ci sono nella vista: servono al
+  // tag e alla legenda, per dire QUANDO e se nella vista sta cadendo.
+  const [lightningTime, setLightningTime] = useState(null);
+  const [lightningFailed, setLightningFailed] = useState(false);
+  const [lightningSpots, setLightningSpots] = useState(null);
+  const [lightningDataVersion, setLightningDataVersion] = useState(0);
 
   const [showRoutes, setShowRoutes] = useState(false); // nessuna attività attiva di default
   const [showCrags, setShowCrags] = useState(false);
@@ -1776,29 +1842,122 @@ export default function MapView({
     S.current.auroraLayer = group;
   }, [aurora, ready, viewVersion, auroraDataVersion]);
 
-  // Temporali — potenziale convettivo reale (CAPE, Open-Meteo), dalla stessa
-  // griglia di temp/UV/nuvole. Prima qui c'erano fulmini SINTETICI: icone
-  // in posizioni casuali della vista ogni 1,8 s, etichettate "demo". Un
-  // feed di fulmini osservati resta non integrabile a costo zero —
-  // Blitzortung vieta l'uso fuori dal proprio sito, EUMETSAT (MTG Lightning
-  // Imager) richiede un account — quindi si mostra il dato che c'è davvero,
-  // chiamandolo per quello che è.
+  // Fulmini — dati: ora dell'ultimo fotogramma MTG, ogni 5 minuti mentre il
+  // campo è acceso (EUMETSAT ne pubblica uno nuovo ogni 5'). Prima qui
+  // c'erano fulmini SINTETICI in posizioni casuali: ora sono osservati.
   useEffect(() => {
-    const { map, grid } = S.current;
-    if (!map) return;
-    if (lightning && grid) {
-      swapFieldOverlay(
-        S, map, "capeOverlay",
-        () => ({
-          url: capeCanvas(grid.capes, grid.nx, grid.ny),
-          bounds: [[grid.la2, grid.lo1], [grid.la1, grid.lo2]],
-        }),
-        0.5
-      );
-    } else {
-      fadeOutFieldOverlay(S, map, "capeOverlay");
+    if (!lightning) {
+      // senza azzerarlo, alla riaccensione si ridisegnerebbero per un attimo
+      // fotogrammi vecchi di chissà quanto, presentati come attuali
+      S.current.lightningLatest = null;
+      setLightningTime(null);
+      setLightningFailed(false);
+      setLightningSpots(null);
+      return;
     }
-  }, [lightning, ready, gridVersion]);
+    let dead = false;
+    const load = async () => {
+      try {
+        const t = await fetchLightningLatest();
+        if (dead) return;
+        S.current.lightningLatest = t;
+        setLightningTime(t);
+        setLightningFailed(false);
+        setLightningDataVersion((v) => v + 1);
+      } catch {
+        if (!dead) setLightningFailed(true);
+      }
+    };
+    load();
+    const timer = setInterval(load, LIGHTNING_STEP_MS);
+    return () => {
+      dead = true;
+      clearInterval(timer);
+    };
+  }, [lightning, ready]);
+
+  // Fulmini — disegno. Gli ultimi 30 minuti (6 fotogrammi) sulla vista
+  // corrente, il più recente in cima e pieno, i più vecchi via via più
+  // tenui: si vede DOVE è caduto e QUANDO. Le icone lampeggianti — lo stesso
+  // effetto della versione dimostrativa — compaiono solo nei punti del
+  // fotogramma più recente, cioè dove sta cadendo adesso. Ridisegnato a ogni
+  // pan/zoom (le immagini sono della vista, non del mondo) e a ogni nuovo
+  // fotogramma.
+  useEffect(() => {
+    const { L, map } = S.current;
+    if (!map) return;
+    const latest = S.current.lightningLatest;
+    if (!lightning || !latest) return;
+
+    const group = L.layerGroup().addTo(map);
+    const bolts = L.layerGroup().addTo(map);
+    let dead = false;
+    let strikeTimer = null;
+
+    // dal più vecchio al più recente, così il più recente resta sopra
+    const n = LIGHTNING_FRAME_OPACITY.length;
+    for (let i = n - 1; i >= 0; i--) {
+      const req = lightningRequest(L, map, new Date(latest.getTime() - i * LIGHTNING_STEP_MS));
+      L.imageOverlay(req.url, req.bounds, {
+        opacity: LIGHTNING_FRAME_OPACITY[i],
+        interactive: false,
+        crossOrigin: "anonymous",
+        attribution: 'fulmini © <a href="https://view.eumetsat.int">EUMETSAT</a> (MTG Lightning Imager)',
+      }).addTo(group);
+    }
+
+    // Punti attivi dal fotogramma più recente, letti dai pixel.
+    const req = lightningRequest(L, map, latest);
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      if (dead) return;
+      let spots = [];
+      try {
+        spots = findStrikeSpots(L, img, req);
+      } catch {
+        spots = []; // canvas non leggibile: restano le aree, niente icone
+      }
+      setLightningSpots(spots.length);
+      if (!spots.length) return;
+      const total = spots.reduce((s, p) => s + p.weight, 0);
+      const pick = () => {
+        // più lampi in quella cella = più spesso lampeggia lì
+        let r = Math.random() * total;
+        for (const p of spots) {
+          r -= p.weight;
+          if (r <= 0) return p;
+        }
+        return spots[spots.length - 1];
+      };
+      const strike = () => {
+        for (let j = 0; j < Math.min(2, spots.length); j++) {
+          const p = pick();
+          const m = L.marker([p.lat, p.lng], {
+            interactive: false,
+            icon: L.divIcon({
+              className: "", html: `<span class="lightning-bolt">${GLYPH.bolt}</span>`,
+              iconSize: [22, 22], iconAnchor: [11, 11],
+            }),
+          }).addTo(bolts);
+          setTimeout(() => bolts.removeLayer(m), 1300); // durata di .lightning-bolt
+        }
+      };
+      strike();
+      strikeTimer = setInterval(strike, 1500);
+    };
+    img.onerror = () => {
+      if (!dead) setLightningSpots(null);
+    };
+    img.src = req.url;
+
+    return () => {
+      dead = true;
+      if (strikeTimer) clearInterval(strikeTimer);
+      map.removeLayer(group);
+      map.removeLayer(bolts);
+    };
+  }, [lightning, ready, viewVersion, lightningDataVersion]);
 
   useEffect(() => {
     const { L, map, frames: fr, radarHost, radarLayers } = S.current;
@@ -1916,11 +2075,16 @@ export default function MapView({
       title: "Probabilità aurora — modello NOAA OVATION",
     },
     {
-      // La chiave resta "lightning": la usano i link profondi (?fields=) e le
-      // preferenze salvate, rinominarla spegnerebbe il campo a chi l'aveva.
-      key: "lightning", label: "Temporali", on: lightning, variant: "lightning", icon: Icon.Bolt,
+      key: "lightning", label: "Fulmini", on: lightning, variant: "lightning", icon: Icon.Bolt,
       toggle: () => setLightning(!lightning),
-      title: "Potenziale temporalesco (CAPE) previsto dal modello — non fulmini osservati",
+      // l'etichetta dice QUANDO: ora dell'ultimo rilevamento, non "demo"
+      tag: !lightning ? undefined
+        : lightningFailed ? "n.d."
+        : lightningTime ? lightningTime.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" })
+        : "…",
+      title: "Fulmini osservati dal satellite MTG (EUMETSAT), ultimi 30 minuti: più tenue = " +
+        "più vecchio; le icone lampeggiano dove sta cadendo adesso. Aggiornati ogni 5 minuti. " +
+        "Copertura: Europa, Africa, Atlantico.",
     },
   ];
 
@@ -1989,7 +2153,15 @@ export default function MapView({
     clouds && { key: "clouds", label: "Nuvole", min: "0%", max: "100%", gradient: CLOUD_GRADIENT },
     radar && { key: "radar", label: "Pioggia", min: "leggera", max: "intensa", gradient: RADAR_GRADIENT },
     aurora && { key: "aurora", label: "Aurora", min: "bassa", max: "alta", gradient: AURORA_GRADIENT },
-    lightning && { key: "lightning", label: "Temporali (CAPE)", min: "debole", max: "forte", gradient: CAPE_GRADIENT },
+    // Legenda onesta anche quando la vista è vuota: "nessuno" è un dato
+    // (il satellite guarda e non vede lampi), diverso da "non disponibile".
+    lightning && {
+      key: "lightning",
+      label: lightningFailed ? "Fulmini · non disponibili"
+        : lightningSpots === 0 ? "Fulmini · nessuno qui (30 min)"
+        : "Fulmini · ultimi 30 min",
+      min: "1 lampo", max: "20+ /5 min", gradient: LIGHTNING_GRADIENT,
+    },
     slope && { key: "slope", label: "Pendenze", min: "30°", max: "45°+", gradient: SLOPE_GRADIENT },
   ].filter(Boolean);
 

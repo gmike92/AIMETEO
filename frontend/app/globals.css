@@ -436,6 +436,11 @@ html:has(.mapshell.full),body:has(.mapshell.full){overflow:hidden;height:100%}
    a questo file. MapView era l'unico consumatore (/mappa fa redirect a
    /), quindi non restava nessuna pagina da migrare. */
 
+.lightning-bolt{display:block;line-height:0;filter:drop-shadow(0 0 6px #f5d54799);
+  animation:boltflash 1.1s ease-out forwards}
+@keyframes boltflash{0%{opacity:0;transform:scale(.4)}12%{opacity:1;transform:scale(1.15)}
+  25%{transform:scale(1)}100%{opacity:0}}
+
 .mapcta{position:absolute;top:calc(var(--navbar-h) + 16px);left:150px;right:70px;z-index:1000;
   display:flex;gap:8px;align-items:center;flex-wrap:wrap;pointer-events:none;
   transition:top .32s ease}
