@@ -10,7 +10,13 @@
    "default_locale": "it",
    "avalanche_service": "AINEVA",
    "avalanche_zone": "IT-32-BZ",
-   "avalanche_subzone": "IT-32-BZ-14"
+   "avalanche_subzone": "IT-32-BZ-14",
+   "bbox": [
+    46.25,
+    10.35,
+    46.55,
+    10.8
+   ]
   },
   {
    "id": "area-dolomiti-fassa",
@@ -20,7 +26,13 @@
    "default_locale": "it",
    "avalanche_service": "AINEVA",
    "avalanche_zone": "IT-32-TN",
-   "avalanche_subzone": "IT-32-TN-16"
+   "avalanche_subzone": "IT-32-TN-16",
+   "bbox": [
+    46.35,
+    11.75,
+    46.55,
+    12.0
+   ]
   },
   {
    "id": "area-gran-paradiso",
@@ -30,7 +42,13 @@
    "default_locale": "it",
    "avalanche_service": "AINEVA",
    "avalanche_zone": "IT-23",
-   "avalanche_subzone": "IT-23-AO-21"
+   "avalanche_subzone": "IT-23-AO-21",
+   "bbox": [
+    45.4,
+    7.05,
+    45.65,
+    7.45
+   ]
   },
   {
    "id": "area-dolomiti-ampezzo",
@@ -40,7 +58,13 @@
    "default_locale": "it",
    "avalanche_service": "AINEVA",
    "avalanche_zone": "IT-34",
-   "avalanche_subzone": "IT-34-BL-02"
+   "avalanche_subzone": "IT-34-BL-02",
+   "bbox": [
+    46.45,
+    11.95,
+    46.65,
+    12.25
+   ]
   },
   {
    "id": "area-orobie",
@@ -50,7 +74,13 @@
    "default_locale": "it",
    "avalanche_service": "AINEVA",
    "avalanche_zone": "IT-25",
-   "avalanche_subzone": "IT-25-BG-02"
+   "avalanche_subzone": "IT-25-BG-02",
+   "bbox": [
+    45.9,
+    9.75,
+    46.1,
+    10.15
+   ]
   },
   {
    "id": "area-alta-valcamonica",
@@ -60,7 +90,13 @@
    "default_locale": "it",
    "avalanche_service": "AINEVA",
    "avalanche_zone": "IT-25",
-   "avalanche_subzone": "IT-25-BS-01"
+   "avalanche_subzone": "IT-25-BS-01",
+   "bbox": [
+    46.1,
+    10.2,
+    46.32,
+    10.55
+   ]
   },
   {
    "id": "area-gran-sasso",
@@ -71,7 +107,13 @@
    "avalanche_service": "Meteomont",
    "avalanche_zone": "IT-MeteoMont",
    "avalanche_subzone": "IT-MeteoMont-11-2",
-   "_note": "Bollettino Meteomont reale (mirror EAWS avalanche.report, gratuito), micro-regione verificata dal vivo contro un bollettino reale — mai un dato inventato."
+   "_note": "Bollettino Meteomont reale (mirror EAWS avalanche.report, gratuito), micro-regione verificata dal vivo contro un bollettino reale — mai un dato inventato.",
+   "bbox": [
+    42.35,
+    13.45,
+    42.55,
+    13.75
+   ]
   },
   {
    "id": "area-majella",
@@ -82,7 +124,13 @@
    "avalanche_service": "Meteomont",
    "avalanche_zone": "IT-MeteoMont",
    "avalanche_subzone": "IT-MeteoMont-11-3",
-   "_note": "Bollettino Meteomont reale (mirror EAWS avalanche.report, gratuito), micro-regione verificata dal vivo contro un bollettino reale — mai un dato inventato."
+   "_note": "Bollettino Meteomont reale (mirror EAWS avalanche.report, gratuito), micro-regione verificata dal vivo contro un bollettino reale — mai un dato inventato.",
+   "bbox": [
+    41.95,
+    13.95,
+    42.2,
+    14.25
+   ]
   },
   {
    "id": "area-sibillini",
@@ -93,7 +141,13 @@
    "avalanche_service": "AINEVA Marche",
    "avalanche_zone": "IT-57",
    "avalanche_subzone": "IT-57-MC-01",
-   "_note": "Bollettino AINEVA Marche reale (mirror EAWS avalanche.report, gratuito), micro-regione verificata dal vivo contro un bollettino reale — mai un dato inventato."
+   "_note": "Bollettino AINEVA Marche reale (mirror EAWS avalanche.report, gratuito), micro-regione verificata dal vivo contro un bollettino reale — mai un dato inventato.",
+   "bbox": [
+    42.8,
+    13.05,
+    43.05,
+    13.35
+   ]
   },
   {
    "id": "area-ecrins",
@@ -104,7 +158,13 @@
    "avalanche_service": "Meteo France",
    "avalanche_zone": "FR",
    "avalanche_subzone": "FR-15",
-   "_note": "Bollettino Meteo France reale (mirror EAWS avalanche.report, gratuito) - nessuna micro-regione specifica assegnata: si prende il bollettino piu severo del file nazionale (fallback conservativo documentato in eaws_mirror.py), mai un dato inventato."
+   "_note": "Bollettino Meteo France reale (mirror EAWS avalanche.report, gratuito) - nessuna micro-regione specifica assegnata: si prende il bollettino piu severo del file nazionale (fallback conservativo documentato in eaws_mirror.py), mai un dato inventato.",
+   "bbox": [
+    44.8,
+    6.15,
+    45.05,
+    6.55
+   ]
   },
   {
    "id": "area-vanoise",
@@ -115,7 +175,13 @@
    "avalanche_service": "Meteo France",
    "avalanche_zone": "FR",
    "avalanche_subzone": "FR-06",
-   "_note": "Bollettino Meteo France reale (mirror EAWS avalanche.report, gratuito) - nessuna micro-regione specifica assegnata: si prende il bollettino piu severo del file nazionale (fallback conservativo documentato in eaws_mirror.py), mai un dato inventato."
+   "_note": "Bollettino Meteo France reale (mirror EAWS avalanche.report, gratuito) - nessuna micro-regione specifica assegnata: si prende il bollettino piu severo del file nazionale (fallback conservativo documentato in eaws_mirror.py), mai un dato inventato.",
+   "bbox": [
+    45.25,
+    6.75,
+    45.5,
+    7.15
+   ]
   },
   {
    "id": "area-mont-blanc-fr",
@@ -126,7 +192,13 @@
    "avalanche_service": "Meteo France",
    "avalanche_zone": "FR",
    "avalanche_subzone": "FR-03",
-   "_note": "Bollettino Meteo France reale (mirror EAWS avalanche.report, gratuito) - nessuna micro-regione specifica assegnata: si prende il bollettino piu severo del file nazionale (fallback conservativo documentato in eaws_mirror.py), mai un dato inventato."
+   "_note": "Bollettino Meteo France reale (mirror EAWS avalanche.report, gratuito) - nessuna micro-regione specifica assegnata: si prende il bollettino piu severo del file nazionale (fallback conservativo documentato in eaws_mirror.py), mai un dato inventato.",
+   "bbox": [
+    45.8,
+    6.7,
+    45.98,
+    7.0
+   ]
   },
   {
    "id": "area-alpi-giulie",
@@ -136,7 +208,13 @@
    "default_locale": "it",
    "avalanche_service": "AINEVA",
    "avalanche_zone": "IT-36",
-   "avalanche_subzone": "IT-36-UD-03"
+   "avalanche_subzone": "IT-36-UD-03",
+   "bbox": [
+    46.35,
+    13.35,
+    46.55,
+    13.65
+   ]
   },
   {
    "id": "area-grigna-resegone",
@@ -146,7 +224,13 @@
    "default_locale": "it",
    "avalanche_service": "AINEVA",
    "avalanche_zone": "IT-25",
-   "avalanche_subzone": "IT-25-LC-01"
+   "avalanche_subzone": "IT-25-LC-01",
+   "bbox": [
+    45.78,
+    9.35,
+    45.95,
+    9.55
+   ]
   },
   {
    "id": "area-alpi-marittime",
@@ -156,7 +240,13 @@
    "default_locale": "it",
    "avalanche_service": "AINEVA",
    "avalanche_zone": "IT-21",
-   "avalanche_subzone": "IT-21-CN-02"
+   "avalanche_subzone": "IT-21-CN-02",
+   "bbox": [
+    44.05,
+    7.1,
+    44.25,
+    7.4
+   ]
   },
   {
    "id": "area-monte-rosa-it",
@@ -166,7 +256,13 @@
    "default_locale": "it",
    "avalanche_service": "AINEVA",
    "avalanche_zone": "IT-21",
-   "avalanche_subzone": "IT-21-VB-01"
+   "avalanche_subzone": "IT-21-VB-01",
+   "bbox": [
+    45.85,
+    7.85,
+    46.05,
+    8.05
+   ]
   },
   {
    "id": "area-adamello-presanella",
@@ -176,7 +272,13 @@
    "default_locale": "it",
    "avalanche_service": "AINEVA",
    "avalanche_zone": "IT-32-TN",
-   "avalanche_subzone": "IT-32-TN-04"
+   "avalanche_subzone": "IT-32-TN-04",
+   "bbox": [
+    46.1,
+    10.82,
+    46.35,
+    11.05
+   ]
   },
   {
    "id": "area-apuane",
@@ -187,7 +289,13 @@
    "avalanche_service": "Meteomont",
    "avalanche_zone": "IT-MeteoMont",
    "avalanche_subzone": "IT-MeteoMont-09-1",
-   "_note": "Bollettino Meteomont reale (mirror EAWS avalanche.report, gratuito), micro-regione verificata dal vivo contro un bollettino reale — mai un dato inventato."
+   "_note": "Bollettino Meteomont reale (mirror EAWS avalanche.report, gratuito), micro-regione verificata dal vivo contro un bollettino reale — mai un dato inventato.",
+   "bbox": [
+    43.95,
+    10.15,
+    44.15,
+    10.45
+   ]
   },
   {
    "id": "area-pollino",
@@ -198,7 +306,13 @@
    "avalanche_service": "Meteomont",
    "avalanche_zone": "IT-MeteoMont",
    "avalanche_subzone": "IT-MeteoMont-13-2",
-   "_note": "Bollettino Meteomont reale (mirror EAWS avalanche.report, gratuito), micro-regione verificata dal vivo contro un bollettino reale — mai un dato inventato."
+   "_note": "Bollettino Meteomont reale (mirror EAWS avalanche.report, gratuito), micro-regione verificata dal vivo contro un bollettino reale — mai un dato inventato.",
+   "bbox": [
+    39.85,
+    15.95,
+    40.1,
+    16.3
+   ]
   },
   {
    "id": "area-finale-ligure",
@@ -209,7 +323,13 @@
    "avalanche_service": null,
    "avalanche_zone": null,
    "avalanche_subzone": null,
-   "_note": "Falesia/area costiera o carsica: nessuna attività da neve importata (arrampicata, escursionismo), bollettino valanghe non applicabile."
+   "_note": "Falesia/area costiera o carsica: nessuna attività da neve importata (arrampicata, escursionismo), bollettino valanghe non applicabile.",
+   "bbox": [
+    44.14,
+    8.28,
+    44.22,
+    8.42
+   ]
   },
   {
    "id": "area-sardegna-iglesiente",
@@ -220,7 +340,13 @@
    "avalanche_service": null,
    "avalanche_zone": null,
    "avalanche_subzone": null,
-   "_note": "Falesia/area costiera o carsica: nessuna attività da neve importata (arrampicata, escursionismo), bollettino valanghe non applicabile."
+   "_note": "Falesia/area costiera o carsica: nessuna attività da neve importata (arrampicata, escursionismo), bollettino valanghe non applicabile.",
+   "bbox": [
+    39.15,
+    8.5,
+    39.35,
+    8.7
+   ]
   },
   {
    "id": "area-sardegna-supramonte",
@@ -231,7 +357,13 @@
    "avalanche_service": null,
    "avalanche_zone": null,
    "avalanche_subzone": null,
-   "_note": "Falesia/area costiera o carsica: nessuna attività da neve importata (arrampicata, escursionismo), bollettino valanghe non applicabile."
+   "_note": "Falesia/area costiera o carsica: nessuna attività da neve importata (arrampicata, escursionismo), bollettino valanghe non applicabile.",
+   "bbox": [
+    40.15,
+    9.35,
+    40.35,
+    9.6
+   ]
   },
   {
    "id": "area-etna",
@@ -242,7 +374,13 @@
    "avalanche_service": null,
    "avalanche_zone": null,
    "avalanche_subzone": null,
-   "_note": "Vulcano attivo con neve invernale ma senza servizio di bollettino valanghe strutturato: solo escursionismo/via_ferrata importati, non soggetti al blocco valanghe."
+   "_note": "Vulcano attivo con neve invernale ma senza servizio di bollettino valanghe strutturato: solo escursionismo/via_ferrata importati, non soggetti al blocco valanghe.",
+   "bbox": [
+    37.65,
+    14.95,
+    37.85,
+    15.15
+   ]
   },
   {
    "id": "area-san-vito-lo-capo",
@@ -253,7 +391,13 @@
    "avalanche_service": null,
    "avalanche_zone": null,
    "avalanche_subzone": null,
-   "_note": "Falesia/area costiera o carsica: nessuna attività da neve importata (arrampicata, escursionismo), bollettino valanghe non applicabile."
+   "_note": "Falesia/area costiera o carsica: nessuna attività da neve importata (arrampicata, escursionismo), bollettino valanghe non applicabile.",
+   "bbox": [
+    38.15,
+    12.7,
+    38.22,
+    12.8
+   ]
   },
   {
    "id": "area-costiera-amalfitana",
@@ -264,7 +408,13 @@
    "avalanche_service": null,
    "avalanche_zone": null,
    "avalanche_subzone": null,
-   "_note": "Falesia/area costiera o carsica: nessuna attività da neve importata (arrampicata, escursionismo), bollettino valanghe non applicabile."
+   "_note": "Falesia/area costiera o carsica: nessuna attività da neve importata (arrampicata, escursionismo), bollettino valanghe non applicabile.",
+   "bbox": [
+    40.6,
+    14.48,
+    40.68,
+    14.68
+   ]
   },
   {
    "id": "area-zermatt-ch",
@@ -275,7 +425,13 @@
    "avalanche_service": "SLF",
    "avalanche_zone": "CH",
    "avalanche_subzone": "CH-4222",
-   "_note": "Bollettino SLF reale (mirror EAWS avalanche.report, gratuito) - nessuna micro-regione specifica assegnata: si prende il bollettino piu severo del file nazionale (fallback conservativo documentato in eaws_mirror.py), mai un dato inventato."
+   "_note": "Bollettino SLF reale (mirror EAWS avalanche.report, gratuito) - nessuna micro-regione specifica assegnata: si prende il bollettino piu severo del file nazionale (fallback conservativo documentato in eaws_mirror.py), mai un dato inventato.",
+   "bbox": [
+    45.95,
+    7.65,
+    46.05,
+    7.85
+   ]
   },
   {
    "id": "area-engadin-ch",
@@ -286,7 +442,13 @@
    "avalanche_service": "SLF",
    "avalanche_zone": "CH",
    "avalanche_subzone": "CH-7115",
-   "_note": "Bollettino SLF reale (mirror EAWS avalanche.report, gratuito) - nessuna micro-regione specifica assegnata: si prende il bollettino piu severo del file nazionale (fallback conservativo documentato in eaws_mirror.py), mai un dato inventato."
+   "_note": "Bollettino SLF reale (mirror EAWS avalanche.report, gratuito) - nessuna micro-regione specifica assegnata: si prende il bollettino piu severo del file nazionale (fallback conservativo documentato in eaws_mirror.py), mai un dato inventato.",
+   "bbox": [
+    46.4,
+    9.8,
+    46.6,
+    10.1
+   ]
   },
   {
    "id": "area-jungfrau-ch",
@@ -297,7 +459,13 @@
    "avalanche_service": "SLF",
    "avalanche_zone": "CH",
    "avalanche_subzone": "CH-1242",
-   "_note": "Bollettino SLF reale (mirror EAWS avalanche.report, gratuito) - nessuna micro-regione specifica assegnata: si prende il bollettino piu severo del file nazionale (fallback conservativo documentato in eaws_mirror.py), mai un dato inventato."
+   "_note": "Bollettino SLF reale (mirror EAWS avalanche.report, gratuito) - nessuna micro-regione specifica assegnata: si prende il bollettino piu severo del file nazionale (fallback conservativo documentato in eaws_mirror.py), mai un dato inventato.",
+   "bbox": [
+    46.5,
+    7.85,
+    46.7,
+    8.1
+   ]
   },
   {
    "id": "area-oetztal-at",
@@ -308,7 +476,13 @@
    "avalanche_service": "LWD",
    "avalanche_zone": "AT-07",
    "avalanche_subzone": "AT-07-20",
-   "_note": "Bollettino LWD Tirol reale (mirror EAWS avalanche.report, gratuito) - nessuna micro-regione specifica assegnata: si prende il bollettino piu severo del file (fallback conservativo documentato in eaws_mirror.py), mai un dato inventato."
+   "_note": "Bollettino LWD Tirol reale (mirror EAWS avalanche.report, gratuito) - nessuna micro-regione specifica assegnata: si prende il bollettino piu severo del file (fallback conservativo documentato in eaws_mirror.py), mai un dato inventato.",
+   "bbox": [
+    46.8,
+    10.75,
+    47.05,
+    11.05
+   ]
   },
   {
    "id": "area-zillertal-at",
@@ -319,7 +493,13 @@
    "avalanche_service": "LWD",
    "avalanche_zone": "AT-07",
    "avalanche_subzone": "AT-07-23-02",
-   "_note": "Bollettino LWD Tirol reale (mirror EAWS avalanche.report, gratuito) - nessuna micro-regione specifica assegnata: si prende il bollettino piu severo del file (fallback conservativo documentato in eaws_mirror.py), mai un dato inventato."
+   "_note": "Bollettino LWD Tirol reale (mirror EAWS avalanche.report, gratuito) - nessuna micro-regione specifica assegnata: si prende il bollettino piu severo del file (fallback conservativo documentato in eaws_mirror.py), mai un dato inventato.",
+   "bbox": [
+    47.0,
+    11.7,
+    47.2,
+    12.0
+   ]
   },
   {
    "id": "area-triglav-si",
@@ -330,7 +510,13 @@
    "avalanche_service": "ARSO",
    "avalanche_zone": "SI",
    "avalanche_subzone": "SI-7",
-   "_note": "Bollettino ARSO reale (mirror EAWS avalanche.report, gratuito) - nessuna micro-regione specifica assegnata: si prende il bollettino piu severo del file nazionale (fallback conservativo documentato in eaws_mirror.py), mai un dato inventato."
+   "_note": "Bollettino ARSO reale (mirror EAWS avalanche.report, gratuito) - nessuna micro-regione specifica assegnata: si prende il bollettino piu severo del file nazionale (fallback conservativo documentato in eaws_mirror.py), mai un dato inventato.",
+   "bbox": [
+    46.28,
+    13.7,
+    46.45,
+    13.95
+   ]
   },
   {
    "id": "area-yosemite-us",
@@ -341,7 +527,13 @@
    "avalanche_service": "NWAC-TODO",
    "avalanche_zone": null,
    "avalanche_subzone": null,
-   "_note": "Stati Uniti: nessun connettore bollettino valanghe reale ancora integrato (placeholder onesto, mai inventa dati). Attivita non da neve (escursionismo/mtb_alpino) importate qui; scialpinismo/alpinismo resterebbero bloccati fail-closed dal planner in mancanza di bollettino."
+   "_note": "Stati Uniti: nessun connettore bollettino valanghe reale ancora integrato (placeholder onesto, mai inventa dati). Attivita non da neve (escursionismo/mtb_alpino) importate qui; scialpinismo/alpinismo resterebbero bloccati fail-closed dal planner in mancanza di bollettino.",
+   "bbox": [
+    37.5,
+    -119.9,
+    38.05,
+    -119.15
+   ]
   },
   {
    "id": "area-zion-us",
@@ -352,7 +544,13 @@
    "avalanche_service": "NWAC-TODO",
    "avalanche_zone": null,
    "avalanche_subzone": null,
-   "_note": "Stati Uniti: nessun connettore bollettino valanghe reale ancora integrato (placeholder onesto, mai inventa dati). Attivita non da neve (escursionismo/mtb_alpino) importate qui; scialpinismo/alpinismo resterebbero bloccati fail-closed dal planner in mancanza di bollettino."
+   "_note": "Stati Uniti: nessun connettore bollettino valanghe reale ancora integrato (placeholder onesto, mai inventa dati). Attivita non da neve (escursionismo/mtb_alpino) importate qui; scialpinismo/alpinismo resterebbero bloccati fail-closed dal planner in mancanza di bollettino.",
+   "bbox": [
+    37.1,
+    -113.1,
+    37.45,
+    -112.75
+   ]
   },
   {
    "id": "area-moab-us",
@@ -363,7 +561,13 @@
    "avalanche_service": "NWAC-TODO",
    "avalanche_zone": null,
    "avalanche_subzone": null,
-   "_note": "Stati Uniti: nessun connettore bollettino valanghe reale ancora integrato (placeholder onesto, mai inventa dati). Attivita non da neve (escursionismo/mtb_alpino) importate qui; scialpinismo/alpinismo resterebbero bloccati fail-closed dal planner in mancanza di bollettino."
+   "_note": "Stati Uniti: nessun connettore bollettino valanghe reale ancora integrato (placeholder onesto, mai inventa dati). Attivita non da neve (escursionismo/mtb_alpino) importate qui; scialpinismo/alpinismo resterebbero bloccati fail-closed dal planner in mancanza di bollettino.",
+   "bbox": [
+    38.35,
+    -109.75,
+    38.75,
+    -109.35
+   ]
   },
   {
    "id": "area-jackson-hole-us",
@@ -374,7 +578,13 @@
    "avalanche_service": "NWAC-TODO",
    "avalanche_zone": null,
    "avalanche_subzone": null,
-   "_note": "Stati Uniti: nessun connettore bollettino valanghe reale ancora integrato (placeholder onesto, mai inventa dati). Attivita non da neve (escursionismo/mtb_alpino) importate qui; scialpinismo/alpinismo resterebbero bloccati fail-closed dal planner in mancanza di bollettino."
+   "_note": "Stati Uniti: nessun connettore bollettino valanghe reale ancora integrato (placeholder onesto, mai inventa dati). Attivita non da neve (escursionismo/mtb_alpino) importate qui; scialpinismo/alpinismo resterebbero bloccati fail-closed dal planner in mancanza di bollettino.",
+   "bbox": [
+    43.35,
+    -111.1,
+    44.05,
+    -110.55
+   ]
   },
   {
    "id": "area-lake-placid-us",
@@ -385,7 +595,8 @@
    "avalanche_service": "NWAC-TODO",
    "avalanche_zone": null,
    "avalanche_subzone": null,
-   "_note": "Stati Uniti: nessun connettore bollettino valanghe reale ancora integrato (placeholder onesto, mai inventa dati). Attivita non da neve (escursionismo/mtb_alpino) importate qui; scialpinismo/alpinismo resterebbero bloccati fail-closed dal planner in mancanza di bollettino."
+   "_note": "Stati Uniti: nessun connettore bollettino valanghe reale ancora integrato (placeholder onesto, mai inventa dati). Attivita non da neve (escursionismo/mtb_alpino) importate qui; scialpinismo/alpinismo resterebbero bloccati fail-closed dal planner in mancanza di bollettino.",
+   "bbox": null
   },
   {
    "id": "area-hakuba-jp",
@@ -396,7 +607,13 @@
    "avalanche_service": "JAN-TODO",
    "avalanche_zone": null,
    "avalanche_subzone": null,
-   "_note": "Giappone: nessun connettore bollettino valanghe reale ancora integrato (placeholder onesto, mai inventa dati). Attivita non da neve (escursionismo/mtb_alpino) importate qui; scialpinismo/alpinismo resterebbero bloccati fail-closed dal planner in mancanza di bollettino."
+   "_note": "Giappone: nessun connettore bollettino valanghe reale ancora integrato (placeholder onesto, mai inventa dati). Attivita non da neve (escursionismo/mtb_alpino) importate qui; scialpinismo/alpinismo resterebbero bloccati fail-closed dal planner in mancanza di bollettino.",
+   "bbox": [
+    36.55,
+    137.75,
+    36.85,
+    137.95
+   ]
   },
   {
    "id": "area-fuji-jp",
@@ -407,7 +624,13 @@
    "avalanche_service": "JAN-TODO",
    "avalanche_zone": null,
    "avalanche_subzone": null,
-   "_note": "Giappone: nessun connettore bollettino valanghe reale ancora integrato (placeholder onesto, mai inventa dati). Attivita non da neve (escursionismo/mtb_alpino) importate qui; scialpinismo/alpinismo resterebbero bloccati fail-closed dal planner in mancanza di bollettino."
+   "_note": "Giappone: nessun connettore bollettino valanghe reale ancora integrato (placeholder onesto, mai inventa dati). Attivita non da neve (escursionismo/mtb_alpino) importate qui; scialpinismo/alpinismo resterebbero bloccati fail-closed dal planner in mancanza di bollettino.",
+   "bbox": [
+    35.25,
+    138.62,
+    35.5,
+    138.85
+   ]
   },
   {
    "id": "area-niseko-jp",
@@ -418,7 +641,13 @@
    "avalanche_service": "JAN-TODO",
    "avalanche_zone": null,
    "avalanche_subzone": null,
-   "_note": "Giappone: nessun connettore bollettino valanghe reale ancora integrato (placeholder onesto, mai inventa dati). Attivita non da neve (escursionismo/mtb_alpino) importate qui; scialpinismo/alpinismo resterebbero bloccati fail-closed dal planner in mancanza di bollettino."
+   "_note": "Giappone: nessun connettore bollettino valanghe reale ancora integrato (placeholder onesto, mai inventa dati). Attivita non da neve (escursionismo/mtb_alpino) importate qui; scialpinismo/alpinismo resterebbero bloccati fail-closed dal planner in mancanza di bollettino.",
+   "bbox": [
+    42.75,
+    140.6,
+    42.95,
+    140.75
+   ]
   },
   {
    "id": "area-whistler-ca",
@@ -429,7 +658,13 @@
    "avalanche_service": "AvCan-TODO",
    "avalanche_zone": null,
    "avalanche_subzone": null,
-   "_note": "Canada: nessun connettore bollettino valanghe reale ancora integrato (placeholder onesto, mai inventa dati). Attivita non da neve (escursionismo/mtb_alpino) importate qui; scialpinismo/alpinismo resterebbero bloccati fail-closed dal planner in mancanza di bollettino."
+   "_note": "Canada: nessun connettore bollettino valanghe reale ancora integrato (placeholder onesto, mai inventa dati). Attivita non da neve (escursionismo/mtb_alpino) importate qui; scialpinismo/alpinismo resterebbero bloccati fail-closed dal planner in mancanza di bollettino.",
+   "bbox": [
+    49.95,
+    -123.2,
+    50.2,
+    -122.8
+   ]
   },
   {
    "id": "area-banff-ca",
@@ -440,7 +675,13 @@
    "avalanche_service": "AvCan-TODO",
    "avalanche_zone": null,
    "avalanche_subzone": null,
-   "_note": "Canada: nessun connettore bollettino valanghe reale ancora integrato (placeholder onesto, mai inventa dati). Attivita non da neve (escursionismo/mtb_alpino) importate qui; scialpinismo/alpinismo resterebbero bloccati fail-closed dal planner in mancanza di bollettino."
+   "_note": "Canada: nessun connettore bollettino valanghe reale ancora integrato (placeholder onesto, mai inventa dati). Attivita non da neve (escursionismo/mtb_alpino) importate qui; scialpinismo/alpinismo resterebbero bloccati fail-closed dal planner in mancanza di bollettino.",
+   "bbox": [
+    51.05,
+    -116.3,
+    51.55,
+    -115.3
+   ]
   },
   {
    "id": "area-queenstown-nz",
@@ -451,7 +692,13 @@
    "avalanche_service": "NZAA-TODO",
    "avalanche_zone": null,
    "avalanche_subzone": null,
-   "_note": "Nuova Zelanda: nessun connettore bollettino valanghe reale ancora integrato (placeholder onesto, mai inventa dati). Attivita non da neve (escursionismo/mtb_alpino) importate qui; scialpinismo/alpinismo resterebbero bloccati fail-closed dal planner in mancanza di bollettino."
+   "_note": "Nuova Zelanda: nessun connettore bollettino valanghe reale ancora integrato (placeholder onesto, mai inventa dati). Attivita non da neve (escursionismo/mtb_alpino) importate qui; scialpinismo/alpinismo resterebbero bloccati fail-closed dal planner in mancanza di bollettino.",
+   "bbox": [
+    -45.15,
+    168.55,
+    -44.85,
+    168.9
+   ]
   },
   {
    "id": "area-fiordland-nz",
@@ -462,7 +709,13 @@
    "avalanche_service": "NZAA-TODO",
    "avalanche_zone": null,
    "avalanche_subzone": null,
-   "_note": "Nuova Zelanda: nessun connettore bollettino valanghe reale ancora integrato (placeholder onesto, mai inventa dati). Attivita non da neve (escursionismo/mtb_alpino) importate qui; scialpinismo/alpinismo resterebbero bloccati fail-closed dal planner in mancanza di bollettino."
+   "_note": "Nuova Zelanda: nessun connettore bollettino valanghe reale ancora integrato (placeholder onesto, mai inventa dati). Attivita non da neve (escursionismo/mtb_alpino) importate qui; scialpinismo/alpinismo resterebbero bloccati fail-closed dal planner in mancanza di bollettino.",
+   "bbox": [
+    -45.55,
+    167.3,
+    -44.55,
+    168.2
+   ]
   },
   {
    "id": "area-jotunheimen-no",
@@ -473,7 +726,13 @@
    "avalanche_service": "Varsom",
    "avalanche_zone": "NO",
    "avalanche_subzone": null,
-   "_note": "Norvegia: bollettino EAWS reale via lo stesso mirror gratuito di AINEVA/SLF/LWD/ARSO/Meteo France (avalanche.report) — pubblicato da NVE col marchio pubblico varsom.no. Nessuna micro-regione pinnata ancora: fetch() prende il bollettino piu' severo del file (fallback prudente, mai un dato inventato)."
+   "_note": "Norvegia: bollettino EAWS reale via lo stesso mirror gratuito di AINEVA/SLF/LWD/ARSO/Meteo France (avalanche.report) — pubblicato da NVE col marchio pubblico varsom.no. Nessuna micro-regione pinnata ancora: fetch() prende il bollettino piu' severo del file (fallback prudente, mai un dato inventato).",
+   "bbox": [
+    61.35,
+    8.05,
+    61.75,
+    8.9
+   ]
   },
   {
    "id": "area-lofoten-no",
@@ -484,7 +743,13 @@
    "avalanche_service": "Varsom",
    "avalanche_zone": "NO",
    "avalanche_subzone": null,
-   "_note": "Norvegia: bollettino EAWS reale via lo stesso mirror gratuito di AINEVA/SLF/LWD/ARSO/Meteo France (avalanche.report) — pubblicato da NVE col marchio pubblico varsom.no. Nessuna micro-regione pinnata ancora: fetch() prende il bollettino piu' severo del file (fallback prudente, mai un dato inventato)."
+   "_note": "Norvegia: bollettino EAWS reale via lo stesso mirror gratuito di AINEVA/SLF/LWD/ARSO/Meteo France (avalanche.report) — pubblicato da NVE col marchio pubblico varsom.no. Nessuna micro-regione pinnata ancora: fetch() prende il bollettino piu' severo del file (fallback prudente, mai un dato inventato).",
+   "bbox": [
+    67.85,
+    12.8,
+    68.35,
+    15.3
+   ]
   },
   {
    "id": "area-lillehammer-no",
@@ -495,7 +760,8 @@
    "avalanche_service": "Varsom",
    "avalanche_zone": "NO",
    "avalanche_subzone": null,
-   "_note": "Norvegia: bollettino EAWS reale via lo stesso mirror gratuito di AINEVA/SLF/LWD/ARSO/Meteo France (avalanche.report) — pubblicato da NVE col marchio pubblico varsom.no. Nessuna micro-regione pinnata ancora: fetch() prende il bollettino piu' severo del file (fallback prudente, mai un dato inventato)."
+   "_note": "Norvegia: bollettino EAWS reale via lo stesso mirror gratuito di AINEVA/SLF/LWD/ARSO/Meteo France (avalanche.report) — pubblicato da NVE col marchio pubblico varsom.no. Nessuna micro-regione pinnata ancora: fetch() prende il bollettino piu' severo del file (fallback prudente, mai un dato inventato).",
+   "bbox": null
   },
   {
    "id": "area-morzine-fr",
@@ -506,7 +772,13 @@
    "avalanche_service": "Meteo France",
    "avalanche_zone": "FR",
    "avalanche_subzone": null,
-   "_note": "Bollettino Meteo France reale (mirror EAWS avalanche.report, gratuito) - nessuna micro-regione specifica assegnata: si prende il bollettino piu severo del file nazionale (fallback conservativo documentato in eaws_mirror.py), mai un dato inventato."
+   "_note": "Bollettino Meteo France reale (mirror EAWS avalanche.report, gratuito) - nessuna micro-regione specifica assegnata: si prende il bollettino piu severo del file nazionale (fallback conservativo documentato in eaws_mirror.py), mai un dato inventato.",
+   "bbox": [
+    46.15,
+    6.65,
+    46.25,
+    6.8
+   ]
   },
   {
    "id": "area-chamonix-fr",
@@ -517,7 +789,8 @@
    "avalanche_service": "Meteo France",
    "avalanche_zone": "FR",
    "avalanche_subzone": null,
-   "_note": "Bollettino Meteo France reale (mirror EAWS avalanche.report, gratuito) - nessuna micro-regione specifica assegnata: si prende il bollettino piu severo del file nazionale (fallback conservativo documentato in eaws_mirror.py), mai un dato inventato."
+   "_note": "Bollettino Meteo France reale (mirror EAWS avalanche.report, gratuito) - nessuna micro-regione specifica assegnata: si prende il bollettino piu severo del file nazionale (fallback conservativo documentato in eaws_mirror.py), mai un dato inventato.",
+   "bbox": null
   },
   {
    "id": "area-jura-rousses-fr",
@@ -528,7 +801,8 @@
    "avalanche_service": "Meteo France",
    "avalanche_zone": "FR",
    "avalanche_subzone": null,
-   "_note": "Bollettino Meteo France reale (mirror EAWS avalanche.report, gratuito) - nessuna micro-regione specifica assegnata: si prende il bollettino piu severo del file nazionale (fallback conservativo documentato in eaws_mirror.py), mai un dato inventato."
+   "_note": "Bollettino Meteo France reale (mirror EAWS avalanche.report, gratuito) - nessuna micro-regione specifica assegnata: si prende il bollettino piu severo del file nazionale (fallback conservativo documentato in eaws_mirror.py), mai un dato inventato.",
+   "bbox": null
   },
   {
    "id": "area-winterberg-de",
@@ -539,7 +813,13 @@
    "avalanche_service": "LWZ-TODO",
    "avalanche_zone": null,
    "avalanche_subzone": null,
-   "_note": "Nessun connettore bollettino valanghe reale ancora integrato (placeholder onesto, mai inventa dati)."
+   "_note": "Nessun connettore bollettino valanghe reale ancora integrato (placeholder onesto, mai inventa dati).",
+   "bbox": [
+    51.16,
+    8.5,
+    51.22,
+    8.6
+   ]
   },
   {
    "id": "area-feldberg-de",
@@ -550,7 +830,8 @@
    "avalanche_service": "LWZ-TODO",
    "avalanche_zone": null,
    "avalanche_subzone": null,
-   "_note": "Nessun connettore bollettino valanghe reale ancora integrato (placeholder onesto, mai inventa dati)."
+   "_note": "Nessun connettore bollettino valanghe reale ancora integrato (placeholder onesto, mai inventa dati).",
+   "bbox": null
   },
   {
    "id": "area-oberstdorf-de",
@@ -561,7 +842,8 @@
    "avalanche_service": "LWZ-TODO",
    "avalanche_zone": null,
    "avalanche_subzone": null,
-   "_note": "Nessun connettore bollettino valanghe reale ancora integrato (placeholder onesto, mai inventa dati)."
+   "_note": "Nessun connettore bollettino valanghe reale ancora integrato (placeholder onesto, mai inventa dati).",
+   "bbox": null
   },
   {
    "id": "area-saas-fee-ch",
@@ -571,7 +853,13 @@
    "default_locale": "de",
    "avalanche_service": "SLF",
    "avalanche_zone": "CH",
-   "avalanche_subzone": "CH-4225"
+   "avalanche_subzone": "CH-4225",
+   "bbox": [
+    45.95,
+    7.85,
+    46.15,
+    8.05
+   ]
   },
   {
    "id": "area-davos-ch",
@@ -581,7 +869,13 @@
    "default_locale": "de",
    "avalanche_service": "SLF",
    "avalanche_zone": "CH",
-   "avalanche_subzone": "CH-5112"
+   "avalanche_subzone": "CH-5112",
+   "bbox": [
+    46.75,
+    9.75,
+    46.95,
+    9.95
+   ]
   },
   {
    "id": "area-ticino-ch",
@@ -591,7 +885,13 @@
    "default_locale": "it",
    "avalanche_service": "SLF",
    "avalanche_zone": "CH",
-   "avalanche_subzone": "CH-6112"
+   "avalanche_subzone": "CH-6112",
+   "bbox": [
+    46.45,
+    8.45,
+    46.65,
+    8.75
+   ]
   },
   {
    "id": "area-stubai-at",
@@ -601,7 +901,13 @@
    "default_locale": "de",
    "avalanche_service": "LWD",
    "avalanche_zone": "AT-07",
-   "avalanche_subzone": "AT-07-22"
+   "avalanche_subzone": "AT-07-22",
+   "bbox": [
+    46.95,
+    11.15,
+    47.15,
+    11.45
+   ]
   },
   {
    "id": "area-kitzbuhel-at",
@@ -611,7 +917,13 @@
    "default_locale": "de",
    "avalanche_service": "LWD",
    "avalanche_zone": "AT-07",
-   "avalanche_subzone": "AT-07-18"
+   "avalanche_subzone": "AT-07-18",
+   "bbox": [
+    47.35,
+    12.3,
+    47.55,
+    12.6
+   ]
   },
   {
    "id": "area-arlberg-at",
@@ -621,7 +933,13 @@
    "default_locale": "de",
    "avalanche_service": "LWD",
    "avalanche_zone": "AT-07",
-   "avalanche_subzone": "AT-07-07"
+   "avalanche_subzone": "AT-07-07",
+   "bbox": [
+    47.1,
+    10.15,
+    47.2,
+    10.35
+   ]
   },
   {
    "id": "area-pyrenees-ariege-fr",
@@ -632,7 +950,13 @@
    "avalanche_service": "Meteo France",
    "avalanche_zone": "FR",
    "avalanche_subzone": "FR-70",
-   "_note": "Bollettino Meteo France reale (mirror EAWS avalanche.report, gratuito) - nessuna micro-regione specifica assegnata: si prende il bollettino piu severo del file nazionale (fallback conservativo documentato in eaws_mirror.py), mai un dato inventato."
+   "_note": "Bollettino Meteo France reale (mirror EAWS avalanche.report, gratuito) - nessuna micro-regione specifica assegnata: si prende il bollettino piu severo del file nazionale (fallback conservativo documentato in eaws_mirror.py), mai un dato inventato.",
+   "bbox": [
+    42.65,
+    1.35,
+    42.85,
+    1.75
+   ]
   },
   {
    "id": "area-pyrenees-neouvielle-fr",
@@ -643,7 +967,13 @@
    "avalanche_service": "Meteo France",
    "avalanche_zone": "FR",
    "avalanche_subzone": "FR-66",
-   "_note": "Bollettino Meteo France reale (mirror EAWS avalanche.report, gratuito) - nessuna micro-regione specifica assegnata: si prende il bollettino piu severo del file nazionale (fallback conservativo documentato in eaws_mirror.py), mai un dato inventato."
+   "_note": "Bollettino Meteo France reale (mirror EAWS avalanche.report, gratuito) - nessuna micro-regione specifica assegnata: si prende il bollettino piu severo del file nazionale (fallback conservativo documentato in eaws_mirror.py), mai un dato inventato.",
+   "bbox": [
+    42.75,
+    0.05,
+    42.9,
+    0.25
+   ]
   },
   {
    "id": "area-corse-fr",
@@ -654,7 +984,13 @@
    "avalanche_service": "Meteo France",
    "avalanche_zone": "FR",
    "avalanche_subzone": "FR-40",
-   "_note": "Bollettino Meteo France reale (mirror EAWS avalanche.report, gratuito) - nessuna micro-regione specifica assegnata: si prende il bollettino piu severo del file nazionale (fallback conservativo documentato in eaws_mirror.py), mai un dato inventato."
+   "_note": "Bollettino Meteo France reale (mirror EAWS avalanche.report, gratuito) - nessuna micro-regione specifica assegnata: si prende il bollettino piu severo del file nazionale (fallback conservativo documentato in eaws_mirror.py), mai un dato inventato.",
+   "bbox": [
+    42.15,
+    8.85,
+    42.45,
+    9.2
+   ]
   },
   {
    "id": "area-vosges-fr",
@@ -665,7 +1001,13 @@
    "avalanche_service": "Meteo France",
    "avalanche_zone": "FR",
    "avalanche_subzone": null,
-   "_note": "Bollettino Meteo France reale (mirror EAWS avalanche.report, gratuito) - nessuna micro-regione specifica assegnata: si prende il bollettino piu severo del file nazionale (fallback conservativo documentato in eaws_mirror.py), mai un dato inventato."
+   "_note": "Bollettino Meteo France reale (mirror EAWS avalanche.report, gratuito) - nessuna micro-regione specifica assegnata: si prende il bollettino piu severo del file nazionale (fallback conservativo documentato in eaws_mirror.py), mai un dato inventato.",
+   "bbox": [
+    47.95,
+    6.95,
+    48.15,
+    7.15
+   ]
   },
   {
    "id": "area-jura-fr",
@@ -676,7 +1018,13 @@
    "avalanche_service": "Meteo France",
    "avalanche_zone": "FR",
    "avalanche_subzone": null,
-   "_note": "Bollettino Meteo France reale (mirror EAWS avalanche.report, gratuito) - nessuna micro-regione specifica assegnata: si prende il bollettino piu severo del file nazionale (fallback conservativo documentato in eaws_mirror.py), mai un dato inventato."
+   "_note": "Bollettino Meteo France reale (mirror EAWS avalanche.report, gratuito) - nessuna micro-regione specifica assegnata: si prende il bollettino piu severo del file nazionale (fallback conservativo documentato in eaws_mirror.py), mai un dato inventato.",
+   "bbox": [
+    46.35,
+    5.85,
+    46.65,
+    6.15
+   ]
   },
   {
    "id": "area-mercantour-fr",
@@ -687,7 +1035,13 @@
    "avalanche_service": "Meteo France",
    "avalanche_zone": "FR",
    "avalanche_subzone": "FR-23",
-   "_note": "Bollettino Meteo France reale (mirror EAWS avalanche.report, gratuito) - nessuna micro-regione specifica assegnata: si prende il bollettino piu severo del file nazionale (fallback conservativo documentato in eaws_mirror.py), mai un dato inventato."
+   "_note": "Bollettino Meteo France reale (mirror EAWS avalanche.report, gratuito) - nessuna micro-regione specifica assegnata: si prende il bollettino piu severo del file nazionale (fallback conservativo documentato in eaws_mirror.py), mai un dato inventato.",
+   "bbox": [
+    44.05,
+    6.95,
+    44.25,
+    7.25
+   ]
   },
   {
    "id": "area-queyras-fr",
@@ -698,7 +1052,13 @@
    "avalanche_service": "Meteo France",
    "avalanche_zone": "FR",
    "avalanche_subzone": "FR-17",
-   "_note": "Bollettino Meteo France reale (mirror EAWS avalanche.report, gratuito) - nessuna micro-regione specifica assegnata: si prende il bollettino piu severo del file nazionale (fallback conservativo documentato in eaws_mirror.py), mai un dato inventato."
+   "_note": "Bollettino Meteo France reale (mirror EAWS avalanche.report, gratuito) - nessuna micro-regione specifica assegnata: si prende il bollettino piu severo del file nazionale (fallback conservativo documentato in eaws_mirror.py), mai un dato inventato.",
+   "bbox": [
+    44.65,
+    6.75,
+    44.85,
+    7.0
+   ]
   },
   {
    "id": "area-chablais-fr",
@@ -709,7 +1069,13 @@
    "avalanche_service": "Meteo France",
    "avalanche_zone": "FR",
    "avalanche_subzone": "FR-01",
-   "_note": "Bollettino Meteo France reale (mirror EAWS avalanche.report, gratuito) - nessuna micro-regione specifica assegnata: si prende il bollettino piu severo del file nazionale (fallback conservativo documentato in eaws_mirror.py), mai un dato inventato."
+   "_note": "Bollettino Meteo France reale (mirror EAWS avalanche.report, gratuito) - nessuna micro-regione specifica assegnata: si prende il bollettino piu severo del file nazionale (fallback conservativo documentato in eaws_mirror.py), mai un dato inventato.",
+   "bbox": [
+    46.05,
+    6.65,
+    46.2,
+    6.9
+   ]
   },
   {
    "id": "area-dolomiti-sesto-it",
@@ -719,7 +1085,13 @@
    "default_locale": "it",
    "avalanche_service": "AINEVA",
    "avalanche_zone": "IT-32-BZ",
-   "avalanche_subzone": "IT-32-BZ-20"
+   "avalanche_subzone": "IT-32-BZ-20",
+   "bbox": [
+    46.68,
+    12.35,
+    46.78,
+    12.6
+   ]
   },
   {
    "id": "area-monviso-it",
@@ -729,7 +1101,13 @@
    "default_locale": "it",
    "avalanche_service": "AINEVA",
    "avalanche_zone": "IT-21",
-   "avalanche_subzone": "IT-21-CN-05"
+   "avalanche_subzone": "IT-21-CN-05",
+   "bbox": [
+    44.55,
+    7.05,
+    44.72,
+    7.25
+   ]
   },
   {
    "id": "area-prealpi-bergamasche-it",
@@ -739,7 +1117,13 @@
    "default_locale": "it",
    "avalanche_service": "AINEVA",
    "avalanche_zone": "IT-25",
-   "avalanche_subzone": null
+   "avalanche_subzone": null,
+   "bbox": [
+    45.85,
+    9.55,
+    46.05,
+    9.8
+   ]
   },
   {
    "id": "area-andorra-ad",
@@ -750,7 +1134,13 @@
    "avalanche_service": "SMA",
    "avalanche_zone": "AD",
    "avalanche_subzone": null,
-   "_note": "Bollettino EAWS reale via lo stesso mirror gratuito di AINEVA/SLF/LWD/ARSO/Meteo France/Varsom (avalanche.report), pubblicato da SMA (Servei Meteorologic d'Andorra). Nessuna micro-regione pinnata ancora: fetch() prende il bollettino piu' severo del file (fallback prudente, mai un dato inventato)."
+   "_note": "Bollettino EAWS reale via lo stesso mirror gratuito di AINEVA/SLF/LWD/ARSO/Meteo France/Varsom (avalanche.report), pubblicato da SMA (Servei Meteorologic d'Andorra). Nessuna micro-regione pinnata ancora: fetch() prende il bollettino piu' severo del file (fallback prudente, mai un dato inventato).",
+   "bbox": [
+    42.43,
+    1.4,
+    42.66,
+    1.79
+   ]
   },
   {
    "id": "area-krkonose-cz",
@@ -761,7 +1151,13 @@
    "avalanche_service": "HS CR",
    "avalanche_zone": "CZ",
    "avalanche_subzone": null,
-   "_note": "Bollettino EAWS reale via lo stesso mirror gratuito di AINEVA/SLF/LWD/ARSO/Meteo France/Varsom (avalanche.report), pubblicato da HS CR (Horska sluzba CR). Nessuna micro-regione pinnata ancora: fetch() prende il bollettino piu' severo del file (fallback prudente, mai un dato inventato)."
+   "_note": "Bollettino EAWS reale via lo stesso mirror gratuito di AINEVA/SLF/LWD/ARSO/Meteo France/Varsom (avalanche.report), pubblicato da HS CR (Horska sluzba CR). Nessuna micro-regione pinnata ancora: fetch() prende il bollettino piu' severo del file (fallback prudente, mai un dato inventato).",
+   "bbox": [
+    50.68,
+    15.5,
+    50.83,
+    15.85
+   ]
   },
   {
    "id": "area-levi-fi",
@@ -772,7 +1168,13 @@
    "avalanche_service": "FMI",
    "avalanche_zone": "FI",
    "avalanche_subzone": null,
-   "_note": "Bollettino EAWS via lo stesso mirror gratuito di AINEVA/SLF/LWD/ARSO/Meteo France/Varsom (avalanche.report), pubblicato da FMI. Verificato 2026-09-03: il file FI non porta un dangerRatings compilato per le date controllate (probabile formato diverso lato FMI) — fetch() restituisce onestamente 'nessun bollettino in vigore' finche' non cambia, mai un grado inventato."
+   "_note": "Bollettino EAWS via lo stesso mirror gratuito di AINEVA/SLF/LWD/ARSO/Meteo France/Varsom (avalanche.report), pubblicato da FMI. Verificato 2026-09-03: il file FI non porta un dangerRatings compilato per le date controllate (probabile formato diverso lato FMI) — fetch() restituisce onestamente 'nessun bollettino in vigore' finche' non cambia, mai un grado inventato.",
+   "bbox": [
+    67.75,
+    24.75,
+    67.85,
+    24.95
+   ]
   },
   {
    "id": "area-cairngorms-gb",
@@ -783,7 +1185,13 @@
    "avalanche_service": "SAIS",
    "avalanche_zone": "GB",
    "avalanche_subzone": null,
-   "_note": "Bollettino EAWS reale via lo stesso mirror gratuito di AINEVA/SLF/LWD/ARSO/Meteo France/Varsom (avalanche.report), pubblicato da SAIS (Scottish Avalanche Information Service). Nessuna micro-regione pinnata ancora: fetch() prende il bollettino piu' severo del file (fallback prudente, mai un dato inventato)."
+   "_note": "Bollettino EAWS reale via lo stesso mirror gratuito di AINEVA/SLF/LWD/ARSO/Meteo France/Varsom (avalanche.report), pubblicato da SAIS (Scottish Avalanche Information Service). Nessuna micro-regione pinnata ancora: fetch() prende il bollettino piu' severo del file (fallback prudente, mai un dato inventato).",
+   "bbox": [
+    57.03,
+    -3.75,
+    57.15,
+    -3.55
+   ]
   },
   {
    "id": "area-bucegi-ro",
@@ -794,7 +1202,13 @@
    "avalanche_service": "ANM",
    "avalanche_zone": "RO",
    "avalanche_subzone": null,
-   "_note": "Bollettino EAWS reale via lo stesso mirror gratuito di AINEVA/SLF/LWD/ARSO/Meteo France/Varsom (avalanche.report), pubblicato da ANM (Administratia Nationala de Meteorologie). Nessuna micro-regione pinnata ancora: fetch() prende il bollettino piu' severo del file (fallback prudente, mai un dato inventato)."
+   "_note": "Bollettino EAWS reale via lo stesso mirror gratuito di AINEVA/SLF/LWD/ARSO/Meteo France/Varsom (avalanche.report), pubblicato da ANM (Administratia Nationala de Meteorologie). Nessuna micro-regione pinnata ancora: fetch() prende il bollettino piu' severo del file (fallback prudente, mai un dato inventato).",
+   "bbox": [
+    45.35,
+    25.4,
+    45.45,
+    25.55
+   ]
   },
   {
    "id": "area-tatra-sk",
@@ -805,7 +1219,13 @@
    "avalanche_service": "SLP+HZS",
    "avalanche_zone": "SK",
    "avalanche_subzone": null,
-   "_note": "Bollettino EAWS reale via lo stesso mirror gratuito di AINEVA/SLF/LWD/ARSO/Meteo France/Varsom (avalanche.report), pubblicato da SLP+HZS (pattuglia valanghe + soccorso alpino slovacco). Nessuna micro-regione pinnata ancora: fetch() prende il bollettino piu' severo del file (fallback prudente, mai un dato inventato)."
+   "_note": "Bollettino EAWS reale via lo stesso mirror gratuito di AINEVA/SLF/LWD/ARSO/Meteo France/Varsom (avalanche.report), pubblicato da SLP+HZS (pattuglia valanghe + soccorso alpino slovacco). Nessuna micro-regione pinnata ancora: fetch() prende il bollettino piu' severo del file (fallback prudente, mai un dato inventato).",
+   "bbox": [
+    49.1,
+    19.9,
+    49.25,
+    20.25
+   ]
   },
   {
    "id": "area-are-se",
@@ -816,7 +1236,13 @@
    "avalanche_service": "Naturvårdsverket",
    "avalanche_zone": "SE",
    "avalanche_subzone": null,
-   "_note": "Bollettino EAWS reale via lo stesso mirror gratuito di AINEVA/SLF/LWD/ARSO/Meteo France/Varsom (avalanche.report), pubblicato da Naturvårdsverket. Nessuna micro-regione pinnata ancora: fetch() prende il bollettino piu' severo del file (fallback prudente, mai un dato inventato)."
+   "_note": "Bollettino EAWS reale via lo stesso mirror gratuito di AINEVA/SLF/LWD/ARSO/Meteo France/Varsom (avalanche.report), pubblicato da Naturvårdsverket. Nessuna micro-regione pinnata ancora: fetch() prende il bollettino piu' severo del file (fallback prudente, mai un dato inventato).",
+   "bbox": [
+    63.35,
+    13.0,
+    63.45,
+    13.15
+   ]
   }
  ],
  "refuges": [

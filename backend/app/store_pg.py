@@ -11,7 +11,10 @@ from . import db
 
 _AREA_COLS = """
     a.slug AS id, a.name, a.country, a.region, a.default_locale,
-    a.avalanche_service, a.avalanche_zone, a.avalanche_subzone
+    a.avalanche_service, a.avalanche_zone, a.avalanche_subzone,
+    CASE WHEN a.bbox_south IS NULL THEN NULL
+         ELSE json_build_array(a.bbox_south, a.bbox_west, a.bbox_north, a.bbox_east)
+    END AS bbox
 """
 
 _ROUTE_COLS_BASE = """

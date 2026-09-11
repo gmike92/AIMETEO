@@ -26,15 +26,19 @@ SEED_JSON = REPO_ROOT / "route-db" / "seed_routes.json"
 
 UPSERT_AREA = """
 INSERT INTO area (slug, name, country, region, default_locale,
-                  avalanche_service, avalanche_zone, avalanche_subzone)
+                  avalanche_service, avalanche_zone, avalanche_subzone,
+                  bbox_south, bbox_west, bbox_north, bbox_east)
 VALUES (%(id)s, %(name)s, %(country)s, %(region)s, %(default_locale)s,
-        %(avalanche_service)s, %(avalanche_zone)s, %(avalanche_subzone)s)
+        %(avalanche_service)s, %(avalanche_zone)s, %(avalanche_subzone)s,
+        %(bbox_south)s, %(bbox_west)s, %(bbox_north)s, %(bbox_east)s)
 ON CONFLICT (slug) DO UPDATE SET
   name = EXCLUDED.name, country = EXCLUDED.country, region = EXCLUDED.region,
   default_locale = EXCLUDED.default_locale,
   avalanche_service = EXCLUDED.avalanche_service,
   avalanche_zone = EXCLUDED.avalanche_zone,
-  avalanche_subzone = EXCLUDED.avalanche_subzone
+  avalanche_subzone = EXCLUDED.avalanche_subzone,
+  bbox_south = EXCLUDED.bbox_south, bbox_west = EXCLUDED.bbox_west,
+  bbox_north = EXCLUDED.bbox_north, bbox_east = EXCLUDED.bbox_east
 """
 
 UPSERT_REFUGE = """
@@ -98,7 +102,10 @@ def main() -> int:
                 print(f"applied {SCHEMA_SQL.name}")
 
             for area in seed["areas"]:
-                cur.execute(UPSERT_AREA, area)
+                # nel seed il riquadro e' una lista [sud, ovest, nord, est] (o null)
+                s, w, n, e = area.get("bbox") or (None, None, None, None)
+                cur.execute(UPSERT_AREA, {**area, "bbox_south": s, "bbox_west": w,
+                                          "bbox_north": n, "bbox_east": e})
             print(f"upserted {len(seed['areas'])} areas")
 
             for refuge in seed.get("refuges", []):

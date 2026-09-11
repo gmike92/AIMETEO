@@ -65,6 +65,15 @@ CREATE TABLE area (
   avalanche_subzone TEXT,                  -- micro-region id (EAWS regionID), e.g. 'IT-25-BG-02' (nullable)
   weather_region    TEXT,                  -- regional forecast bulletin zone (e.g. ARPA), nullable
   centroid          GEOGRAPHY(POINT,4326),
+  -- Riquadro REALE dell'area: la regione interrogata dagli importer per
+  -- trovarne gli itinerari (unione, se piu' importer la usano). Unica
+  -- posizione nota per gli itinerari senza traccia: "vicino a me" ne misura
+  -- la distanza in modo dichiaratamente approssimato ("in zona"). Colonne
+  -- numeriche e non GEOGRAPHY: identiche su Postgres con e senza PostGIS.
+  bbox_south        DOUBLE PRECISION,
+  bbox_west         DOUBLE PRECISION,
+  bbox_north        DOUBLE PRECISION,
+  bbox_east         DOUBLE PRECISION,
   created_at        TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 CREATE INDEX idx_area_country  ON area(country);
