@@ -468,6 +468,27 @@ const cloudCanvas = (clouds, nx, ny) =>
 // Atlantico; niente Americhe occidentali, Asia, Oceania.
 const LIGHTNING_WMS = "https://view.eumetsat.int/geoserver/mtg_fd/li_afa/wms";
 const LIGHTNING_STEP_MS = 5 * 60 * 1000;
+// Estensione DICHIARATA dal servizio (EX_GeographicBoundingBox nelle
+// capabilities del layer). Serve a non mentire: fuori da qui l'immagine
+// arriva vuota perché il satellite non guarda, non perché non ci siano
+// fulmini — senza questo controllo la legenda direbbe "nessuno" su Stati
+// Uniti, Canada, Nuova Zelanda e Giappone, che sono nel catalogo.
+const LIGHTNING_COVERAGE = { west: -70, east: 70, south: -70, north: 70 };
+
+// "full" = la vista è tutta sotto lo sguardo del satellite, "partial" =
+// solo in parte, "none" = per niente. Longitudini riportate in [-180,180]
+// come in lightningRequest, per le viste su una copia del mondo.
+function lightningCoverage(map) {
+  const b = map.getBounds();
+  const k = Math.round(b.getCenter().lng / 360);
+  const w = b.getWest() - 360 * k;
+  const e = b.getEast() - 360 * k;
+  const C = LIGHTNING_COVERAGE;
+  const overlaps = e > C.west && w < C.east && b.getNorth() > C.south && b.getSouth() < C.north;
+  if (!overlaps) return "none";
+  const inside = w >= C.west && e <= C.east && b.getSouth() >= C.south && b.getNorth() <= C.north;
+  return inside ? "full" : "partial";
+}
 // 6 fotogrammi = ultimi 30 minuti: il più recente pieno, i vecchi sempre
 // più tenui — è così che il layer dice QUANDO, oltre che dove.
 const LIGHTNING_FRAME_OPACITY = [0.95, 0.62, 0.45, 0.33, 0.24, 0.16];
@@ -801,6 +822,7 @@ export default function MapView({
   const [lightningTime, setLightningTime] = useState(null);
   const [lightningFailed, setLightningFailed] = useState(false);
   const [lightningSpots, setLightningSpots] = useState(null);
+  const [lightningCover, setLightningCover] = useState(null); // "full" | "partial" | "none"
   const [lightningDataVersion, setLightningDataVersion] = useState(0);
 
   const [showRoutes, setShowRoutes] = useState(false); // nessuna attività attiva di default
@@ -1853,6 +1875,7 @@ export default function MapView({
       setLightningTime(null);
       setLightningFailed(false);
       setLightningSpots(null);
+      setLightningCover(null);
       return;
     }
     let dead = false;
@@ -1888,6 +1911,14 @@ export default function MapView({
     if (!map) return;
     const latest = S.current.lightningLatest;
     if (!lightning || !latest) return;
+
+    const cover = lightningCoverage(map);
+    setLightningCover(cover);
+    if (cover === "none") {
+      // il satellite non guarda qui: nessuna richiesta, e la legenda lo dice
+      setLightningSpots(null);
+      return;
+    }
 
     const group = L.layerGroup().addTo(map);
     const bolts = L.layerGroup().addTo(map);
@@ -2153,11 +2184,14 @@ export default function MapView({
     clouds && { key: "clouds", label: "Nuvole", min: "0%", max: "100%", gradient: CLOUD_GRADIENT },
     radar && { key: "radar", label: "Pioggia", min: "leggera", max: "intensa", gradient: RADAR_GRADIENT },
     aurora && { key: "aurora", label: "Aurora", min: "bassa", max: "alta", gradient: AURORA_GRADIENT },
-    // Legenda onesta anche quando la vista è vuota: "nessuno" è un dato
-    // (il satellite guarda e non vede lampi), diverso da "non disponibile".
+    // Legenda onesta anche quando la vista è vuota: "nessuno" è un dato (il
+    // satellite guarda e non vede lampi), "fuori copertura" no (non guarda),
+    // e nessuno dei due è "non disponibile" (il servizio non risponde).
     lightning && {
       key: "lightning",
       label: lightningFailed ? "Fulmini · non disponibili"
+        : lightningCover === "none" ? "Fulmini · fuori copertura satellite"
+        : lightningSpots === 0 && lightningCover === "partial" ? "Fulmini · nessuno nell'area coperta"
         : lightningSpots === 0 ? "Fulmini · nessuno qui (30 min)"
         : "Fulmini · ultimi 30 min",
       min: "1 lampo", max: "20+ /5 min", gradient: LIGHTNING_GRADIENT,
