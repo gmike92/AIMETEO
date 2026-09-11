@@ -38,10 +38,6 @@ const GLYPH = {
   sun: svg('<circle cx="12" cy="12" r="4.4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2' +
     'M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6L17 7M7 17l-1.4 1.4"/>'),
   moon: svg('<path d="M20.2 14.8A8.6 8.6 0 019.4 4a8.6 8.6 0 1010.8 10.8z"/>'),
-  // I popup e i divIcon di Leaflet finiscono nel documento, quindi le
-  // custom property di :root cascadono anche qui: niente hex nuovi.
-  bolt: svg('<path d="M13.2 2L5.5 13.2H11l-1 8.8 7.7-11.4H12z"/>',
-    { size: 20, fill: true, stroke: "var(--warn)" }),
 };
 
 // Zoom +/- di Leaflet: sostituisce il carattere di sistema (bruttino, mai
@@ -254,9 +250,15 @@ async function fetchGrid(g) {
       lons.push(normalizeLon(g.lo1 + ix * g.dx).toFixed(2));
     }
   }
+  // `cape` alimenta il campo Temporali: stessa richiesta, zero chiamate in
+  // più. È l'unica variabile temporalesca di Open-Meteo con copertura
+  // globale — lightning_potential sarebbe più diretta, ma è dei soli modelli
+  // ICON (Europa centrale) e fuori da lì torna null (verificato: su Roma già
+  // null). Su una mappa mondiale un campo a macchie farebbe leggere "niente
+  // temporali" dove semplicemente non c'è il dato.
   const url =
     `https://api.open-meteo.com/v1/forecast?latitude=${lats.join(",")}&longitude=${lons.join(",")}` +
-    `&current=temperature_2m,wind_speed_10m,wind_direction_10m,uv_index,cloud_cover&wind_speed_unit=ms`;
+    `&current=temperature_2m,wind_speed_10m,wind_direction_10m,uv_index,cloud_cover,cape&wind_speed_unit=ms`;
   // Stessi punti della griglia meteo, un'altra API Open-Meteo (Copernicus
   // DEM, globale — niente più tile pregenerati per una sola "area pilota"):
   // in parallelo con /forecast, non in coda, e mai bloccante se fallisce —
@@ -273,6 +275,7 @@ async function fetchGrid(g) {
   const temps = [];
   const uvs = [];
   const clouds = [];
+  const capes = [];
   for (const p of list) {
     const s = p.current.wind_speed_10m;
     const d = (p.current.wind_direction_10m * Math.PI) / 180;
@@ -281,6 +284,7 @@ async function fetchGrid(g) {
     temps.push(p.current.temperature_2m);
     uvs.push(p.current.uv_index ?? 0);
     clouds.push(p.current.cloud_cover ?? 0);
+    capes.push(p.current.cape ?? 0);
   }
   const elevations = Array.isArray(elevData?.elevation) && elevData.elevation.length === g.nx * g.ny
     ? elevData.elevation
@@ -296,7 +300,7 @@ async function fetchGrid(g) {
       { header: { ...header, parameterNumber: 2 }, data: u },
       { header: { ...header, parameterNumber: 3 }, data: v },
     ],
-    temps, uvs, clouds, slopes, nx: g.nx, ny: g.ny, lo1: g.lo1, la1: g.la1, lo2: g.lo2, la2: g.la2,
+    temps, uvs, clouds, capes, slopes, nx: g.nx, ny: g.ny, lo1: g.lo1, la1: g.la1, lo2: g.lo2, la2: g.la2,
   };
 }
 
@@ -458,6 +462,34 @@ const cloudCanvas = (clouds, nx, ny) =>
     maxAlpha: 160, alphaFn: (v) => Math.min(1, Math.max(0, v) / 100), blur: 6,
   });
 
+// CAPE (J/kg) — l'energia disponibile per la convezione, il "carburante" dei
+// temporali. È un POTENZIALE previsto dal modello, non fulmini osservati:
+// per questo il campo si chiama Temporali e non più Fulmini. Soglie
+// meteorologiche usuali: sotto 300 trascurabile (trasparente, così una
+// giornata stabile non tinge la mappa), 300–1000 debole, 1000–2500
+// moderata, oltre 2500 forte. Rosa come il pulsante del campo
+// (.railbtn.on.v-lightning), distinto dalla scala UV verde→viola.
+const CAPE_STOPS = [
+  [300, [249, 168, 212]], [1000, [244, 114, 182]],
+  [2500, [219, 39, 119]], [4000, [131, 24, 67]],
+];
+function capeColor(v) {
+  if (v <= CAPE_STOPS[0][0]) return CAPE_STOPS[0][1];
+  for (let i = 1; i < CAPE_STOPS.length; i++) {
+    const [v1, c1] = CAPE_STOPS[i - 1];
+    const [v2, c2] = CAPE_STOPS[i];
+    if (v <= v2) {
+      const k = (v - v1) / (v2 - v1);
+      return c1.map((c, j) => Math.round(c + (c2[j] - c) * k));
+    }
+  }
+  return CAPE_STOPS[CAPE_STOPS.length - 1][1];
+}
+const capeCanvas = (capes, nx, ny) =>
+  fieldCanvas(capes, nx, ny, capeColor, {
+    maxAlpha: 170, alphaFn: (v) => Math.min(1, Math.max(0, (v - 300) / 1200)), blur: 4,
+  });
+
 // Day/night terminator, computed per OUTPUT pixel directly (not interpolated
 // off the coarse ~200-point weather grid): the terminator is close to a hard
 // edge, so bilinear interpolation between sparse samples made it look
@@ -521,6 +553,9 @@ const uvGradient = (() => {
 })();
 
 const CLOUD_GRADIENT = "linear-gradient(90deg, rgba(244,240,232,0), rgba(244,240,232,.82))";
+const CAPE_GRADIENT = `linear-gradient(90deg, ${CAPE_STOPS.map(
+  ([, c]) => `rgb(${c.join(",")})`
+).join(",")})`;
 const AURORA_GRADIENT = "linear-gradient(90deg, rgba(60,255,170,0), rgba(60,255,170,.9))";
 // Il radar RainViewer arriva già come tile colorate (nessun valore numerico
 // per pixel, a differenza di temp/UV/nuvole che disegniamo noi): scala
@@ -1741,36 +1776,29 @@ export default function MapView({
     S.current.auroraLayer = group;
   }, [aurora, ready, viewVersion, auroraDataVersion]);
 
-  // Fulmini — DATI SINTETICI (dimostrativi): nessuna fonte gratuita
-  // real-time affidabile individuata; struttura pronta per un feed reale
-  // (es. Blitzortung) quando disponibile.
+  // Temporali — potenziale convettivo reale (CAPE, Open-Meteo), dalla stessa
+  // griglia di temp/UV/nuvole. Prima qui c'erano fulmini SINTETICI: icone
+  // in posizioni casuali della vista ogni 1,8 s, etichettate "demo". Un
+  // feed di fulmini osservati resta non integrabile a costo zero —
+  // Blitzortung vieta l'uso fuori dal proprio sito, EUMETSAT (MTG Lightning
+  // Imager) richiede un account — quindi si mostra il dato che c'è davvero,
+  // chiamandolo per quello che è.
   useEffect(() => {
-    const { L, map } = S.current;
+    const { map, grid } = S.current;
     if (!map) return;
-    if (S.current.lightningLayer) {
-      map.removeLayer(S.current.lightningLayer);
-      S.current.lightningLayer = null;
-    }
-    if (!lightning) return;
-    const layer = L.layerGroup().addTo(map);
-    S.current.lightningLayer = layer;
-    const strike = () => {
-      const b = map.getBounds();
-      const lat = b.getSouth() + Math.random() * (b.getNorth() - b.getSouth());
-      const lon = b.getWest() + Math.random() * (b.getEast() - b.getWest());
-      const m = L.marker([lat, lon], {
-        interactive: false,
-        icon: L.divIcon({
-          className: "", html: `<span class="lightning-bolt">${GLYPH.bolt}</span>`,
-          iconSize: [22, 22], iconAnchor: [11, 11],
+    if (lightning && grid) {
+      swapFieldOverlay(
+        S, map, "capeOverlay",
+        () => ({
+          url: capeCanvas(grid.capes, grid.nx, grid.ny),
+          bounds: [[grid.la2, grid.lo1], [grid.la1, grid.lo2]],
         }),
-      }).addTo(layer);
-      setTimeout(() => layer.removeLayer(m), 1300); // matches .lightning-bolt fade duration
-    };
-    strike();
-    S.current.lightningTimer = setInterval(strike, 1800);
-    return () => clearInterval(S.current.lightningTimer);
-  }, [lightning, ready]);
+        0.5
+      );
+    } else {
+      fadeOutFieldOverlay(S, map, "capeOverlay");
+    }
+  }, [lightning, ready, gridVersion]);
 
   useEffect(() => {
     const { L, map, frames: fr, radarHost, radarLayers } = S.current;
@@ -1888,9 +1916,11 @@ export default function MapView({
       title: "Probabilità aurora — modello NOAA OVATION",
     },
     {
-      key: "lightning", label: "Fulmini", on: lightning, variant: "lightning", icon: Icon.Bolt,
-      toggle: () => setLightning(!lightning), tag: "demo",
-      title: "Dati dimostrativi — nessuna fonte gratuita real-time ancora integrata",
+      // La chiave resta "lightning": la usano i link profondi (?fields=) e le
+      // preferenze salvate, rinominarla spegnerebbe il campo a chi l'aveva.
+      key: "lightning", label: "Temporali", on: lightning, variant: "lightning", icon: Icon.Bolt,
+      toggle: () => setLightning(!lightning),
+      title: "Potenziale temporalesco (CAPE) previsto dal modello — non fulmini osservati",
     },
   ];
 
@@ -1959,6 +1989,7 @@ export default function MapView({
     clouds && { key: "clouds", label: "Nuvole", min: "0%", max: "100%", gradient: CLOUD_GRADIENT },
     radar && { key: "radar", label: "Pioggia", min: "leggera", max: "intensa", gradient: RADAR_GRADIENT },
     aurora && { key: "aurora", label: "Aurora", min: "bassa", max: "alta", gradient: AURORA_GRADIENT },
+    lightning && { key: "lightning", label: "Temporali (CAPE)", min: "debole", max: "forte", gradient: CAPE_GRADIENT },
     slope && { key: "slope", label: "Pendenze", min: "30°", max: "45°+", gradient: SLOPE_GRADIENT },
   ].filter(Boolean);
 

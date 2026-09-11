@@ -230,7 +230,7 @@ const it = {
   "map.field_clouds": "Nuvole",
   "map.field_sun": "Sole",
   "map.field_aurora": "Aurora",
-  "map.field_lightning": "Fulmini",
+  "map.field_lightning": "Temporali",
   "map.layer_routes": "Itin.",
   "map.layer_crags": "Falesie",
   "map.layer_slope": "Pendenze",
@@ -279,7 +279,7 @@ const it = {
   "field.clouds": "Nuvole",
   "field.sun": "Sole",
   "field.aurora": "Aurora",
-  "field.lightning": "Fulmini",
+  "field.lightning": "Temporali",
   "settings.map_layers": "Attività",
   "settings.map_layers_note":
     "Quali pulsanti offrire nel pannello Attività della mappa, e quali di questi " +
@@ -520,7 +520,7 @@ const en = {
   "map.field_clouds": "Clouds",
   "map.field_sun": "Sun",
   "map.field_aurora": "Aurora",
-  "map.field_lightning": "Lightning",
+  "map.field_lightning": "Thunderstorms",
   "map.layer_routes": "Routes",
   "map.layer_crags": "Crags",
   "map.layer_slope": "Slope",
@@ -569,7 +569,7 @@ const en = {
   "field.clouds": "Clouds",
   "field.sun": "Sun",
   "field.aurora": "Aurora",
-  "field.lightning": "Lightning",
+  "field.lightning": "Thunderstorms",
   "settings.map_layers": "Activities",
   "settings.map_layers_note":
     "Which buttons to offer in the map's Activity panel, and which of those " +
